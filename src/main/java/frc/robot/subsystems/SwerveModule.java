@@ -62,15 +62,15 @@ public class SwerveModule extends SubsystemBase {
         // this.driveConfig.encoder.inverted(true);
         this.driveConfig.inverted(options.driveMotorInverted);
 
-        this.turnConfig.encoder.positionConversionFactor(Constants.SwerveDrive.PhysicalModel.kTurningEncoder_RotationToRadian); 
-        this.turnConfig.encoder.velocityConversionFactor(Constants.SwerveDrive.PhysicalModel.kTurningEncoder_RPMToRadianPerSecond);
+        this.turnConfig.encoder.positionConversionFactor(Constants.SwerveDrive.PhysicalModel.kTurningEncoder_Rotation); 
+        this.turnConfig.encoder.velocityConversionFactor(Constants.SwerveDrive.PhysicalModel.kTurningEncoder_RPS);
 
         this.turningPID = turningMotor.getClosedLoopController();
 
         this.turnConfig.closedLoop.p(Constants.SwerveDrive.SwerveModules.kTurningPIDConstants.kP);
         this.turnConfig.closedLoop.i(Constants.SwerveDrive.SwerveModules.kTurningPIDConstants.kI);
         this.turnConfig.closedLoop.d(Constants.SwerveDrive.SwerveModules.kTurningPIDConstants.kD);
-        this.turnConfig.closedLoop.positionWrappingInputRange(0, 2 * Math.PI);
+        this.turnConfig.closedLoop.positionWrappingInputRange(0, 1);
         this.turnConfig.closedLoop.positionWrappingEnabled(true);
 
         // Configure the absolute encoder
@@ -88,7 +88,7 @@ public class SwerveModule extends SubsystemBase {
      * @return
      */
     public Measure<AngleUnit> getAbsoluteEncoderPosition() {
-        return Radians.of((absoluteEncoder.getAbsolutePosition().getValueAsDouble() * Math.PI*2) * (this.options.absoluteEncoderInverted ? -1.0 : 1.0));
+        return absoluteEncoder.getAbsolutePosition().getValue();
     }
 
     /**
@@ -102,7 +102,7 @@ public class SwerveModule extends SubsystemBase {
      * Reset the turning encoder (set the position to the absolute encoder's position)
      */
     public void resetTurningEncoder() {
-        this.turningMotor.getEncoder().setPosition(getAbsoluteEncoderPosition().in(Radians));
+        this.turningMotor.getEncoder().setPosition(getAbsoluteEncoderPosition().in(Rotations));
     }
     
     /**
@@ -118,7 +118,7 @@ public class SwerveModule extends SubsystemBase {
      * @return
      */
     public Measure<AngleUnit> getAngle() {
-        return Radians.of(this.turningMotor.getEncoder().getPosition() % (2 * Math.PI));
+        return Rotations.of(this.turningMotor.getEncoder().getPosition());
     }
 
     /**
@@ -140,12 +140,12 @@ public class SwerveModule extends SubsystemBase {
             return;
         }
 
-        state = SwerveModuleState.optimize(state, Rotation2d.fromRadians(getAngle().in(Radians)));
+        state.optimize(Rotation2d.fromRotations(getAngle().in(Rotations)));
 
         this.targetState = state;
 
         driveMotor.set(state.speedMetersPerSecond / Constants.SwerveDrive.PhysicalModel.kMaxSpeed.in(MetersPerSecond));
-        turningPID.setReference(state.angle.getRadians(), ControlType.kPosition);
+        turningPID.setReference(state.angle.getRotations(), ControlType.kPosition);
     }
 
     /**
@@ -170,8 +170,8 @@ public class SwerveModule extends SubsystemBase {
      */
     public SwerveModuleState getRealState() {
         return new SwerveModuleState(
-            this.driveMotor.getEncoder().getVelocity(),
-            Rotation2d.fromRadians(this.getAngle().in(Radians))
+            this.driveMotor.getEncoder().getVelocity() * Math.PI,
+            Rotation2d.fromRotations(this.getAngle().in(Rotations))
         );
     }
 
@@ -181,8 +181,8 @@ public class SwerveModule extends SubsystemBase {
      */
     public SwerveModulePosition getPosition() {
         return new SwerveModulePosition(
-            this.driveMotor.getEncoder().getPosition(),
-            Rotation2d.fromRadians(this.getAngle().in(Radians))
+            this.driveMotor.getEncoder().getPosition() * Math.PI,
+            Rotation2d.fromRotations(this.getAngle().in(Rotations))
         );
     }
 

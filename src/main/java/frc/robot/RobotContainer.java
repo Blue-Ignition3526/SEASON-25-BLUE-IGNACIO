@@ -49,7 +49,7 @@ public class RobotContainer {
     this.m_swerveDrive.setDefaultCommand(new DriveSwerve(
         m_swerveDrive,
         () -> -this.m_driverControllerCustom.getLeftY(),
-        () -> this.m_driverControllerCustom.getLeftX(),
+        () -> -this.m_driverControllerCustom.getLeftX(),
         () -> this.m_driverControllerCustom.getRightX(),
         () -> true
       )

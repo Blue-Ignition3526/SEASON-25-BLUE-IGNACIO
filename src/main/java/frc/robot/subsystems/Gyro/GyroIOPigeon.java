@@ -49,7 +49,7 @@ public class GyroIOPigeon implements GyroIO {
     }
 
     public Rotation2d getHeading() {
-        return Rotation2d.fromDegrees(getYaw());
+        return gyro.getRotation2d();
     }
     
     public void reset() {
