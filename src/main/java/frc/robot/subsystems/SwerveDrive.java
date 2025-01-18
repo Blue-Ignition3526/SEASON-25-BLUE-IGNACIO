@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -8,15 +7,15 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.subsystems.Gyro.Gyro;
 import lib.team3526.math.RotationalInertiaAccumulator;
-import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
+import org.littletonrobotics.junction.Logger;
+
 
 public class SwerveDrive extends SubsystemBase {
     //* Swerve modules
@@ -75,7 +74,7 @@ public class SwerveDrive extends SubsystemBase {
         this.gyro.reset();
 
         // Configure the auto builder
-        this.configureAutoBuilder(this);
+        // this.configureAutoBuilder(this);
     }
 
     /**
@@ -145,7 +144,7 @@ public class SwerveDrive extends SubsystemBase {
      * If the robot is driving robot relative it will return the speeds directly, otherwise it will return the speeds relative to the field
      * @return
      */
-    public ChassisSpeeds geRelativeChassisSpeeds() {
+    public ChassisSpeeds getRelativeChassisSpeeds() {
         //! PAST IMPLEMENTATION (RETURNS SPEEDS DIRECTLY)
         if (this.drivingRobotRelative) return this.speeds;
         else return ChassisSpeeds.fromFieldRelativeSpeeds(speeds, getHeading());
@@ -315,17 +314,17 @@ public class SwerveDrive extends SubsystemBase {
         this.odometry.update(getHeading(), getModulePositions());
 
         // Log data
-        // Logger.recordOutput("SwerveDrive/RobotHeadingRad", this.getHeading().getRadians());
-        // Logger.recordOutput("SwerveDrive/RobotHeadingDeg", this.getHeading().getDegrees());
+        Logger.recordOutput("SwerveDrive/RobotHeadingRad", this.getHeading().getRadians());
+        Logger.recordOutput("SwerveDrive/RobotHeadingDeg", this.getHeading().getDegrees());
 
-        // Logger.recordOutput("SwerveDrive/RobotRotationalInertia", rotationalInertiaAccumulator.getTotalRotationalInertia());
+        Logger.recordOutput("SwerveDrive/RobotRotationalInertia", rotationalInertiaAccumulator.getTotalRotationalInertia());
         
-        // Logger.recordOutput("SwerveDrive/RobotPose", this.getPose());
+        Logger.recordOutput("SwerveDrive/RobotPose", this.getPose());
 
-        // Logger.recordOutput("SwerveDrive/RobotRelative", this.drivingRobotRelative);
-        // Logger.recordOutput("SwerveDrive/RobotSpeeds", this.geRelativeChassisSpeeds());
+        Logger.recordOutput("SwerveDrive/RobotRelative", this.drivingRobotRelative);
+        Logger.recordOutput("SwerveDrive/RobotSpeeds", this.getRelativeChassisSpeeds());
         
-        // Logger.recordOutput("SwerveDrive/ModuleRealStates", this.getModuleRealStates());
-        // Logger.recordOutput("SwerveDrive/ModuleTargetStates", this.getModuleTargetStates());
+        Logger.recordOutput("SwerveDrive/ModuleRealStates", this.getModuleRealStates());
+        Logger.recordOutput("SwerveDrive/ModuleTargetStates", this.getModuleTargetStates());
     }
 }

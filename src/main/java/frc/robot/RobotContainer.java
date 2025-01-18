@@ -4,9 +4,9 @@
 
 package frc.robot;
 
-import com.pathplanner.lib.auto.AutoBuilder;
+// import com.pathplanner.lib.auto.AutoBuilder;
 
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+// import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.commands.DriveSwerve;
@@ -20,7 +20,7 @@ import lib.team3526.driveControl.CustomController.CustomControllerType;
 
 public class RobotContainer {
 
-  private final CustomController m_driverControllerCustom = new CustomController(0, CustomControllerType.PS5);
+  private final CustomController m_driverControllerCustom = new CustomController(0, CustomControllerType.XBOX);
   
   private final SwerveModule frontLeft = new SwerveModule(Constants.SwerveDrive.SwerveModules.kFrontLeftOptions);
   private final SwerveModule frontRight = new SwerveModule(Constants.SwerveDrive.SwerveModules.kFrontRightOptions);
@@ -30,7 +30,7 @@ public class RobotContainer {
   private final SwerveDrive m_swerveDrive;
   private final Gyro gyro;
 
-  SendableChooser<Command> autonomousChooser;
+  // SendableChooser<Command> autonomousChooser;
 
   public RobotContainer() {
     gyro = new Gyro(new GyroIOPigeon(Constants.SwerveDrive.kGyroDevice));
@@ -38,9 +38,9 @@ public class RobotContainer {
 
     SmartDashboard.putData(new ZeroHeading(m_swerveDrive));
 
-    SendableChooser<Command> autonomousChooser = AutoBuilder.buildAutoChooser();
-    SmartDashboard.putData("Autonomous", autonomousChooser);
-    this.autonomousChooser = autonomousChooser;
+    // SendableChooser<Command> autonomousChooser = AutoBuilder.buildAutoChooser();
+    // SmartDashboard.putData("Autonomous", autonomousChooser);
+    // this.autonomousChooser = autonomousChooser;
 
     configureBindings();
   }
@@ -51,10 +51,10 @@ public class RobotContainer {
         () -> -this.m_driverControllerCustom.getLeftY(),
         () -> this.m_driverControllerCustom.getLeftX(),
         () -> this.m_driverControllerCustom.getRightX(),
-        () -> !this.m_driverControllerCustom.topButton().getAsBoolean()
+        () -> true
       )
     );
-
+;
   }
 
   public Command getAutonomousCommand() {

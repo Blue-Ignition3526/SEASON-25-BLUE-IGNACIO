@@ -18,7 +18,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import lib.team3526.constants.SwerveModuleOptions;
 import static edu.wpi.first.units.Units.*;
-// import org.littletonrobotics.junction.Logger;
+
+import org.littletonrobotics.junction.Logger;
 
 public class SwerveModule extends SubsystemBase {
     //* Options for the module
@@ -28,7 +29,7 @@ public class SwerveModule extends SubsystemBase {
     private final SparkMax driveMotor;
     private final SparkMax turningMotor;
     private final SparkMaxConfig driveConfig;
-    public final SparkMaxConfig turnConfig;
+    private final SparkMaxConfig turnConfig;
 
     //* PID Controller for turning
     public final SparkClosedLoopController turningPID;
@@ -58,6 +59,7 @@ public class SwerveModule extends SubsystemBase {
         // Get and configure the encoders
         this.driveConfig.encoder.positionConversionFactor(Constants.SwerveDrive.PhysicalModel.kDriveEncoder_RotationToMeter); 
         this.driveConfig.encoder.velocityConversionFactor(Constants.SwerveDrive.PhysicalModel.kDriveEncoder_RPMToMeterPerSecond);
+        // this.driveConfig.encoder.inverted(true);
         this.driveConfig.inverted(options.driveMotorInverted);
 
         this.turnConfig.encoder.positionConversionFactor(Constants.SwerveDrive.PhysicalModel.kTurningEncoder_RotationToRadian); 
@@ -86,7 +88,7 @@ public class SwerveModule extends SubsystemBase {
      * @return
      */
     public Measure<AngleUnit> getAbsoluteEncoderPosition() {
-        return Radians.of((absoluteEncoder.getAbsolutePosition().refresh().getValueAsDouble() * 2 * Math.PI) * (this.options.absoluteEncoderInverted ? -1.0 : 1.0));
+        return Radians.of((absoluteEncoder.getAbsolutePosition().getValueAsDouble() * Math.PI*2) * (this.options.absoluteEncoderInverted ? -1.0 : 1.0));
     }
 
     /**
@@ -138,7 +140,7 @@ public class SwerveModule extends SubsystemBase {
             return;
         }
 
-        state.optimize(Rotation2d.fromRadians(getAngle().in(Radians)));
+        state = SwerveModuleState.optimize(state, Rotation2d.fromRadians(getAngle().in(Radians)));
 
         this.targetState = state;
 
@@ -185,9 +187,9 @@ public class SwerveModule extends SubsystemBase {
     }
 
     public void periodic() {
-        // Logger.recordOutput("SwerveDrive/" + this.options.name + "/MotEncoderDeg", this.getAngle().in(Degrees));
-        // Logger.recordOutput("SwerveDrive/" + this.options.name + "/AbsEncoderDeg", this.getAbsoluteEncoderPosition().in(Degrees));
-        // Logger.recordOutput("SwerveDrive/" + this.options.name + "/RealState", this.getRealState());
-        // Logger.recordOutput("SwerveDrive/" + this.options.name + "/TargetState", this.getTargetState());
+        Logger.recordOutput("SwerveDrive/" + this.options.name + "/MotEncoderDeg", this.getAngle().in(Radians));
+        Logger.recordOutput("SwerveDrive/" + this.options.name + "/AbsEncoderDeg", this.getAbsoluteEncoderPosition().in(Radians));
+        Logger.recordOutput("SwerveDrive/" + this.options.name + "/RealState", this.getRealState());
+        Logger.recordOutput("SwerveDrive/" + this.options.name + "/TargetState", this.getTargetState());
     }
 }
