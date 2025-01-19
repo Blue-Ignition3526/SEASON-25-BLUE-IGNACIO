@@ -17,6 +17,7 @@ import lib.team3526.utils.SwerveChassis;
 import static edu.wpi.first.units.Units.*;
 
 import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.config.RobotConfig;
 
 public class Constants {
     //* Logging options

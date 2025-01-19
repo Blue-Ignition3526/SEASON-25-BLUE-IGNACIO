@@ -7,6 +7,8 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -14,6 +16,11 @@ import frc.robot.subsystems.Gyro.Gyro;
 import lib.team3526.math.RotationalInertiaAccumulator;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import org.littletonrobotics.junction.Logger;
+
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
 
 public class SwerveDrive extends SubsystemBase {
@@ -73,7 +80,7 @@ public class SwerveDrive extends SubsystemBase {
         this.gyro.reset();
 
         // Configure the auto builder
-        // this.configureAutoBuilder(this);
+        this.configureAutoBuilder(this);
     }
 
     /**
@@ -81,24 +88,30 @@ public class SwerveDrive extends SubsystemBase {
      * @param swerveDrive
      */
     public void configureAutoBuilder(Subsystem swerveDrive) {
-        // AutoBuilder.configureHolonomic(
-        //     this::getPose,
-        //     this::resetOdometry,
-        //     this::geRelativeChassisSpeeds,
-        //     this::driveRobotRelative,
-        //     new HolonomicPathFollowerConfig(
-        //         Constants.SwerveDrive.Autonomous.kTranslatePIDConstants,
-        //         Constants.SwerveDrive.Autonomous.kRotatePIDConstants,
-        //         Constants.SwerveDrive.Autonomous.kMaxSpeedMetersPerSecond.in(MetersPerSecond),
-        //         Constants.SwerveDrive.PhysicalModel.kWheelBase.in(Meters) / 2,
-        //         new ReplanningConfig(true, true)
-        //     ),
-        //     () -> {
-        //         if (DriverStation.getAlliance().isPresent()) return DriverStation.getAlliance().get() == Alliance.Red;
-        //         return false;
-        //     },
-        //     swerveDrive
-        // );
+        RobotConfig config  = null;
+
+        try {
+            config = RobotConfig.fromGUISettings();
+        } catch (Exception e) {
+            e.printStackTrace();            
+        }
+
+        AutoBuilder.configure(
+            this::getPose,
+            this::resetOdometry,
+            this::getRelativeChassisSpeeds,
+            (speeds, feedforwards) -> driveRobotRelative(speeds),
+            new PPHolonomicDriveController(
+                Constants.SwerveDrive.Autonomous.kTranslatePIDConstants,
+                Constants.SwerveDrive.Autonomous.kRotatePIDConstants
+            ),
+            config,
+            () -> {
+                if (DriverStation.getAlliance().isPresent()) return DriverStation.getAlliance().get() == Alliance.Red;
+                return false;
+            },
+            swerveDrive
+        );
     }
 
     /**
