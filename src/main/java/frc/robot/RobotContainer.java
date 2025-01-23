@@ -53,11 +53,12 @@ public class RobotContainer {
         m_swerveDrive,
         () -> -this.m_driverControllerCustom.getLeftY(),
         () -> -this.m_driverControllerCustom.getLeftX(),
-        () -> this.m_driverControllerCustom.getRightX(),
+        () -> -this.m_driverControllerCustom.getRightX(),
         () -> true
       )
     );
-;
+
+    this.m_driverControllerCustom.rightButton().onTrue(this.m_swerveDrive.zeroHeadingCommand());
   }
 
   public Command getAutonomousCommand() {

@@ -53,8 +53,7 @@ public class DriveSwerve extends Command {
     // Get the joystick values
     double x = xSpeed.get();
     double y = ySpeed.get();
-    double rot;
-    rot = rotSpeed.get();
+    double rot = rotSpeed.get();
 
     // Apply deadzone to the joystick values
     x = Math.abs(x) < Constants.SwerveDrive.kJoystickDeadband ? 0 : x;
