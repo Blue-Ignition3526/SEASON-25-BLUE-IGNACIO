@@ -8,16 +8,27 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
+import org.littletonrobotics.junction.LoggedRobot;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.NT4Publisher;
+import org.littletonrobotics.urcl.URCL;
 /**
  * The methods in this class are called automatically corresponding to each mode, as described in
  * the TimedRobot documentation. If you change the name of this class or the package after creating
  * this project, you must also update the Main.java file in the project.
  */
-public class Robot extends TimedRobot {
+public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
 
   private final RobotContainer m_robotContainer;
 
+  @Override
+  public void robotInit() {
+    //! ADVANTAGE KIT LOGGING
+    Logger.addDataReceiver(new NT4Publisher());
+    if (Constants.Logging.kDebug) Logger.registerURCL(URCL.startExternal());
+    Logger.start();
+  }
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
