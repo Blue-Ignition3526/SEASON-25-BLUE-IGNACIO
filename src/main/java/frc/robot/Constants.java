@@ -9,15 +9,12 @@ import edu.wpi.first.units.DistanceUnit;
 import edu.wpi.first.units.LinearAccelerationUnit;
 import edu.wpi.first.units.LinearVelocityUnit;
 import edu.wpi.first.units.Measure;
-import lib.team3526.constants.CTRECANDevice;
-import lib.team3526.constants.PIDFConstants;
-import lib.team3526.constants.SwerveModuleOptions;
-import lib.team3526.utils.SwerveChassis;
-
+import lib.BlueShift.constants.CTRECANDevice;
+import lib.BlueShift.constants.PIDFConstants;
+import lib.BlueShift.constants.SwerveModuleOptions;
+import lib.BlueShift.utils.SwerveChassis;
 import static edu.wpi.first.units.Units.*;
-
 import com.pathplanner.lib.config.PIDConstants;
-import com.pathplanner.lib.config.RobotConfig;
 
 public class Constants {
     //* Logging options

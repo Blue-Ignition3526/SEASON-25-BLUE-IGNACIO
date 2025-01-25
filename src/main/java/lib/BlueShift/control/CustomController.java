@@ -1,4 +1,4 @@
-package lib.team3526.driveControl;
+package lib.BlueShift.control;
 
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.PS4Controller;

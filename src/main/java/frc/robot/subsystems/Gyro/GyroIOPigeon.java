@@ -3,7 +3,7 @@ package frc.robot.subsystems.Gyro;
 import com.ctre.phoenix6.hardware.Pigeon2;
 
 import edu.wpi.first.math.geometry.Rotation2d;
-import lib.team3526.constants.CTRECANDevice;
+import lib.BlueShift.constants.CTRECANDevice;
 
 public class GyroIOPigeon implements GyroIO {
     public Pigeon2 gyro;

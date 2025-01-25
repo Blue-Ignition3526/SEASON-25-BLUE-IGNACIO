@@ -1,4 +1,4 @@
-package lib.team3526.utils;
+package lib.BlueShift.utils;
 
 import edu.wpi.first.math.geometry.Translation2d;
 

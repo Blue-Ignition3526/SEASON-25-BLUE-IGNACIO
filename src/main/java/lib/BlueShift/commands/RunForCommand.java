@@ -1,4 +1,4 @@
-package lib.team3526.commands;
+package lib.BlueShift.commands;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -22,8 +22,7 @@ public class RunForCommand extends Command {
 
   @Override
   public void execute() {
-    if (timer.get() < duration) command.execute();
-    else command.end(false);
+    while (timer.get() < duration) command.execute();
   }
 
   @Override

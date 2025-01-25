@@ -15,7 +15,6 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.subsystems.Gyro.Gyro;
-import lib.team3526.math.RotationalInertiaAccumulator;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import org.littletonrobotics.junction.Logger;
 
@@ -40,9 +39,6 @@ public class SwerveDrive extends SubsystemBase {
     //* Speed stats
     private boolean drivingRobotRelative = false;
     private ChassisSpeeds speeds = new ChassisSpeeds();
-
-    //* Rotational inertia accumulator
-    RotationalInertiaAccumulator rotationalInertiaAccumulator = new RotationalInertiaAccumulator(Constants.SwerveDrive.PhysicalModel.kRobotMassKg);
 
     /**
      * Create a new Swerve drivetrain with the provided Swerve Modules and gyroscope
@@ -324,17 +320,12 @@ public class SwerveDrive extends SubsystemBase {
 
     @Override
     public void periodic() {
-        // Update inertia acculumator
-        rotationalInertiaAccumulator.update(this.getHeading().getRadians());
-
         // Update odometry
         this.odometry.update(getHeading(), getModulePositions());
 
         // Log data
         Logger.recordOutput("SwerveDrive/RobotHeadingRad", this.getHeading().getRadians());
         Logger.recordOutput("SwerveDrive/RobotHeadingDeg", this.getHeading().getDegrees());
-
-        Logger.recordOutput("SwerveDrive/RobotRotationalInertia", rotationalInertiaAccumulator.getTotalRotationalInertia());
         
         Logger.recordOutput("SwerveDrive/RobotPose", this.getPose());
 

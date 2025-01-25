@@ -1,7 +1,3 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -19,8 +15,8 @@ import frc.robot.subsystems.SwerveDrive;
 import frc.robot.subsystems.SwerveModule;
 import frc.robot.subsystems.Gyro.Gyro;
 import frc.robot.subsystems.Gyro.GyroIOPigeon;
-import lib.team3526.driveControl.CustomController;
-import lib.team3526.driveControl.CustomController.CustomControllerType;
+import lib.BlueShift.control.CustomController;
+import lib.BlueShift.control.CustomController.CustomControllerType;
 
 public class RobotContainer {
 
