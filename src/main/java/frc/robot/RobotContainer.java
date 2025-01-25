@@ -1,16 +1,10 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-
-// import com.pathplanner.lib.auto.AutoBuilder;
-
-// import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.commands.DriveSwerve;
@@ -20,13 +14,14 @@ import frc.robot.subsystems.Gyro.Gyro;
 import frc.robot.subsystems.Gyro.GyroIOPigeon;
 import lib.team3526.driveControl.CustomController;
 import lib.team3526.driveControl.CustomController.CustomControllerType;
+import lib.team3526.math.BlueMathUtils;
 import lib.team3526.control.SpeedAlterator;
 import frc.robot.speedAlterators.Turn180;
 import frc.robot.speedAlterators.LookTowards;
 
 public class RobotContainer {
-
-  private final CustomController m_driverControllerCustom = new CustomController(0, CustomControllerType.XBOX);
+  private final int m_driverControllerPort = 0;
+  private final CustomController m_driverControllerCustom;
   
   private final SwerveModule frontLeft = new SwerveModule(Constants.SwerveDrive.SwerveModules.kFrontLeftOptions);
   private final SwerveModule frontRight = new SwerveModule(Constants.SwerveDrive.SwerveModules.kFrontRightOptions);
@@ -42,11 +37,18 @@ public class RobotContainer {
   private final SpeedAlterator lookAt0;
 
   public RobotContainer() {
+    if (DriverStation.getJoystickIsXbox(m_driverControllerPort)) {
+      m_driverControllerCustom = new CustomController(m_driverControllerPort, CustomControllerType.XBOX);
+    } else {
+      m_driverControllerCustom = new CustomController(m_driverControllerPort, CustomControllerType.PS5);
+    }
+
     gyro = new Gyro(new GyroIOPigeon(Constants.SwerveDrive.kGyroDevice));
     m_swerveDrive = new SwerveDrive(frontLeft, frontRight, backLeft, backRight, gyro);
 
     this.alignToSpeakerAlterator = new Turn180(this.gyro::getYaw);
-    this.lookAt0 = new LookTowards(this.gyro::getYaw, () -> Math.atan2(m_driverControllerCustom.getRightY(), m_driverControllerCustom.getRightX())/2*Math.PI);
+    
+    this.lookAt0 = new LookTowards(this.gyro::getYaw, () -> BlueMathUtils.mapDouble(this.m_driverControllerCustom.getRightX(), -1, 1, 0, 1));
 
     SmartDashboard.putData(m_swerveDrive.zeroHeadingCommand());
 
