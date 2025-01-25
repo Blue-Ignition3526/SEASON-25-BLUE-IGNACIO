@@ -1,8 +1,6 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
-
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -14,7 +12,7 @@ import frc.robot.subsystems.Gyro.Gyro;
 import frc.robot.subsystems.Gyro.GyroIOPigeon;
 import lib.BlueShift.control.CustomController;
 import lib.BlueShift.control.CustomController.CustomControllerType;
-import lib.team3526.math.BlueMathUtils;
+import lib.BlueShift.math.BlueMathUtils;
 import lib.BlueShift.control.SpeedAlterator;
 import frc.robot.speedAlterators.Turn180;
 import frc.robot.speedAlterators.LookTowards;

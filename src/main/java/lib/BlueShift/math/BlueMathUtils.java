@@ -1,4 +1,4 @@
-package lib.team3526.math;
+package lib.BlueShift.math;
 
 public class BlueMathUtils {
     public static double mapDouble(double x, double in_min, double in_max, double out_min, double out_max) {
