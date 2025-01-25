@@ -15,9 +15,10 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.subsystems.Gyro.Gyro;
+import lib.BlueShift.control.SpeedAlterator;
+
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import org.littletonrobotics.junction.Logger;
-
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
@@ -39,6 +40,8 @@ public class SwerveDrive extends SubsystemBase {
     //* Speed stats
     private boolean drivingRobotRelative = false;
     private ChassisSpeeds speeds = new ChassisSpeeds();
+
+    SpeedAlterator speedAlterator = null;
 
     /**
      * Create a new Swerve drivetrain with the provided Swerve Modules and gyroscope
@@ -222,9 +225,25 @@ public class SwerveDrive extends SubsystemBase {
      */
     public void drive(ChassisSpeeds speeds) {
         this.speeds = speeds;
-        SwerveModuleState[] m_moduleStates = Constants.SwerveDrive.PhysicalModel.kDriveKinematics.toSwerveModuleStates(speeds);
+        ChassisSpeeds desiredSpeeds = this.speedAlterator != null ? this.speedAlterator.alterSpeed(speeds, drivingRobotRelative) : speeds;
+        SwerveModuleState[] m_moduleStates = Constants.SwerveDrive.PhysicalModel.kDriveKinematics.toSwerveModuleStates(desiredSpeeds);
         this.setModuleStates(m_moduleStates);
     }
+
+    public Command enableSpeedAlteratorCommand(SpeedAlterator alterator) {
+        return runOnce(() -> {
+            alterator.onEnable();
+            this.speedAlterator = alterator;
+        });
+    }
+
+    public Command disableSpeedAlteratorCommand() {
+        return runOnce(() -> {
+            if(this.speedAlterator != null) this.speedAlterator.onDisable();
+            this.speedAlterator = null;
+        });
+    }
+
 
     /**
      * Drive the robot with the provided speeds <b>(ROBOT RELATIVE)</b>
@@ -315,7 +334,7 @@ public class SwerveDrive extends SubsystemBase {
     }
 
     public Command zeroHeadingCommand() {
-        return Commands.runOnce(this::zeroHeading, this);
+        return Commands.runOnce(this::zeroHeading);
     }
 
     @Override

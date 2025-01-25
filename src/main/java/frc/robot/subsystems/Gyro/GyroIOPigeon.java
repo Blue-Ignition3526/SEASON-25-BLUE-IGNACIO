@@ -1,5 +1,7 @@
 package frc.robot.subsystems.Gyro;
 
+import static edu.wpi.first.units.Units.Rotations;
+
 import com.ctre.phoenix6.hardware.Pigeon2;
 
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -17,7 +19,7 @@ public class GyroIOPigeon implements GyroIO {
     }
 
     public double getYaw() {
-        return -gyro.getYaw().refresh().getValueAsDouble();
+        return -gyro.getYaw().refresh().getValue().in(Rotations);
     }
 
     public double getRoll() {
