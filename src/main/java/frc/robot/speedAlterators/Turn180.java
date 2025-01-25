@@ -4,7 +4,7 @@ import java.util.function.Supplier;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import lib.team3526.control.SpeedAlterator;
+import lib.BlueShift.control.SpeedAlterator;
 import frc.robot.Constants;
 
 public class Turn180 extends SpeedAlterator {

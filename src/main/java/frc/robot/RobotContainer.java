@@ -15,7 +15,7 @@ import frc.robot.subsystems.Gyro.GyroIOPigeon;
 import lib.BlueShift.control.CustomController;
 import lib.BlueShift.control.CustomController.CustomControllerType;
 import lib.team3526.math.BlueMathUtils;
-import lib.team3526.control.SpeedAlterator;
+import lib.BlueShift.control.SpeedAlterator;
 import frc.robot.speedAlterators.Turn180;
 import frc.robot.speedAlterators.LookTowards;
 
