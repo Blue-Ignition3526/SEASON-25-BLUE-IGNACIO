@@ -14,13 +14,15 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.commands.DriveSwerve;
-import frc.robot.commands.ZeroHeading;
 import frc.robot.subsystems.SwerveDrive;
 import frc.robot.subsystems.SwerveModule;
 import frc.robot.subsystems.Gyro.Gyro;
 import frc.robot.subsystems.Gyro.GyroIOPigeon;
 import lib.team3526.driveControl.CustomController;
 import lib.team3526.driveControl.CustomController.CustomControllerType;
+import lib.team3526.control.SpeedAlterator;
+import frc.robot.speedAlterators.Turn180;
+import frc.robot.speedAlterators.LookTowards;
 
 public class RobotContainer {
 
@@ -36,11 +38,17 @@ public class RobotContainer {
 
   private final SendableChooser<Command> autonomousChooser;
 
+  private final SpeedAlterator alignToSpeakerAlterator;
+  private final SpeedAlterator lookAt0;
+
   public RobotContainer() {
     gyro = new Gyro(new GyroIOPigeon(Constants.SwerveDrive.kGyroDevice));
     m_swerveDrive = new SwerveDrive(frontLeft, frontRight, backLeft, backRight, gyro);
 
-    SmartDashboard.putData(new ZeroHeading(m_swerveDrive));
+    this.alignToSpeakerAlterator = new Turn180(this.gyro::getYaw);
+    this.lookAt0 = new LookTowards(this.gyro::getYaw, () -> Math.atan2(m_driverControllerCustom.getRightY(), m_driverControllerCustom.getRightX())/2*Math.PI);
+
+    SmartDashboard.putData(m_swerveDrive.zeroHeadingCommand());
 
     autonomousChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("Autonomous", autonomousChooser);
@@ -59,6 +67,11 @@ public class RobotContainer {
     );
 
     this.m_driverControllerCustom.rightButton().onTrue(this.m_swerveDrive.zeroHeadingCommand());
+
+    this.m_driverControllerCustom.rightBumper().onTrue(m_swerveDrive.enableSpeedAlteratorCommand(alignToSpeakerAlterator));
+    this.m_driverControllerCustom.leftBumper().onTrue(m_swerveDrive.enableSpeedAlteratorCommand(lookAt0));
+    this.m_driverControllerCustom.rightBumper().onFalse(m_swerveDrive.disableSpeedAlteratorCommand());
+    this.m_driverControllerCustom.leftBumper().onFalse(m_swerveDrive.disableSpeedAlteratorCommand());
   }
 
   public Command getAutonomousCommand() {

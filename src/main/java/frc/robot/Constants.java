@@ -1,5 +1,6 @@
 package frc.robot;
 
+import edu.wpi.first.math.controller.PIDController;
 // import com.pathplanner.lib.util.PIDConstants;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.units.AngleUnit;
@@ -17,7 +18,6 @@ import lib.team3526.utils.SwerveChassis;
 import static edu.wpi.first.units.Units.*;
 
 import com.pathplanner.lib.config.PIDConstants;
-import com.pathplanner.lib.config.RobotConfig;
 
 public class Constants {
     //* Logging options
@@ -27,6 +27,8 @@ public class Constants {
 
     //* Swerve Drive
     public static final class SwerveDrive {
+        public static final PIDController turningPID = new PIDController(15, 0, 0);
+
         //* Gyroscope (Pigeon 2.0)
         public static final CTRECANDevice kGyroDevice = new CTRECANDevice(34, "*");
 
