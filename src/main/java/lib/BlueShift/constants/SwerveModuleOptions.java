@@ -1,4 +1,4 @@
-package lib.team3526.constants;
+package lib.BlueShift.constants;
 
 public class SwerveModuleOptions {
     public boolean absoluteEncoderInverted;

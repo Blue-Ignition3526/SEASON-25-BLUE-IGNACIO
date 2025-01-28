@@ -1,4 +1,4 @@
-package lib.team3526.commands;
+package lib.BlueShift.commands;
 
 import java.util.function.Supplier;
 

@@ -1,6 +1,4 @@
-package lib.team3526.constants;
-
-import com.revrobotics.spark.SparkClosedLoopController;
+package lib.BlueShift.constants;
 
 import edu.wpi.first.math.controller.PIDController;
 
@@ -67,21 +65,5 @@ public class PIDFConstants {
 
     public PIDController toPIDController() {
         return new PIDController(kP, kI, kD);
-    }
-
-    public static SparkClosedLoopController applyToSparkPIDController(SparkClosedLoopController controller, PIDFConstants constants) {
-        // controller.setP(constants.getP());
-        // controller.setI(constants.getI());
-        // controller.setD(constants.getD());
-        // controller.setFF(constants.getF());
-        return controller;
-    }
-
-    public SparkClosedLoopController applyToSparkPIDController(SparkClosedLoopController controller) {
-        // controller.setP(this.getP());
-        // controller.setI(this.getI());
-        // controller.setD(this.getD());
-        // controller.setFF(this.getF());
-        return controller;
     }
 }
