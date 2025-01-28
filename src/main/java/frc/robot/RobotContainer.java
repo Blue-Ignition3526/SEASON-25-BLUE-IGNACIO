@@ -12,7 +12,6 @@ import frc.robot.subsystems.Gyro.Gyro;
 import frc.robot.subsystems.Gyro.GyroIOPigeon;
 import lib.BlueShift.control.CustomController;
 import lib.BlueShift.control.CustomController.CustomControllerType;
-import lib.BlueShift.math.BlueMathUtils;
 import lib.BlueShift.control.SpeedAlterator;
 import frc.robot.speedAlterators.*;
 

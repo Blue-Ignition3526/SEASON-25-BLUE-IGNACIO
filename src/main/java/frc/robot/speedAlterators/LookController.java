@@ -6,7 +6,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import lib.BlueShift.control.SpeedAlterator;
-import lib.BlueShift.math.BlueMathUtils;
 
 public class LookController extends SpeedAlterator {
     private final Supplier<Double> x;
