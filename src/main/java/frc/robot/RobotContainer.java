@@ -14,8 +14,7 @@ import lib.BlueShift.control.CustomController;
 import lib.BlueShift.control.CustomController.CustomControllerType;
 import lib.BlueShift.math.BlueMathUtils;
 import lib.BlueShift.control.SpeedAlterator;
-import frc.robot.speedAlterators.Turn180;
-import frc.robot.speedAlterators.LookTowards;
+import frc.robot.speedAlterators.*;
 
 public class RobotContainer {
   private final int m_driverControllerPort = 0;
@@ -32,7 +31,7 @@ public class RobotContainer {
   private final SendableChooser<Command> autonomousChooser;
 
   private final SpeedAlterator alignToSpeakerAlterator;
-  private final SpeedAlterator lookAt0;
+  private final SpeedAlterator lookAt;
 
   public RobotContainer() {
     if (DriverStation.getJoystickIsXbox(m_driverControllerPort)) {
@@ -46,11 +45,12 @@ public class RobotContainer {
 
     this.alignToSpeakerAlterator = new Turn180(this.gyro::getYaw);
     
-    this.lookAt0 = new LookTowards(this.gyro::getYaw, () -> BlueMathUtils.mapDouble(this.m_driverControllerCustom.getRightX(), -1, 1, 0, 1));
+    this.lookAt = new LookController(this.gyro::getYaw, this.m_driverControllerCustom::getRightX, this.m_driverControllerCustom::getRightY, 0.1);
 
     SmartDashboard.putData(m_swerveDrive.zeroHeadingCommand());
 
     autonomousChooser = AutoBuilder.buildAutoChooser();
+    SmartDashboard.putData("ZeroHeading", m_swerveDrive.zeroHeadingCommand());
     SmartDashboard.putData("Autonomous", autonomousChooser);
 
     configureBindings();
@@ -69,7 +69,7 @@ public class RobotContainer {
     this.m_driverControllerCustom.rightButton().onTrue(this.m_swerveDrive.zeroHeadingCommand());
 
     this.m_driverControllerCustom.rightBumper().onTrue(m_swerveDrive.enableSpeedAlteratorCommand(alignToSpeakerAlterator));
-    this.m_driverControllerCustom.leftBumper().onTrue(m_swerveDrive.enableSpeedAlteratorCommand(lookAt0));
+    this.m_driverControllerCustom.leftBumper().onTrue(m_swerveDrive.enableSpeedAlteratorCommand(lookAt));
     this.m_driverControllerCustom.rightBumper().onFalse(m_swerveDrive.disableSpeedAlteratorCommand());
     this.m_driverControllerCustom.leftBumper().onFalse(m_swerveDrive.disableSpeedAlteratorCommand());
   }

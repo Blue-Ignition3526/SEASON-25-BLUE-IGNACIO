@@ -29,9 +29,9 @@ public class LookTowards extends SpeedAlterator {
     }
 
     public ChassisSpeeds alterSpeed(ChassisSpeeds speeds, boolean robotRelative) {
-        double speed = -Constants.SwerveDrive.turningPID.calculate(angleSupplier.get(), targetAngle.get());
-        SmartDashboard.putNumber("Alterators/DesiredAngle", targetAngle.get());
-        SmartDashboard.putNumber("Alterators/CurrentAngle", angleSupplier.get());
+        double speed = -Constants.SwerveDrive.turningPID.calculate(angleSupplier.get() % 1, targetAngle.get() % 1);
+        SmartDashboard.putNumber("Alterators/DesiredAngle", targetAngle.get() % 1);
+        SmartDashboard.putNumber("Alterators/CurrentAngle", angleSupplier.get() % 1);
         SmartDashboard.putNumber("Alterators/Speed", speed);
 
         return new ChassisSpeeds(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond, speed);
