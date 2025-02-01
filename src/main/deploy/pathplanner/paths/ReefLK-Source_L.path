@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.0,
-        "y": 7.0
+        "x": 3.771476963588169,
+        "y": 5.259647478376117
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.279749407087053,
-        "y": 6.824367414202008
+        "x": 3.0361463274274554,
+        "y": 5.956161063058036
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 3.691649518694196,
-        "y": 5.273011561802455
+        "x": 1.3901197160993304,
+        "y": 7.117663138253348
       },
       "prevControl": {
-        "x": 3.483180018833705,
-        "y": 5.530703735351563
+        "x": 2.0317997523716516,
+        "y": 6.78335702078683
       },
       "nextControl": null,
       "isLocked": false,
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -57.11350805521306
+    "rotation": 127.41433875055364
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Reef-Source_L",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": -57.86630924442035
   },
   "useDefaultConstraints": true
 }

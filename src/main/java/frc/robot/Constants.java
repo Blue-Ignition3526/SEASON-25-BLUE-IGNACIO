@@ -25,7 +25,10 @@ public class Constants {
 
     //* Swerve Drive
     public static final class SwerveDrive {
-        public static final PIDController turningPID = new PIDController(15, 0, 0);
+        public static final class PoseControllers {
+            public static final PIDController turningPID = new PIDController(15, 0, 0);
+            public static final PIDController displacementPID = new PIDController(10, 0, 0);
+        }
 
         //* Gyroscope (Pigeon 2.0)
         public static final CTRECANDevice kGyroDevice = new CTRECANDevice(34, "*");
@@ -39,7 +42,7 @@ public class Constants {
 
             //* MAX ROTATIONAL SPEED (and acceleration)
             public static final Measure<AngularVelocityUnit> kMaxAngularSpeed = DegreesPerSecond.of(360);
-            public static final Measure<AngularAccelerationUnit> kMaxAngularAcceleration = DegreesPerSecond.per(Second).of(kMaxAngularSpeed.in(DegreesPerSecond));
+            public static final Measure<AngularAccelerationUnit> kMaxAngularAcceleration = DegreesPerSecond.per(Second).of(kMaxAngularSpeed.in(DegreesPerSecond)*2);
 
             // Drive wheel diameter
             public static final Measure<DistanceUnit> kWheelDiameter = Inches.of(4);
