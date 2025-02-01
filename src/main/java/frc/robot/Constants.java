@@ -1,7 +1,9 @@
 package frc.robot;
 
+import edu.wpi.first.math.controller.ProfiledPIDController;
 // import com.pathplanner.lib.util.PIDConstants;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.units.AngleUnit;
 import edu.wpi.first.units.AngularAccelerationUnit;
 import edu.wpi.first.units.AngularVelocityUnit;
@@ -118,5 +120,19 @@ public class Constants {
             public static final PIDConstants kRotatePIDConstants = new PIDConstants(5.0, 0.0, 0.0);
             public static final Measure<LinearVelocityUnit> kMaxSpeedMetersPerSecond = MetersPerSecond.of(1);
         }
+    }
+
+    public static final class Elevator {
+        //motors ids
+        public static final int kRightMotorID = 1;
+        public static final int kLeftMotorID = 2;
+
+        //PID
+        public static final Constraints kElevatorConstraints = new Constraints(110, 90);
+        public static final ProfiledPIDController kElevatorPIDController = new ProfiledPIDController(1, 0, 0, kElevatorConstraints);
+        
+        //tolerance
+        public static final double kElevatorTolerance = 1;
+
     }
 }
