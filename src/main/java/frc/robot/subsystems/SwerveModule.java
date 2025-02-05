@@ -16,7 +16,7 @@ import edu.wpi.first.units.AngleUnit;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import lib.team3526.constants.SwerveModuleOptions;
+import lib.BlueShift.constants.SwerveModuleOptions;
 import static edu.wpi.first.units.Units.*;
 
 import org.littletonrobotics.junction.Logger;

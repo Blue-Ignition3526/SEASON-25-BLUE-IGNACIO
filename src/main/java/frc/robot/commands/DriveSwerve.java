@@ -44,7 +44,6 @@ public class DriveSwerve extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    swerveDrive.resetEncoders();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
