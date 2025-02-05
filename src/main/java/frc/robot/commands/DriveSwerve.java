@@ -16,6 +16,7 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.SwerveDrive;
 
+//TODO: Move command to SwerveDrive as an inline command
 public class DriveSwerve extends Command {
 
   //* The swerve drive subsystem
