@@ -26,8 +26,8 @@ public class Constants {
     //* Swerve Drive
     public static final class SwerveDrive {
         public static final class PoseControllers {
-            public static final PIDController turningPID = new PIDController(15, 0, 0);
-            public static final PIDController displacementPID = new PIDController(6, 0, 0.01);
+            public static final PIDController turningPID = new PIDController(20, 0, 0);
+            public static final PIDController displacementPID = new PIDController(5, 0, 0.01);
 
             public static final double epsilon = 0.03;
             public static final double rotEpsilon = 0.05;
@@ -41,11 +41,11 @@ public class Constants {
         public static final class PhysicalModel {
             //* MAX DISPLACEMENT SPEED (and acceleration)
             public static final Measure<LinearVelocityUnit> kMaxSpeed = MetersPerSecond.of(4.6);
-            public static final Measure<LinearAccelerationUnit> kMaxAcceleration = MetersPerSecond.per(Second).of(kMaxSpeed.in(MetersPerSecond));
+            public static final Measure<LinearAccelerationUnit> kMaxAcceleration = MetersPerSecond.per(Second).of(20);
 
             //* MAX ROTATIONAL SPEED (and acceleration)
             public static final Measure<AngularVelocityUnit> kMaxAngularSpeed = DegreesPerSecond.of(360);
-            public static final Measure<AngularAccelerationUnit> kMaxAngularAcceleration = DegreesPerSecond.per(Second).of(kMaxAngularSpeed.in(DegreesPerSecond)*2);
+            public static final Measure<AngularAccelerationUnit> kMaxAngularAcceleration = DegreesPerSecond.per(Second).of(Math.PI * 2);
 
             // Drive wheel diameter
             public static final Measure<DistanceUnit> kWheelDiameter = Inches.of(4);
