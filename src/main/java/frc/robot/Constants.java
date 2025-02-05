@@ -1,5 +1,6 @@
 package frc.robot;
 
+import edu.wpi.first.math.controller.PIDController;
 // import com.pathplanner.lib.util.PIDConstants;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.units.AngleUnit;
@@ -9,15 +10,12 @@ import edu.wpi.first.units.DistanceUnit;
 import edu.wpi.first.units.LinearAccelerationUnit;
 import edu.wpi.first.units.LinearVelocityUnit;
 import edu.wpi.first.units.Measure;
-import lib.team3526.constants.CTRECANDevice;
-import lib.team3526.constants.PIDFConstants;
-import lib.team3526.constants.SwerveModuleOptions;
-import lib.team3526.utils.SwerveChassis;
-
+import lib.BlueShift.constants.CTRECANDevice;
+import lib.BlueShift.constants.PIDFConstants;
+import lib.BlueShift.constants.SwerveModuleOptions;
+import lib.BlueShift.utils.SwerveChassis;
 import static edu.wpi.first.units.Units.*;
-
 import com.pathplanner.lib.config.PIDConstants;
-import com.pathplanner.lib.config.RobotConfig;
 
 public class Constants {
     //* Logging options
@@ -27,6 +25,14 @@ public class Constants {
 
     //* Swerve Drive
     public static final class SwerveDrive {
+        public static final class PoseControllers {
+            public static final PIDController turningPID = new PIDController(20, 0, 0);
+            public static final PIDController displacementPID = new PIDController(5, 0, 0.01);
+
+            public static final double epsilon = 0.03;
+            public static final double rotEpsilon = 0.05;
+        }
+
         //* Gyroscope (Pigeon 2.0)
         public static final CTRECANDevice kGyroDevice = new CTRECANDevice(34, "*");
 
@@ -35,11 +41,11 @@ public class Constants {
         public static final class PhysicalModel {
             //* MAX DISPLACEMENT SPEED (and acceleration)
             public static final Measure<LinearVelocityUnit> kMaxSpeed = MetersPerSecond.of(4.6);
-            public static final Measure<LinearAccelerationUnit> kMaxAcceleration = MetersPerSecond.per(Second).of(kMaxSpeed.in(MetersPerSecond));
+            public static final Measure<LinearAccelerationUnit> kMaxAcceleration = MetersPerSecond.per(Second).of(20);
 
             //* MAX ROTATIONAL SPEED (and acceleration)
             public static final Measure<AngularVelocityUnit> kMaxAngularSpeed = DegreesPerSecond.of(360);
-            public static final Measure<AngularAccelerationUnit> kMaxAngularAcceleration = DegreesPerSecond.per(Second).of(kMaxAngularSpeed.in(DegreesPerSecond));
+            public static final Measure<AngularAccelerationUnit> kMaxAngularAcceleration = DegreesPerSecond.per(Second).of(Math.PI * 2);
 
             // Drive wheel diameter
             public static final Measure<DistanceUnit> kWheelDiameter = Inches.of(4);
