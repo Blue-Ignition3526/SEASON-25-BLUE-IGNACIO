@@ -10,7 +10,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import lib.BlueShift.control.SpeedAlterator;
 import frc.robot.Constants;
 import static frc.robot.Constants.SwerveDrive.PoseControllers.epsilon;
-import static frc.robot.Constants.SwerveDrive.PoseControllers.rotEpsilon;
 
 public class GoToPose extends SpeedAlterator{
     private final Supplier<Pose2d> poseSupplier;
@@ -47,7 +46,6 @@ public class GoToPose extends SpeedAlterator{
         SmartDashboard.putNumber("Alterators/pose/y", ySpeed);
         Logger.recordOutput("Alterators/pose/desiredPose", targetPose);
 
-        ChassisSpeeds newSpeeds = new ChassisSpeeds(xSpeed, ySpeed, rotSpeed);
-        return ChassisSpeeds.fromFieldRelativeSpeeds(newSpeeds, poseSupplier.get().getRotation());
+        return ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rotSpeed, pose.getRotation());
     }
 }

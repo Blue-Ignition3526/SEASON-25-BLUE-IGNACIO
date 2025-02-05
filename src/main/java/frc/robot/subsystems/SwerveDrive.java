@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -18,6 +19,10 @@ import frc.robot.subsystems.Gyro.Gyro;
 import lib.BlueShift.control.SpeedAlterator;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.Second;
+
 import org.littletonrobotics.junction.Logger;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.RobotConfig;
@@ -42,6 +47,10 @@ public class SwerveDrive extends SubsystemBase {
     private ChassisSpeeds speeds = new ChassisSpeeds();
 
     SpeedAlterator speedAlterator = null;
+
+    public static final SlewRateLimiter xLimiter = new SlewRateLimiter(Constants.SwerveDrive.PhysicalModel.kMaxAcceleration.in(MetersPerSecondPerSecond));
+    public static final SlewRateLimiter yLimiter = new SlewRateLimiter(Constants.SwerveDrive.PhysicalModel.kMaxAcceleration.in(MetersPerSecondPerSecond));
+    public static final SlewRateLimiter rotLimiter = new SlewRateLimiter(Constants.SwerveDrive.PhysicalModel.kMaxAngularAcceleration.in(RadiansPerSecond.per(Second)));
 
     /**
      * Create a new Swerve drivetrain with the provided Swerve Modules and gyroscope
@@ -223,6 +232,12 @@ public class SwerveDrive extends SubsystemBase {
      */
     public void drive(ChassisSpeeds speeds) {
         this.speeds = this.speedAlterator != null ? this.speedAlterator.alterSpeed(speeds, drivingRobotRelative) : speeds;
+
+        // Calculate rate limited speeds
+        this.speeds.vxMetersPerSecond = xLimiter.calculate(this.speeds.vxMetersPerSecond);
+        this.speeds.vyMetersPerSecond = yLimiter.calculate(this.speeds.vyMetersPerSecond);
+        this.speeds.omegaRadiansPerSecond = rotLimiter.calculate(this.speeds.omegaRadiansPerSecond);
+
         SwerveModuleState[] m_moduleStates = Constants.SwerveDrive.PhysicalModel.kDriveKinematics.toSwerveModuleStates(this.speeds);
         this.setModuleStates(m_moduleStates);
     }

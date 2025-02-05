@@ -38,11 +38,7 @@ public class RobotContainer {
   private final SpeedAlterator gotTo1;
 
   public RobotContainer() {
-    if (DriverStation.getJoystickIsXbox(m_driverControllerPort)) {
-      m_driverControllerCustom = new CustomController(m_driverControllerPort, CustomControllerType.XBOX);
-    } else {
-      m_driverControllerCustom = new CustomController(m_driverControllerPort, CustomControllerType.PS5);
-    }
+    m_driverControllerCustom = new CustomController(m_driverControllerPort, CustomControllerType.XBOX);
 
     gyro = new Gyro(new GyroIOPigeon(Constants.SwerveDrive.kGyroDevice));
     m_swerveDrive = new SwerveDrive(frontLeft, frontRight, backLeft, backRight, gyro);
