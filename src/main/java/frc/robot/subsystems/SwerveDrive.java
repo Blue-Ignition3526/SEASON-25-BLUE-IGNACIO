@@ -9,7 +9,6 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
@@ -76,9 +75,6 @@ public class SwerveDrive extends SubsystemBase {
 
         //! ENCODERS ARE RESET IN EACH MODULE
         //! DO NOT RESET THEM HERE IN THE CONSTRUCTOR
-
-        // Reset gyroscope
-        this.gyro.reset();
 
         // Configure the auto builder
         this.configureAutoBuilder(this);
@@ -226,16 +222,13 @@ public class SwerveDrive extends SubsystemBase {
      * @param rotSpeed
      */
     public void drive(ChassisSpeeds speeds) {
-        this.speeds = speeds;
-        speeds = this.speedAlterator != null ? this.speedAlterator.alterSpeed(speeds, drivingRobotRelative) : speeds;
-        SwerveModuleState[] m_moduleStates = Constants.SwerveDrive.PhysicalModel.kDriveKinematics.toSwerveModuleStates(speeds);
+        this.speeds = this.speedAlterator != null ? this.speedAlterator.alterSpeed(speeds, drivingRobotRelative) : speeds;
+        SwerveModuleState[] m_moduleStates = Constants.SwerveDrive.PhysicalModel.kDriveKinematics.toSwerveModuleStates(this.speeds);
         this.setModuleStates(m_moduleStates);
     }
 
     public Command enableSpeedAlteratorCommand(SpeedAlterator alterator) {
         return runOnce(() -> {
-            Logger.recordOutput("PrePose", getPose());
-            Pose2d prePose = getPose();
             alterator.onEnable();
             this.speedAlterator = alterator;
         });

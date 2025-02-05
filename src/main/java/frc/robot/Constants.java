@@ -27,7 +27,10 @@ public class Constants {
     public static final class SwerveDrive {
         public static final class PoseControllers {
             public static final PIDController turningPID = new PIDController(15, 0, 0);
-            public static final PIDController displacementPID = new PIDController(10, 0, 0);
+            public static final PIDController displacementPID = new PIDController(6, 0, 0.01);
+
+            public static final double epsilon = 0.03;
+            public static final double rotEpsilon = 0.05;
         }
 
         //* Gyroscope (Pigeon 2.0)
