@@ -5,15 +5,13 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.config.SparkFlexConfig;
+import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
-import edu.wpi.first.math.trajectory.ExponentialProfile.Constraints;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -23,10 +21,10 @@ public class Elevator extends SubsystemBase {
   /** Creates a new Elevator. */
 
   //motors
-  private final SparkFlex m_rightElevatorMotor;
-  private final SparkFlexConfig m_rightElevatorMotorConfig;
-  private final SparkFlex m_leftElevatorMotor;
-  private final SparkFlexConfig m_leftElevatorMotorConfig;
+  private final SparkMax m_rightElevatorMotor;
+  private final SparkMaxConfig m_rightElevatorMotorConfig;
+  private final SparkMax m_leftElevatorMotor;
+  private final SparkMaxConfig m_leftElevatorMotorConfig;
 
   //encoder
   private final RelativeEncoder m_encoder;
@@ -36,25 +34,26 @@ public class Elevator extends SubsystemBase {
 
   public Elevator() {
     //motors
-    this.m_rightElevatorMotor = new SparkFlex(Constants.Elevator.kRightMotorID, MotorType.kBrushless);
-    this.m_rightElevatorMotorConfig = new SparkFlexConfig();
+    this.m_rightElevatorMotor = new SparkMax(Constants.Elevator.kRightMotorID, MotorType.kBrushless);
+    this.m_rightElevatorMotorConfig = new SparkMaxConfig();
     this.m_rightElevatorMotorConfig.idleMode(IdleMode.kBrake);
+    this.m_rightElevatorMotorConfig.encoder.positionConversionFactor(m_setpoint);
     this.m_rightElevatorMotor.configure(m_rightElevatorMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
 
-    this.m_leftElevatorMotor = new SparkFlex(Constants.Elevator.kLeftMotorID, MotorType.kBrushless);
-    this.m_leftElevatorMotorConfig = new SparkFlexConfig();
+    this.m_leftElevatorMotor = new SparkMax(Constants.Elevator.kLeftMotorID, MotorType.kBrushless);
+    this.m_leftElevatorMotorConfig = new SparkMaxConfig();
     this.m_leftElevatorMotorConfig.idleMode(IdleMode.kBrake);
-    this.m_leftElevatorMotorConfig.follow(m_rightElevatorMotor);
+    this.m_leftElevatorMotorConfig.follow(m_rightElevatorMotor, true);
     this.m_leftElevatorMotor.configure(m_leftElevatorMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
 
     //encoders
-    this.m_encoder = m_rightElevatorMotor.getEncoder();
+    this.m_encoder = m_rightElevatorMotor.getEncoder();    
   }
 
   //get position of elevator
 
   public double getPosition(){
-    return this.m_encoder.getPosition();
+    return this.m_encoder.getPosition() * (Constants.Elevator.kElevatorPulleyDiameter * Math.PI);
   }
 
   //get setpoint
@@ -83,9 +82,9 @@ public class Elevator extends SubsystemBase {
     this.m_rightElevatorMotor.set(0);
   }
 
-  //command for establishing the setpoint
+  //command for establishing the setpoint in inches
   public Command setPositionCommand(double position){
-    return runOnce(() -> m_setpoint = position);
+    return runOnce(() -> m_setpoint = position / (Constants.Elevator.kElevatorPulleyDiameter * Math.PI));
   }
 
 

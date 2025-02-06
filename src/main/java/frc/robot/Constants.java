@@ -131,8 +131,14 @@ public class Constants {
         public static final Constraints kElevatorConstraints = new Constraints(110, 90);
         public static final ProfiledPIDController kElevatorPIDController = new ProfiledPIDController(1, 0, 0, kElevatorConstraints);
         
-        //tolerance
-        public static final double kElevatorTolerance = 1;
+        //tolerance in inches
+        public static final double kElevatorTolerance = 1.0;
+
+        //mechanical reduction in inches
+        public static final double kElevatorReduction = 1/20;
+
+        //pulley diameter in inches 
+        public static final double kElevatorPulleyDiameter = 0.5752; 
 
     }
 }
