@@ -1,8 +1,10 @@
 package frc.robot;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 // import com.pathplanner.lib.util.PIDConstants;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.AngleUnit;
 import edu.wpi.first.units.AngularAccelerationUnit;
 import edu.wpi.first.units.AngularVelocityUnit;
@@ -35,11 +37,11 @@ public class Constants {
     //* Swerve Drive
     public static final class SwerveDriveConstants {
         public static final class PoseControllers {
-            public static final PIDController rotationPID = new PIDController(20, 0, 0);
-            public static final PIDController translationPID = new PIDController(5, 0, 0.01);
+            public static final ProfiledPIDController turningPID = new ProfiledPIDController(25, 0, 0, new TrapezoidProfile.Constraints(400, 180));
+            public static final ProfiledPIDController displacementPID = new ProfiledPIDController(5, 0, 0, new TrapezoidProfile.Constraints(4.5, 3.3526));
 
-            public static final double epsilon = 0.03;
-            public static final double rotEpsilon = 0.05;
+            public static final double epsilon = 0.08;
+            public static final double rotEpsilon = 0.5;
         }
 
         //* Gyroscope (Pigeon 2.0)
@@ -54,7 +56,7 @@ public class Constants {
 
             //* MAX ROTATIONAL SPEED (and acceleration)
             public static final Measure<AngularVelocityUnit> kMaxAngularSpeed = DegreesPerSecond.of(360);
-            public static final Measure<AngularAccelerationUnit> kMaxAngularAcceleration = DegreesPerSecond.per(Second).of(Math.PI * 2);
+            public static final Measure<AngularAccelerationUnit> kMaxAngularAcceleration = DegreesPerSecond.per(Second).of(Math.pow(360, 2));
 
             // Drive wheel diameter
             public static final Measure<DistanceUnit> kWheelDiameter = Inches.of(4);
