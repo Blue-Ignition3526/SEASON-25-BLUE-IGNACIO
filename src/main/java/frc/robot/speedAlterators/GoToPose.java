@@ -22,8 +22,8 @@ public class GoToPose extends SpeedAlterator{
 
     @Override
     public void onEnable() {
-        Constants.SwerveDrive.PoseControllers.displacementPID.reset();
-        Constants.SwerveDrive.PoseControllers.turningPID.reset();
+        //Constants.SwerveDrive.PoseControllers.displacementPID.reset();
+        //Constants.SwerveDrive.PoseControllers.turningPID.reset();
     }
 
     @Override

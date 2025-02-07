@@ -60,15 +60,16 @@ public class DriveSwerve extends Command {
     y = Math.abs(y) < Constants.SwerveDrive.kJoystickDeadband ? 0 : y;
     rot = Math.abs(rot) < Constants.SwerveDrive.kJoystickDeadband ? 0 : rot;
     
-    // Apply the slew rate limiters
-    x = xLimiter.calculate(x);
-    y = yLimiter.calculate(y);
-    rot = rotLimiter.calculate(rot);
-
     // Scale the joystick values to the max speed
     x *= Constants.SwerveDrive.PhysicalModel.kMaxSpeed.in(MetersPerSecond);
     y *= Constants.SwerveDrive.PhysicalModel.kMaxSpeed.in(MetersPerSecond);
     rot *= Constants.SwerveDrive.PhysicalModel.kMaxAngularSpeed.in(RadiansPerSecond);
+
+    //! Rate limiters use real units, they need to be applied after scaling
+    // Apply the slew rate limiters
+    x = xLimiter.calculate(x);
+    y = yLimiter.calculate(y);
+    rot = rotLimiter.calculate(rot);
     
     // Drive the swerve drive
     if (this.fieldRelative.get()) {

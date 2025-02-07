@@ -234,9 +234,10 @@ public class SwerveDrive extends SubsystemBase {
         this.speeds = this.speedAlterator != null ? this.speedAlterator.alterSpeed(speeds, drivingRobotRelative) : speeds;
 
         // Calculate rate limited speeds
-        this.speeds.vxMetersPerSecond = xLimiter.calculate(this.speeds.vxMetersPerSecond);
-        this.speeds.vyMetersPerSecond = yLimiter.calculate(this.speeds.vyMetersPerSecond);
-        this.speeds.omegaRadiansPerSecond = rotLimiter.calculate(this.speeds.omegaRadiansPerSecond);
+        // ! DO NOT DO THIS, it causes unwanted behavior with speed alterators, instead use TrapezoidProfile.constraints with a ProfiledPIDController
+        /// this.speeds.vxMetersPerSecond = xLimiter.calculate(this.speeds.vxMetersPerSecond);
+        /// this.speeds.vyMetersPerSecond = yLimiter.calculate(this.speeds.vyMetersPerSecond);
+        /// this.speeds.omegaRadiansPerSecond = rotLimiter.calculate(this.speeds.omegaRadiansPerSecond);
 
         SwerveModuleState[] m_moduleStates = Constants.SwerveDrive.PhysicalModel.kDriveKinematics.toSwerveModuleStates(this.speeds);
         this.setModuleStates(m_moduleStates);
