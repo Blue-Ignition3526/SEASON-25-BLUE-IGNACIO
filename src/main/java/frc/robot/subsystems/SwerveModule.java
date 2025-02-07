@@ -14,6 +14,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.units.AngleUnit;
 import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import lib.BlueShift.constants.SwerveModuleOptions;
@@ -45,8 +46,10 @@ public class SwerveModule extends SubsystemBase {
      * @param options
      */
     public SwerveModule(SwerveModuleOptions options) {
+        // Motor configs
         this.turnConfig = new SparkMaxConfig();
         this.driveConfig = new SparkMaxConfig();
+
         // Store the options
         this.options = options;
 
@@ -54,22 +57,26 @@ public class SwerveModule extends SubsystemBase {
         this.driveMotor = new SparkMax(options.driveMotorID, MotorType.kBrushless);
         this.turningMotor = new SparkMax(options.turningMotorID, MotorType.kBrushless);
 
+        // Invert turn motor
         this.turnConfig.inverted(options.turningMotorInverted);
 
         // Get and configure the encoders
-        this.driveConfig.encoder.positionConversionFactor(Constants.SwerveDrive.PhysicalModel.kDriveEncoder_RotationToMeter); 
-        this.driveConfig.encoder.velocityConversionFactor(Constants.SwerveDrive.PhysicalModel.kDriveEncoder_RPMToMeterPerSecond);
+        this.driveConfig.encoder.positionConversionFactor(Constants.SwerveDriveConstants.PhysicalModel.kDriveEncoder_RotationToMeter); 
+        this.driveConfig.encoder.velocityConversionFactor(Constants.SwerveDriveConstants.PhysicalModel.kDriveEncoder_RPMToMeterPerSecond);
+        
         // this.driveConfig.encoder.inverted(true);
         this.driveConfig.inverted(options.driveMotorInverted);
 
-        this.turnConfig.encoder.positionConversionFactor(Constants.SwerveDrive.PhysicalModel.kTurningEncoder_Rotation); 
-        this.turnConfig.encoder.velocityConversionFactor(Constants.SwerveDrive.PhysicalModel.kTurningEncoder_RPS);
+        this.turnConfig.encoder.positionConversionFactor(Constants.SwerveDriveConstants.PhysicalModel.kTurningEncoder_Rotation); 
+        this.turnConfig.encoder.velocityConversionFactor(Constants.SwerveDriveConstants.PhysicalModel.kTurningEncoder_RPS);
 
+        // Get the PID controller for the turning motor
         this.turningPID = turningMotor.getClosedLoopController();
 
-        this.turnConfig.closedLoop.p(Constants.SwerveDrive.SwerveModules.kTurningPIDConstants.kP);
-        this.turnConfig.closedLoop.i(Constants.SwerveDrive.SwerveModules.kTurningPIDConstants.kI);
-        this.turnConfig.closedLoop.d(Constants.SwerveDrive.SwerveModules.kTurningPIDConstants.kD);
+        // Configure the PID controller
+        this.turnConfig.closedLoop.p(Constants.SwerveDriveConstants.SwerveModuleConstants.kTurningPIDConstants.kP);
+        this.turnConfig.closedLoop.i(Constants.SwerveDriveConstants.SwerveModuleConstants.kTurningPIDConstants.kI);
+        this.turnConfig.closedLoop.d(Constants.SwerveDriveConstants.SwerveModuleConstants.kTurningPIDConstants.kD);
         this.turnConfig.closedLoop.positionWrappingInputRange(0, 1);
         this.turnConfig.closedLoop.positionWrappingEnabled(true);
 
@@ -78,6 +85,7 @@ public class SwerveModule extends SubsystemBase {
 
         this.driveMotor.configure(driveConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
         this.turningMotor.configure(turnConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+
         // Reset the encoders
         resetEncoders();
         
@@ -87,7 +95,7 @@ public class SwerveModule extends SubsystemBase {
      * Get the absolute encoder turn position
      * @return
      */
-    public Measure<AngleUnit> getAbsoluteEncoderPosition() {
+    public Angle getAbsoluteEncoderPosition() {
         return absoluteEncoder.getAbsolutePosition().getValue();
     }
 
@@ -117,7 +125,7 @@ public class SwerveModule extends SubsystemBase {
      * Get the current angle of the module
      * @return
      */
-    public Measure<AngleUnit> getAngle() {
+    public Angle getAngle() {
         return Rotations.of(this.turningMotor.getEncoder().getPosition());
     }
 
@@ -140,11 +148,17 @@ public class SwerveModule extends SubsystemBase {
             return;
         }
 
+        // Optimize the angle
         state.optimize(Rotation2d.fromRotations(getAngle().in(Rotations)));
+        
+        // Scale the target state for smoother movement
+        state.cosineScale(Rotation2d.fromRotations(getAngle().in(Rotations)));
 
+        // Set the target state for safekeeping
         this.targetState = state;
 
-        driveMotor.set(state.speedMetersPerSecond / Constants.SwerveDrive.PhysicalModel.kMaxSpeed.in(MetersPerSecond));
+        // Set the motor speeds
+        driveMotor.set(state.speedMetersPerSecond / Constants.SwerveDriveConstants.PhysicalModel.kMaxSpeed.in(MetersPerSecond));
         turningPID.setReference(state.angle.getRotations(), ControlType.kPosition);
     }
 

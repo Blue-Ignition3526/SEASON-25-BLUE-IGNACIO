@@ -23,11 +23,20 @@ public class Constants {
         public static final boolean kDebug = true;
     }
 
+    public static final class Vision {
+        public static final class Limelight3G {
+          public static final String kName = "limelight-threeg";
+          public static final int kOdometryPipeline = 0;
+          public static final int kSpeakerPipeline = 1;
+          public static final int kViewfinderPipeline = 2;
+        }
+    }
+
     //* Swerve Drive
-    public static final class SwerveDrive {
+    public static final class SwerveDriveConstants {
         public static final class PoseControllers {
-            public static final PIDController turningPID = new PIDController(20, 0, 0);
-            public static final PIDController displacementPID = new PIDController(5, 0, 0.01);
+            public static final PIDController rotationPID = new PIDController(20, 0, 0);
+            public static final PIDController translationPID = new PIDController(5, 0, 0.01);
 
             public static final double epsilon = 0.03;
             public static final double rotEpsilon = 0.05;
@@ -77,7 +86,7 @@ public class Constants {
         }
 
         //* Swerve modules configuration
-        public static final class SwerveModules {
+        public static final class SwerveModuleConstants {
             //* PID
             public static final PIDFConstants kTurningPIDConstants = new PIDFConstants(1.57);
 
@@ -119,7 +128,7 @@ public class Constants {
         }
 
         //* AUTONOMOUS
-        public static final class Autonomous {
+        public static final class AutonomousConstants {
             public static final PIDConstants kTranslatePIDConstants = new PIDConstants(5.0, 0.0, 0.0);
             public static final PIDConstants kRotatePIDConstants = new PIDConstants(5.0, 0.0, 0.0);
             public static final Measure<LinearVelocityUnit> kMaxSpeedMetersPerSecond = MetersPerSecond.of(1);
