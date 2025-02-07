@@ -35,7 +35,7 @@ public class LookController extends SpeedAlterator {
 
         double angle = -(Math.atan2(x.get(), y.get()) / (Math.PI*2)) % 1;
 
-        double speed = -Constants.SwerveDrive.PoseControllers.turningPID.calculate(angleSupplier.get() % 1, angle);
+        double speed = -Constants.SwerveDriveConstants.PoseControllers.rotationPID.calculate(angleSupplier.get() % 1, angle);
         SmartDashboard.putNumber("Alterators/LookJoystick/DesiredAngle", angle);
         SmartDashboard.putNumber("Alterators/LookJoystick/CurrentAngle", angleSupplier.get() % 1);
         SmartDashboard.putNumber("Alterators/LookJoystick/Speed", speed);

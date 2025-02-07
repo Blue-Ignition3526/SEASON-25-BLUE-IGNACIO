@@ -17,7 +17,7 @@ public class Turn180 extends SpeedAlterator {
     public Turn180(SwerveDrive swerveDrive) {
         this.swerveDrive = swerveDrive;
         SmartDashboard.putBoolean("Alterators/turning180", false);
-        Constants.SwerveDrive.PoseControllers.turningPID.enableContinuousInput(-0.5, 0.5);
+        Constants.SwerveDriveConstants.PoseControllers.rotationPID.enableContinuousInput(-0.5, 0.5);
     }
     
     @Override
@@ -32,7 +32,7 @@ public class Turn180 extends SpeedAlterator {
     }
 
     public ChassisSpeeds alterSpeed(ChassisSpeeds speeds, boolean robotRelative) {
-        double speed = Constants.SwerveDrive.PoseControllers.turningPID.calculate((swerveDrive.odometry.getPoseMeters().getRotation().getRotations()), targetAngle);        SmartDashboard.putNumber("Alterators/DesiredAngle", targetAngle);
+        double speed = Constants.SwerveDriveConstants.PoseControllers.rotationPID.calculate((swerveDrive.odometry.getPoseMeters().getRotation().getRotations()), targetAngle);        SmartDashboard.putNumber("Alterators/DesiredAngle", targetAngle);
         SmartDashboard.putNumber("Alterators/CurrentAngle", (swerveDrive.odometry.getPoseMeters().getRotation().getRotations()));
         SmartDashboard.putNumber("Alterators/Speed", speed);
 

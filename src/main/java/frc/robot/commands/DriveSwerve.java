@@ -16,16 +16,15 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.SwerveDrive;
 
-//TODO: Move command to SwerveDrive as an inline command
 public class DriveSwerve extends Command {
 
   //* The swerve drive subsystem
   private final SwerveDrive swerveDrive;
 
   //* Slew rate limiters
-  SlewRateLimiter xLimiter = new SlewRateLimiter(Constants.SwerveDrive.PhysicalModel.kMaxAcceleration.in(MetersPerSecondPerSecond));
-  SlewRateLimiter yLimiter = new SlewRateLimiter(Constants.SwerveDrive.PhysicalModel.kMaxAcceleration.in(MetersPerSecondPerSecond));
-  SlewRateLimiter rotLimiter = new SlewRateLimiter(Constants.SwerveDrive.PhysicalModel.kMaxAngularAcceleration.in(RadiansPerSecond.per(Second)));
+  SlewRateLimiter xLimiter = new SlewRateLimiter(Constants.SwerveDriveConstants.PhysicalModel.kMaxAcceleration.in(MetersPerSecondPerSecond));
+  SlewRateLimiter yLimiter = new SlewRateLimiter(Constants.SwerveDriveConstants.PhysicalModel.kMaxAcceleration.in(MetersPerSecondPerSecond));
+  SlewRateLimiter rotLimiter = new SlewRateLimiter(Constants.SwerveDriveConstants.PhysicalModel.kMaxAngularAcceleration.in(RadiansPerSecond.per(Second)));
 
   //* The suppliers for the joystick values
   private final Supplier<Double> xSpeed;
@@ -56,9 +55,9 @@ public class DriveSwerve extends Command {
     double rot = rotSpeed.get();
 
     // Apply deadzone to the joystick values
-    x = Math.abs(x) < Constants.SwerveDrive.kJoystickDeadband ? 0 : x;
-    y = Math.abs(y) < Constants.SwerveDrive.kJoystickDeadband ? 0 : y;
-    rot = Math.abs(rot) < Constants.SwerveDrive.kJoystickDeadband ? 0 : rot;
+    x = Math.abs(x) < Constants.SwerveDriveConstants.kJoystickDeadband ? 0 : x;
+    y = Math.abs(y) < Constants.SwerveDriveConstants.kJoystickDeadband ? 0 : y;
+    rot = Math.abs(rot) < Constants.SwerveDriveConstants.kJoystickDeadband ? 0 : rot;
     
     // Scale the joystick values to the max speed
     x *= Constants.SwerveDrive.PhysicalModel.kMaxSpeed.in(MetersPerSecond);

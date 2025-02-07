@@ -9,7 +9,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import lib.BlueShift.control.SpeedAlterator;
 import frc.robot.Constants;
-import static frc.robot.Constants.SwerveDrive.PoseControllers.epsilon;
+import static frc.robot.Constants.SwerveDriveConstants.PoseControllers.epsilon;
 
 public class GoToPose extends SpeedAlterator{
     private final Supplier<Pose2d> poseSupplier;
@@ -33,12 +33,12 @@ public class GoToPose extends SpeedAlterator{
         Pose2d pose = poseSupplier.get();
 
         double xSpeed, ySpeed, rotSpeed;
-        if(Math.abs(pose.getX() - targetPose.getX()) > epsilon) xSpeed = Constants.SwerveDrive.PoseControllers.displacementPID.calculate(pose.getX(), targetPose.getX());
+        if(Math.abs(pose.getX() - targetPose.getX()) > epsilon) xSpeed = Constants.SwerveDriveConstants.PoseControllers.displacementPID.calculate(pose.getX(), targetPose.getX());
         else xSpeed = speeds.vxMetersPerSecond;
-        if(Math.abs(pose.getY() - targetPose.getY()) > epsilon)ySpeed = Constants.SwerveDrive.PoseControllers.displacementPID.calculate(pose.getY(), targetPose.getY());
+        if(Math.abs(pose.getY() - targetPose.getY()) > epsilon)ySpeed = Constants.SwerveDriveConstants.PoseControllers.displacementPID.calculate(pose.getY(), targetPose.getY());
         else ySpeed = speeds.vyMetersPerSecond;
 
-        /*if(Math.abs(pose.getRotation().getRotations() - targetPose.getRotation().getRotations()) < rotEpsilon)*/ rotSpeed = Constants.SwerveDrive.PoseControllers.turningPID.calculate(pose.getRotation().getRotations(), targetPose.getRotation().getRotations());
+        /*if(Math.abs(pose.getRotation().getRotations() - targetPose.getRotation().getRotations()) < rotEpsilon)*/ rotSpeed = Constants.SwerveDriveConstants.PoseControllers.turningPID.calculate(pose.getRotation().getRotations(), targetPose.getRotation().getRotations());
         // else rotSpeed = speeds.omegaRadiansPerSecond;
 
         SmartDashboard.putNumber("Alterators/pose/rot", rotSpeed);

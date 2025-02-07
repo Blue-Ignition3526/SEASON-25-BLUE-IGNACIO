@@ -3,14 +3,11 @@ package lib.BlueShift.odometry.swerve;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
-import edu.wpi.first.math.numbers.N1;
-import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -35,8 +32,6 @@ public class FusedSwerveDrivePoseEstimator extends SubsystemBase implements Esti
     Supplier<Rotation2d> headingSupplier,
     OdometryCamera[] cameras,
     Pose2d initialPose,
-    Matrix<N3, N1> stateStdDev,
-    Matrix<N3, N1> visionStdDev,
     boolean visionEnabled
   ) {
     this.modulePositionsSupplier = modulePositionsSupplier;
@@ -48,9 +43,7 @@ public class FusedSwerveDrivePoseEstimator extends SubsystemBase implements Esti
       kinematics,
       headingSupplier.get(),
       modulePositionsSupplier.get(),
-      initialPose,
-      stateStdDev,
-      visionStdDev
+      initialPose
     );
   }
 
