@@ -2,6 +2,7 @@ package frc.robot;
 
 // import com.pathplanner.lib.util.PIDConstants;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.units.AngleUnit;
 import edu.wpi.first.units.AngularAccelerationUnit;
 import edu.wpi.first.units.AngularVelocityUnit;
@@ -17,12 +18,27 @@ import lib.team3526.utils.SwerveChassis;
 import static edu.wpi.first.units.Units.*;
 
 import com.pathplanner.lib.config.PIDConstants;
-import com.pathplanner.lib.config.RobotConfig;
 
 public class Constants {
     //* Logging options
     public static final class Logging {
         public static final boolean kDebug = true;
+    }
+
+    public static final class ArmPivotConstants {
+        public static final int motorID = 40; // TODO: All arm pivot constants
+        public static final int encodeID = 41;
+
+        public static final Constraints constraints = new Constraints(1, 1);
+
+        public static final PIDFConstants pidConstants = new PIDFConstants(0.05, 0, 0); // TODO: tune
+
+        public static final class PhysicalModel {
+            public static final double maxRot = 1; // TODO: Get Max and Min Poses
+            public static final double minRot = 0;
+
+            public static final boolean inverted = false;
+        }
     }
 
     //* Swerve Drive
