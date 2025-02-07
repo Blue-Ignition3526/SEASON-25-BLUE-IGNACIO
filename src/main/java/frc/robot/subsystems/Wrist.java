@@ -15,6 +15,7 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkFlexConfig;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.WristConstants;
 
@@ -87,6 +88,10 @@ public class Wrist extends SubsystemBase {
     return goalPosition;
   }
 
+  public boolean isAtGoal() {
+    return pidController.atGoal();
+  }
+
   @Override
   public void periodic() {
     if(pidEnabled) motor.set(pidController.calculate(getPosition()));
@@ -95,7 +100,17 @@ public class Wrist extends SubsystemBase {
   }
 
   public Command goTo(double angle) {
-    return runOnce(()->setGoalPosition(angle));
+    return new FunctionalCommand(
+      // Init
+      ()->setGoalPosition(angle),
+      // Periodic
+      () -> {},
+      // End
+      interrupted -> {},
+      // isfinished
+      () -> isAtGoal(),
+      // addRequirements
+      this);
   }
 
   public void log() {
