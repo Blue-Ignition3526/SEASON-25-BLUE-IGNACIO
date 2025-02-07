@@ -13,6 +13,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.Constants.ArmPivotConstants;
@@ -55,6 +56,7 @@ public class ArmPivot extends SubsystemBase {
    * Enables PID
    */
   public void restart() {
+    pidController.reset(getPosition());
     pidEnabled = true;
   }
 
@@ -86,6 +88,10 @@ public class ArmPivot extends SubsystemBase {
     return goalPosition;
   }
 
+  public boolean isAtGoal() {
+    return pidController.atGoal();
+  }
+
   @Override
   public void periodic() {
     if(pidEnabled) motor.set(pidController.calculate(getPosition()));
@@ -94,7 +100,17 @@ public class ArmPivot extends SubsystemBase {
   }
 
   public Command goTo(double angle) {
-    return runOnce(()->setGoalPosition(angle));
+    return new FunctionalCommand(
+      // Init
+      ()->setGoalPosition(angle),
+      // Periodic
+      () -> {},
+      // End
+      interrupted -> {},
+      // isfinished
+      () -> isAtGoal(),
+      // addRequirements
+      this);
   }
 
   public void log() {
