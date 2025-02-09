@@ -13,11 +13,13 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import lib.BlueShift.odometry.vision.OdometryCamera;
 import lib.BlueShift.odometry.vision.VisionOdometryPoseEstimate;
 import lib.BlueShift.odometry.vision.camera.LimelightOdometryCamera;
 
-public class BlueShiftPoseTracker {
+public class BlueShiftPoseTracker extends SubsystemBase {
     // * Chassis information suppliers
     private final Supplier<SwerveModulePosition[]> modulePositionsSupplier;
     private final Supplier<Rotation2d> headingSupplier;
@@ -31,6 +33,9 @@ public class BlueShiftPoseTracker {
 
     // * Vision enabled flag
     private boolean visionEnabled;
+
+    // * Field for logging odometry
+    private final Field2d field = new Field2d();
 
     // * Camera entry (Container for camera and thread)
     class CameraEntry {

@@ -66,16 +66,18 @@ public class RobotContainer {
       m_swerveDrive::getModulePositions,
       m_swerveDrive::getHeading,
       new Pose2d(),
-      60,
+      30,
       100,
       false
     );
     this.m_poseTracker.addCamera(m_limelight3G);
 
+    SmartDashboard.putData("SwerveDrive/ResetTurningEncoders", );
+
     // Enable vision measurements and pose estimation
-    this.m_limelight3G.enable();
-    this.m_poseTracker.start();
-    this.m_poseTracker.startVision();
+    // this.m_limelight3G.enable();
+    // this.m_poseTracker.start();
+    // this.m_poseTracker.startVision();
 
     configureBindings();
   }

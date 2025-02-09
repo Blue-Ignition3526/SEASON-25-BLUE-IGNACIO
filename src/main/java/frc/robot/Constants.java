@@ -1,8 +1,6 @@
 package frc.robot;
 
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
-// import com.pathplanner.lib.util.PIDConstants;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.AngleUnit;
@@ -23,6 +21,7 @@ public class Constants {
     //* Logging options
     public static final class Logging {
         public static final boolean kDebug = true;
+        public static final boolean kUseURCL = true;
     }
 
     public static final class Vision {
@@ -37,8 +36,8 @@ public class Constants {
     //* Swerve Drive
     public static final class SwerveDriveConstants {
         public static final class PoseControllers {
-            public static final ProfiledPIDController turningPID = new ProfiledPIDController(25, 0, 0, new TrapezoidProfile.Constraints(400, 180));
-            public static final ProfiledPIDController displacementPID = new ProfiledPIDController(5, 0, 0, new TrapezoidProfile.Constraints(4.5, 3.3526));
+            public static final ProfiledPIDController rotationPID = new ProfiledPIDController(25, 0, 0, new TrapezoidProfile.Constraints(400, 180));
+            public static final ProfiledPIDController translationPID = new ProfiledPIDController(5, 0, 0, new TrapezoidProfile.Constraints(4.5, 3.3526));
 
             public static final double epsilon = 0.08;
             public static final double rotEpsilon = 0.5;

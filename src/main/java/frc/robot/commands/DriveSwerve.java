@@ -60,9 +60,9 @@ public class DriveSwerve extends Command {
     rot = Math.abs(rot) < Constants.SwerveDriveConstants.kJoystickDeadband ? 0 : rot;
     
     // Scale the joystick values to the max speed
-    x *= Constants.SwerveDrive.PhysicalModel.kMaxSpeed.in(MetersPerSecond);
-    y *= Constants.SwerveDrive.PhysicalModel.kMaxSpeed.in(MetersPerSecond);
-    rot *= Constants.SwerveDrive.PhysicalModel.kMaxAngularSpeed.in(RadiansPerSecond);
+    x *= Constants.SwerveDriveConstants.PhysicalModel.kMaxSpeed.in(MetersPerSecond);
+    y *= Constants.SwerveDriveConstants.PhysicalModel.kMaxSpeed.in(MetersPerSecond);
+    rot *= Constants.SwerveDriveConstants.PhysicalModel.kMaxAngularSpeed.in(RadiansPerSecond);
 
     //! Rate limiters use real units, they need to be applied after scaling
     // Apply the slew rate limiters
