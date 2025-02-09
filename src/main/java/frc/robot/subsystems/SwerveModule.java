@@ -176,7 +176,7 @@ public class SwerveModule extends SubsystemBase {
      * @param force If true, the module will ignore the current speed and turn to the target angle
      */
     public void setTargetState(SwerveModuleState state, boolean force) {
-        if (Math.abs(state.speedMetersPerSecond) < 0.001 || force) {
+        if (Math.abs(state.speedMetersPerSecond) < Double.MIN_VALUE || force) {
             stop();
             return;
         }
