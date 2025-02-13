@@ -72,8 +72,6 @@ public class RobotContainer {
     );
     this.m_poseTracker.addCamera(m_limelight3G);
 
-    SmartDashboard.putData("SwerveDrive/ResetTurningEncoders", );
-
     // Enable vision measurements and pose estimation
     // this.m_limelight3G.enable();
     // this.m_poseTracker.start();
