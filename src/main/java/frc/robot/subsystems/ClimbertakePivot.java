@@ -6,6 +6,8 @@ import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
+
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -102,7 +104,12 @@ public class ClimbertakePivot extends SubsystemBase {
   @Override
   public void periodic() {
     double currentAngleRad = getAngle().in(Radians);
-    double setpointAngleRad = setpoint.in(Radians);
+    // ! CLAMPS ANGLE HERE
+    double setpointAngleRad = MathUtil.clamp(
+      setpoint.in(Radians),
+      ClimbertakeConstants.Pivot.kPivotLowerLimit.in(Radians),
+      ClimbertakeConstants.Pivot.kPivotUpperLimit.in(Radians)
+    );
 
     double pidOutputVolts = ClimbertakeConstants.Pivot.kPivotPIDController.calculate(currentAngleRad, setpointAngleRad);
     double feedforwardVolts = ClimbertakeConstants.Pivot.kPivotFeedforward.calculate(currentAngleRad, pidOutputVolts);

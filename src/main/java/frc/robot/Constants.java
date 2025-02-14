@@ -17,11 +17,8 @@ import lib.team3526.constants.CTRECANDevice;
 import lib.team3526.constants.PIDFConstants;
 import lib.team3526.constants.SwerveModuleOptions;
 import lib.team3526.utils.SwerveChassis;
-
 import static edu.wpi.first.units.Units.*;
-
 import com.pathplanner.lib.config.PIDConstants;
-import com.pathplanner.lib.config.RobotConfig;
 
 public class Constants {
     //* Logging options
@@ -40,6 +37,8 @@ public class Constants {
             // Encoder
             public static final int kPivotEncoderPort = 0;
             public static final double kPivotEncoderOffset = 0.;
+            public static final Angle kPivotUpperLimit = Degrees.of(0);
+            public static final Angle kPivotLowerLimit = Degrees.of(90);
 
             // PID Controller
             public static final ProfiledPIDController kPivotPIDController = new ProfiledPIDController(
