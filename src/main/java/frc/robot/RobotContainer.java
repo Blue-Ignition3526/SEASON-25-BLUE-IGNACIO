@@ -14,9 +14,7 @@ import frc.robot.subsystems.Gyro.Gyro;
 import frc.robot.subsystems.Gyro.GyroIOPigeon;
 import lib.BlueShift.control.CustomController;
 import lib.BlueShift.control.CustomController.CustomControllerType;
-import lib.BlueShift.odometry.swerve.BlueShiftPoseTracker;
-import lib.BlueShift.odometry.swerve.FusedSwerveDrivePoseEstimator;
-import lib.BlueShift.odometry.vision.OdometryCamera;
+import lib.BlueShift.odometry.swerve.BlueShiftOdometry;
 import lib.BlueShift.odometry.vision.camera.LimelightOdometryCamera;
 import lib.BlueShift.odometry.vision.camera.VisionOdometryFilters;
 import lib.BlueShift.control.SpeedAlterator;
@@ -43,7 +41,8 @@ public class RobotContainer {
 
   // Odometry and Vision
   private final LimelightOdometryCamera m_limelight3G;
-  private final BlueShiftPoseTracker m_poseTracker;
+  private final BlueShiftOdometry m_odometry;
+  private final double m_visionPeriod = 0.1;
 
   public RobotContainer() {
     gyro = new Gyro(new GyroIOPigeon(Constants.SwerveDriveConstants.kGyroDevice));
@@ -60,18 +59,17 @@ public class RobotContainer {
     SmartDashboard.putData("Reset Odometry", m_swerveDrive.resetPoseCommand());
 
     // Odometry and Vision
-    // ! Vision odometry starts disabled by default
     this.m_limelight3G = new LimelightOdometryCamera(Constants.Vision.Limelight3G.kName, false, VisionOdometryFilters::visionFilter);
-    this.m_poseTracker = new BlueShiftPoseTracker(
-      Constants.SwerveDriveConstants.PhysicalModel.kDriveKinematics,
+    this.m_odometry = new BlueShiftOdometry(
+      Constants.SwerveDriveConstants.PhysicalModel.kDriveKinematics, 
+      gyro::getHeading,
       m_swerveDrive::getModulePositions,
-      m_swerveDrive::getHeading,
       new Pose2d(),
-      30,
-      100,
-      false
+      m_visionPeriod,
+      m_limelight3G
     );
-    this.m_poseTracker.addCamera(m_limelight3G);
+    this.m_limelight3G.enable();
+    this.m_odometry.startVision();
 
     SmartDashboard.putData("SwerveDrive/ResetTurningEncoders", new InstantCommand(m_swerveDrive::resetTurningEncoders));
 

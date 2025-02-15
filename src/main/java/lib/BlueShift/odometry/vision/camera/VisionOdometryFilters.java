@@ -18,6 +18,6 @@ public class VisionOdometryFilters {
             return VecBuilder.fill(999999999, 999999999, 999999999);
         }
 
-        return VecBuilder.fill(0.7, 0.7, 0.7);
+        return VecBuilder.fill(0.7, 0.7, 999999999);
     } 
 }

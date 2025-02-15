@@ -98,33 +98,33 @@ public class Constants {
             public static final SwerveModuleOptions kFrontLeftOptions = new SwerveModuleOptions()
                 .setAbsoluteEncoderInverted(false)
                 .setTurningMotorInverted(true)
-                .setAbsoluteEncoderCANDevice(new CTRECANDevice(11, "*"))
-                .setDriveMotorID(22)
-                .setTurningMotorID(21)
+                .setDriveMotorID(2)
+                .setTurningMotorID(3)
+                .setAbsoluteEncoderCANDevice(new CTRECANDevice(4, "*"))
                 .setName("Front Left");
 
             public static final SwerveModuleOptions kFrontRightOptions = new SwerveModuleOptions()
                 .setAbsoluteEncoderInverted(false)
                 .setTurningMotorInverted(true)
-                .setAbsoluteEncoderCANDevice(new CTRECANDevice(12, "*"))
-                .setDriveMotorID(24)
-                .setTurningMotorID(23)
+                .setDriveMotorID(5)
+                .setTurningMotorID(6)
+                .setAbsoluteEncoderCANDevice(new CTRECANDevice(7, "*"))
                 .setName("Front Right");
 
             public static final SwerveModuleOptions kBackLeftOptions = new SwerveModuleOptions()
                 .setAbsoluteEncoderInverted(false)
                 .setTurningMotorInverted(true)
-                .setAbsoluteEncoderCANDevice(new CTRECANDevice(13, "*"))
-                .setDriveMotorID(26)
-                .setTurningMotorID(25)
+                .setDriveMotorID(8)
+                .setTurningMotorID(9)
+                .setAbsoluteEncoderCANDevice(new CTRECANDevice(10, "*"))
                 .setName("Back Left");
 
             public static final SwerveModuleOptions kBackRightOptions = new SwerveModuleOptions()
                 .setAbsoluteEncoderInverted(false)
                 .setTurningMotorInverted(true)
-                .setAbsoluteEncoderCANDevice(new CTRECANDevice(14, "*"))
-                .setDriveMotorID(28)
-                .setTurningMotorID(27)
+                .setDriveMotorID(11)
+                .setTurningMotorID(12)
+                .setAbsoluteEncoderCANDevice(new CTRECANDevice(13, "*"))
                 .setName("Back Right");
         }
 
