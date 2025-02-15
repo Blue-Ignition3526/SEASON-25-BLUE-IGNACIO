@@ -56,7 +56,14 @@ public class Constants {
         }
 
         public static final class Rollers {
-            
+            // Motor and current limit
+            public static final int kRollersMotorID = 31;
+            public static final int kRollersMotorCurrentLimit = 30;
+            public static final double kRollersMotorRampRate = 0;
+
+            // Voltages
+            public static final double kRollersInVoltage = 6;
+            public static final double kRollersOutVoltage = -kRollersInVoltage;
         }
     }
 
