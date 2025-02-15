@@ -14,7 +14,10 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Notifier;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import lib.BlueShift.constants.SwerveModuleOptions;
@@ -22,10 +25,10 @@ import static edu.wpi.first.units.Units.*;
 import org.littletonrobotics.junction.Logger;
 
 public class SwerveModule extends SubsystemBase {
-    //* Options for the module
+    // * Options for the module
     public final SwerveModuleOptions options;
 
-    //* Motors
+    // * Motors
     private final SparkMax driveMotor;
     private final SparkMax turnMotor;
 
@@ -33,15 +36,24 @@ public class SwerveModule extends SubsystemBase {
     private final SparkMaxConfig driveConfig;
     private final SparkMaxConfig turnConfig;
 
-    //* PID Controller for turning
+    // * PID Controller for turning
     public final SparkClosedLoopController turnPID;
 
-    //* Absolute encoder
+    // * Absolute encoder
     private final CANcoder absoluteEncoder;
     private final StatusSignal<Angle> absolutePositionSignal;
 
-    //* Target state
+    // * Target state
     private SwerveModuleState targetState = new SwerveModuleState();
+
+    // * Alerts
+    private final Alert alert_cancoderUnreachable;
+    private final Alert alert_driveMotorUnreachable;
+    private final Alert alert_turnMotorUnreachable;
+    private final Alert alert_turnEncodersOutOfSync;
+
+    // * Device check notifier
+    private final Notifier deviceCheckNotifier = new Notifier(this::deviceCheck);
 
     /**
      * Create a new swerve module with the provided options
@@ -50,7 +62,6 @@ public class SwerveModule extends SubsystemBase {
     public SwerveModule(SwerveModuleOptions options) {
         // * Store the options
         this.options = options;
-
 
         // * Create Drive motor and configure it
         this.driveMotor = new SparkMax(options.driveMotorID, MotorType.kBrushless);
@@ -67,7 +78,6 @@ public class SwerveModule extends SubsystemBase {
 
         // Apply config to drive motor
         this.driveMotor.configure(driveConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
-
 
         // * Create Turn motor and configure it
         this.turnMotor = new SparkMax(options.turningMotorID, MotorType.kBrushless);
@@ -96,11 +106,15 @@ public class SwerveModule extends SubsystemBase {
         // * Get the PID controller for the turning motor
         this.turnPID = turnMotor.getClosedLoopController();
 
-
         // * Absolute encoder
         this.absoluteEncoder = new CANcoder(options.absoluteEncoderDevice.getDeviceID(), options.absoluteEncoderDevice.getCanbus());
         this.absolutePositionSignal = absoluteEncoder.getAbsolutePosition(false);
-        
+
+        // * Alerts
+        this.alert_cancoderUnreachable = new Alert(options.name + " Swerve Module AbsEnc unreachable", AlertType.kError);
+        this.alert_driveMotorUnreachable = new Alert(options.name + " Swerve Module DriveMot unreachable", AlertType.kError);
+        this.alert_turnMotorUnreachable = new Alert(options.name + " Swerve Module TurnMot unreachable", AlertType.kError);
+        this.alert_turnEncodersOutOfSync = new Alert(options.name + " Swerve Module Encoders out of sync", AlertType.kWarning);
 
         // * Reset encoders
         // Wait for absolute encoder to become available and return the boot-up position
@@ -110,7 +124,6 @@ public class SwerveModule extends SubsystemBase {
         if (absoluteEncoderStatusCode.isOK()) {
             System.out.println(options.name + " Swerve Module absolute encoder is available, resetting position...");
             resetTurningEncoder();
-
         } else {
             DriverStation.reportError("Failed to get " + options.name + " Swerve Module absolute encoder position. Status: " + absoluteEncoderStatusCode, false);
             System.out.println("Please check " + options.name + " Swerve Module absolute encoder connection.");
@@ -118,10 +131,45 @@ public class SwerveModule extends SubsystemBase {
             System.out.println("Setting current position as 0.");
             this.turnMotor.getEncoder().setPosition(0);
         }
-        
 
         // * Reset the Drive encoder
         resetDriveEncoder();
+    }
+
+    /**
+     * Check if the devices are reachable
+     */
+    private final void deviceCheck() {
+        try {
+            driveMotor.getFirmwareVersion();
+            alert_driveMotorUnreachable.set(false);
+        } catch (Exception e) {
+            alert_driveMotorUnreachable.set(true);
+            DriverStation.reportError(options.name +  " drive motor is unreachable", false);
+        }
+
+        try {
+            turnMotor.getFirmwareVersion();
+            alert_turnMotorUnreachable.set(false);
+        } catch (Exception e) {
+            alert_turnMotorUnreachable.set(true);
+            DriverStation.reportError(options.name +  " turn motor is unreachable", false);
+        }
+
+        if (absolutePositionSignal.getStatus().isOK()) {
+            alert_cancoderUnreachable.set(false);
+        } else {
+            alert_cancoderUnreachable.set(true);
+            DriverStation.reportError(options.name +  " absolute encoder is unreachable", false);
+        }
+
+        double turnEncErr = getAngle().minus(getAbsoluteEncoderPosition()).in(Degree);
+        if (Math.abs(turnEncErr) > 5) {
+            alert_turnEncodersOutOfSync.set(true);
+            DriverStation.reportError(options.name +  " turning encoders are out of sync (" + String.valueOf(turnEncErr) + "°)", false);
+        } else {
+            alert_turnEncodersOutOfSync.set(false);
+        }
     }
 
     /**
@@ -129,7 +177,7 @@ public class SwerveModule extends SubsystemBase {
      * @return
      */
     public Angle getAbsoluteEncoderPosition() {
-        return absoluteEncoder.getAbsolutePosition().getValue();
+        return absolutePositionSignal.refresh().getValue();
     }
 
     /**
