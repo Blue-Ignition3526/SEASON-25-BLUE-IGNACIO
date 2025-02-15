@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.commands.DriveSwerve;
 import frc.robot.subsystems.SwerveDrive;
 import frc.robot.subsystems.SwerveModule;
@@ -23,7 +24,7 @@ import frc.robot.speedAlterators.*;
 
 public class RobotContainer {
   private final int m_driverControllerPort = 0;
-  private final CustomController m_driverControllerCustom = new CustomController(m_driverControllerPort, CustomControllerType.PS5);
+  private final CustomController m_driverControllerCustom = new CustomController(m_driverControllerPort, CustomControllerType.XBOX);
   
   private final SwerveModule frontLeft = new SwerveModule(Constants.SwerveDriveConstants.SwerveModuleConstants.kFrontLeftOptions);
   private final SwerveModule frontRight = new SwerveModule(Constants.SwerveDriveConstants.SwerveModuleConstants.kFrontRightOptions);
@@ -72,7 +73,7 @@ public class RobotContainer {
     );
     this.m_poseTracker.addCamera(m_limelight3G);
 
-    SmartDashboard.putData("SwerveDrive/ResetTurningEncoders", );
+    SmartDashboard.putData("SwerveDrive/ResetTurningEncoders", new InstantCommand(m_swerveDrive::resetTurningEncoders));
 
     // Enable vision measurements and pose estimation
     // this.m_limelight3G.enable();
