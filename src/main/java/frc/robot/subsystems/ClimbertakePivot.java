@@ -1,6 +1,8 @@
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.Rotation;
+
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -48,6 +50,7 @@ public class ClimbertakePivot extends SubsystemBase {
 
     // * Create and configure the Encoder
     pivotEncoder = new BluePWMEncoder(ClimbertakeConstants.Pivot.kPivotEncoderPort);
+    pivotEncoder.setOffset(ClimbertakeConstants.Pivot.kPivotEncoderOffset.in(Rotation));
 
     // * Setpoint
     setpoint = getAngle();
@@ -105,11 +108,12 @@ public class ClimbertakePivot extends SubsystemBase {
   public void periodic() {
     double currentAngleRad = getAngle().in(Radians);
     // ! CLAMPS ANGLE HERE
-    double setpointAngleRad = MathUtil.clamp(
-      setpoint.in(Radians),
-      ClimbertakeConstants.Pivot.kPivotLowerLimit.in(Radians),
-      ClimbertakeConstants.Pivot.kPivotUpperLimit.in(Radians)
-    );
+    // double setpointAngleRad = MathUtil.clamp(
+    //   setpoint.in(Radians),
+    //   ClimbertakeConstants.Pivot.kPivotLowerLimit.in(Radians),
+    //   ClimbertakeConstants.Pivot.kPivotUpperLimit.in(Radians)
+    // );
+    double setpointAngleRad = setpoint.in(Radians);
 
     double pidOutputVolts = ClimbertakeConstants.Pivot.kPivotPIDController.calculate(currentAngleRad, setpointAngleRad);
     double feedforwardVolts = ClimbertakeConstants.Pivot.kPivotFeedforward.calculate(currentAngleRad, pidOutputVolts);
