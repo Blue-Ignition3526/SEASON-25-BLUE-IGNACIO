@@ -9,6 +9,7 @@ import edu.wpi.first.units.DistanceUnit;
 import edu.wpi.first.units.LinearAccelerationUnit;
 import edu.wpi.first.units.LinearVelocityUnit;
 import edu.wpi.first.units.Measure;
+import edu.wpi.first.wpilibj.util.Color;
 import lib.team3526.constants.CTRECANDevice;
 import lib.team3526.constants.PIDFConstants;
 import lib.team3526.constants.SwerveModuleOptions;
@@ -118,5 +119,23 @@ public class Constants {
             public static final PIDConstants kRotatePIDConstants = new PIDConstants(5.0, 0.0, 0.0);
             public static final Measure<LinearVelocityUnit> kMaxSpeedMetersPerSecond = MetersPerSecond.of(1);
         }
+    }
+
+    public static final class IntakeCoral {
+        // motor ids
+        public static final int kUpperMotorId = 10;
+        public static final int kLowerMotorId = 11;
+
+        //sensor 
+        public static final int kSensorId = 12;
+        public static final double kPieceSensorLedBrightness = 0.5;
+        public static final Color kCoralColor = new Color(1, 1, 1);
+        public static final double kCoralColorThreshold = 0.15;
+        public static final double kCoralProximityThreshold = 0.75;
+
+        //parameters
+        public static final double kRollersInVoltage = 6;
+        public static final double kRollersOutVoltage = -kRollersInVoltage;
+
     }
 }
