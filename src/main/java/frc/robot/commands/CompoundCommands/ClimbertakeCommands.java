@@ -1,4 +1,4 @@
-package frc.robot.commands;
+package frc.robot.commands.CompoundCommands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
@@ -19,5 +19,16 @@ public class ClimbertakeCommands {
             rollers.stopCommand(),
             pivot.setSetpointCommand(ClimbertakeConstants.Pivot.kInAngle)
         );
+    }
+
+    public static Command outtakeCommand(ClimbertakeRollers rollers) {
+        return rollers.setOutCommand();
+    }
+
+    public static Command grabCommand(ClimbertakePivot pivot, ClimbertakeRollers rollers) {
+        return 
+            intakeCommand(pivot, rollers)
+            .until(rollers::hasPiece)
+            .andThen(storeCommand(pivot, rollers));
     }
 }

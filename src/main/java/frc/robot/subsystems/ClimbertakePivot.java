@@ -8,6 +8,7 @@ import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.Angle;
@@ -36,6 +37,7 @@ public class ClimbertakePivot extends SubsystemBase {
     // Config
     pivotConfig = new SparkMaxConfig();
     pivotConfig
+      .idleMode(IdleMode.kBrake)
       .openLoopRampRate(ClimbertakeConstants.Pivot.kPivotMotorRampRate)
       .closedLoopRampRate(ClimbertakeConstants.Pivot.kPivotMotorRampRate)
       .smartCurrentLimit(ClimbertakeConstants.Pivot.kPivotMotorCurrentLimit)

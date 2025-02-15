@@ -8,6 +8,8 @@ import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkFlexConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Notifier;
@@ -48,6 +50,7 @@ public class ClimbertakeRollers extends SubsystemBase {
     // Configure roller motor
     config = new SparkFlexConfig();
     config
+      .idleMode(IdleMode.kBrake)
       .openLoopRampRate(ClimbertakeConstants.Rollers.kRollersMotorRampRate)
       .closedLoopRampRate(ClimbertakeConstants.Rollers.kRollersMotorRampRate)
       .smartCurrentLimit(ClimbertakeConstants.Rollers.kRollersMotorCurrentLimit)
