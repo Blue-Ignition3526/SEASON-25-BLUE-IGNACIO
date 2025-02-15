@@ -15,6 +15,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.commands.DriveSwerve;
 import frc.robot.commands.ZeroHeading;
+import frc.robot.subsystems.ClimbertakePivot;
+import frc.robot.subsystems.ClimbertakeRollers;
 import frc.robot.subsystems.SwerveDrive;
 import frc.robot.subsystems.SwerveModule;
 import frc.robot.subsystems.Gyro.Gyro;
@@ -36,6 +38,9 @@ public class RobotContainer {
 
   private final SendableChooser<Command> autonomousChooser;
 
+  private final ClimbertakePivot m_climbertakePivot;
+  private final ClimbertakeRollers m_climbertakeRollers;
+
   public RobotContainer() {
     gyro = new Gyro(new GyroIOPigeon(Constants.SwerveDrive.kGyroDevice));
     m_swerveDrive = new SwerveDrive(frontLeft, frontRight, backLeft, backRight, gyro);
@@ -44,6 +49,10 @@ public class RobotContainer {
 
     autonomousChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("Autonomous", autonomousChooser);
+
+    // Subsystems
+    m_climbertakePivot = new ClimbertakePivot();
+    m_climbertakeRollers = new ClimbertakeRollers();
 
     configureBindings();
   }
