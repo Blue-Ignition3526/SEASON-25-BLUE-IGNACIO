@@ -87,6 +87,29 @@ public class Constants {
         }
     }
 
+    public static final class WristConstants {
+        // Motor
+        public static final int kWristMotorID = 33;
+        public static final int kWristMotorCurrentLimit = 15;
+        public static final double kWristMotorRampRate = 0.15;
+
+        // Encoder
+        public static final int kWristEncoderPort = 1;
+        public static final Angle kWristEncoderOffset = Degrees.of(0);
+
+        // Setpoint angles
+        public static final Angle kMinAngle = Degrees.of(0);
+        public static final Angle kMaxAngle = Degrees.of(90);
+
+        // PID Controller
+        // TODO: Tune
+        public static final Angle epsilon = Degrees.of(1);
+        public static final ProfiledPIDController kWristPIDController = new ProfiledPIDController(
+            0.05, 0, 0, 
+            new TrapezoidProfile.Constraints(10, 20)
+        );
+    }
+
     //* Swerve Drive
     public static final class SwerveDriveConstants {
         public static final class PoseControllers {
