@@ -1,12 +1,8 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
 package frc.robot.subsystems;
 
 import com.reduxrobotics.sensors.canandcolor.Canandcolor;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
-import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
@@ -21,70 +17,80 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.Constants.IntakeCoralConstants;
 
 public class IntakeCoral extends SubsystemBase {
-  /** Creates a new IntakeCoral. */
-
-  //motors 
+  // Upper motor
   private final SparkMax m_upperMotor;
   private final SparkMaxConfig m_upperMotorConfig;
+
+  // Lower motor
   private final SparkMax m_lowerMotor;
   private final SparkMaxConfig m_lowerMotorConfig;
 
-  //closed loop controller 
-  private final SparkClosedLoopController rollersClosedLoopController;  
-
-  // sensor 
+  // Piece sensor 
   private final Canandcolor pieceSensor;
 
   // Alerts
-  private final Alert alert_motorUnreachable = new Alert(getName() + " motor unreachable", AlertType.kError);
+  private final Alert alert_upperMotorUnreachable = new Alert(getName() + " motor unreachable", AlertType.kError);
+  private final Alert alert_lowerMotorUnreachable = new Alert(getName() + " motor unreachable", AlertType.kError);
   private final Alert alert_pieceSensorUnreachable = new Alert(getName() + " piece sensor unreachable", AlertType.kError);
 
   // Device check notifier
   private final Notifier deviceCheckNotifier = new Notifier(this::deviceCheck);
 
-
   public IntakeCoral() {
-    
-    //upper motor config
-    this.m_upperMotor = new SparkMax(Constants.IntakeCoral.kUpperMotorId, MotorType.kBrushless);
+    // Upper motor
+    this.m_upperMotor = new SparkMax(Constants.IntakeCoralConstants.kUpperMotorId, MotorType.kBrushless);
+
+    // Upper motor config
     this.m_upperMotorConfig = new SparkMaxConfig();
-    this.m_upperMotorConfig.idleMode(IdleMode.kBrake);
+    this.m_upperMotorConfig
+      .idleMode(IdleMode.kBrake)
+      .openLoopRampRate(IntakeCoralConstants.kMotorRampRate)
+      .closedLoopRampRate(IntakeCoralConstants.kMotorRampRate)
+      .smartCurrentLimit(IntakeCoralConstants.kMotorCurrentLimit)
+      .voltageCompensation(12);
+
+    // Configure upper motor
     this.m_upperMotor.configure(m_upperMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
 
-    //lower motor config 
-    this.m_lowerMotor = new SparkMax(Constants.IntakeCoral.kLowerMotorId, MotorType.kBrushless);
-    this.m_lowerMotorConfig = new SparkMaxConfig();
-    this.m_lowerMotorConfig.idleMode(IdleMode.kBrake);
-    this.m_lowerMotorConfig.follow(m_upperMotor, true);
+    // Lower motor 
+    this.m_lowerMotor = new SparkMax(Constants.IntakeCoralConstants.kLowerMotorId, MotorType.kBrushless);
 
-    // Create closed loop controller
-    this.rollersClosedLoopController = m_upperMotor.getClosedLoopController();
+    // Lower motor config
+    this.m_lowerMotorConfig = new SparkMaxConfig();
+    this.m_lowerMotorConfig
+      .idleMode(IdleMode.kBrake)
+      .openLoopRampRate(IntakeCoralConstants.kMotorRampRate)
+      .closedLoopRampRate(IntakeCoralConstants.kMotorRampRate)
+      .smartCurrentLimit(IntakeCoralConstants.kMotorCurrentLimit)
+      .voltageCompensation(12)
+      // * Lower motor follows upper motor inverted
+      .follow(m_upperMotor, true);
 
     // Create piece sensor
-    pieceSensor = new Canandcolor(Constants.IntakeCoral.kSensorId);
-    pieceSensor.setLampLEDBrightness(Constants.IntakeCoral.kPieceSensorLedBrightness);
+    pieceSensor = new Canandcolor(Constants.IntakeCoralConstants.kSensorId);
+    pieceSensor.setLampLEDBrightness(Constants.IntakeCoralConstants.kPieceSensorLedBrightness);
   
     // Start device check notifier
     deviceCheckNotifier.startPeriodic(10);
-
   }
 
   private void deviceCheck() {
     try {
       m_upperMotor.getFirmwareVersion();
-      alert_motorUnreachable.set(false);
+      alert_upperMotorUnreachable.set(false);
     } catch (Exception e) {
-      alert_motorUnreachable.set(true);
+      alert_upperMotorUnreachable.set(true);
       DriverStation.reportError(getName() + " motor unreachable", false);
     }
 
     try {
       m_lowerMotor.getFirmwareVersion();
-      alert_motorUnreachable.set(false);
+      alert_lowerMotorUnreachable.set(false);
     } catch (Exception e) {
-      alert_motorUnreachable.set(true);
+      alert_lowerMotorUnreachable.set(true);
       DriverStation.reportError(getName() + " motor unreachable", false);
     }    
 
@@ -101,14 +107,14 @@ public class IntakeCoral extends SubsystemBase {
    * Sets the rollers to intake
    */
   public void setIn() {
-    m_upperMotor.setVoltage(Constants.IntakeCoral.kRollersInVoltage);
+    m_upperMotor.setVoltage(Constants.IntakeCoralConstants.kRollersInVoltage);
   }
 
   /**
    * Sets the rollers to outtake
    */
   public void setOut() {
-    m_upperMotor.setVoltage(Constants.IntakeCoral.kRollersOutVoltage);
+    m_upperMotor.setVoltage(Constants.IntakeCoralConstants.kRollersOutVoltage);
   }
 
   /**
@@ -134,12 +140,12 @@ public class IntakeCoral extends SubsystemBase {
    */
   public boolean hasPiece() {
     boolean colorIsSimilar = (
-      Math.abs(pieceSensor.getRed() - Constants.IntakeCoral.kCoralColor.red) < Constants.IntakeCoral.kCoralColorThreshold &&
-      Math.abs(pieceSensor.getGreen() - Constants.IntakeCoral.kCoralColor.green) < Constants.IntakeCoral.kCoralColorThreshold &&
-      Math.abs(pieceSensor.getBlue() - Constants.IntakeCoral.kCoralColor.blue) < Constants.IntakeCoral.kCoralColorThreshold
+      Math.abs(pieceSensor.getRed() - Constants.IntakeCoralConstants.kCoralColor.red) < Constants.IntakeCoralConstants.kCoralColorThreshold &&
+      Math.abs(pieceSensor.getGreen() - Constants.IntakeCoralConstants.kCoralColor.green) < Constants.IntakeCoralConstants.kCoralColorThreshold &&
+      Math.abs(pieceSensor.getBlue() - Constants.IntakeCoralConstants.kCoralColor.blue) < Constants.IntakeCoralConstants.kCoralColorThreshold
     );
 
-    boolean proximityTriggered = pieceSensor.getProximity() > Constants.IntakeCoral.kCoralProximityThreshold;
+    boolean proximityTriggered = pieceSensor.getProximity() > Constants.IntakeCoralConstants.kCoralProximityThreshold;
 
     return colorIsSimilar || proximityTriggered;
   }
