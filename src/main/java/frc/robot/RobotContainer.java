@@ -8,6 +8,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.commands.DriveSwerve;
+import frc.robot.subsystems.ClimbertakePivot;
+import frc.robot.subsystems.ClimbertakeRollers;
 import frc.robot.subsystems.SwerveDrive;
 import frc.robot.subsystems.SwerveModule;
 import frc.robot.subsystems.Gyro.Gyro;
@@ -34,6 +36,9 @@ public class RobotContainer {
 
   private final SendableChooser<Command> autonomousChooser;
 
+  private final ClimbertakePivot m_climbertakePivot;
+  private final ClimbertakeRollers m_climbertakeRollers;
+  
   private final SpeedAlterator turn180;
   private final SpeedAlterator lookAt;
   private final SpeedAlterator goTo0;
@@ -43,7 +48,7 @@ public class RobotContainer {
   private final LimelightOdometryCamera m_limelight3G;
   private final BlueShiftOdometry m_odometry;
   private final double m_visionPeriod = 0.1;
-
+  
   public RobotContainer() {
     gyro = new Gyro(new GyroIOPigeon(Constants.SwerveDriveConstants.kGyroDevice));
     m_swerveDrive = new SwerveDrive(frontLeft, frontRight, backLeft, backRight, gyro);
@@ -77,6 +82,10 @@ public class RobotContainer {
     // this.m_limelight3G.enable();
     // this.m_poseTracker.start();
     // this.m_poseTracker.startVision();
+
+    // Subsystems
+    m_climbertakePivot = new ClimbertakePivot();
+    m_climbertakeRollers = new ClimbertakeRollers();
 
     configureBindings();
   }

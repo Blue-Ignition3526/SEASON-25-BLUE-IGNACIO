@@ -9,11 +9,12 @@ import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.urcl.URCL;
+import com.reduxrobotics.canand.CanandEventLoop;
+
 /**
  * The methods in this class are called automatically corresponding to each mode, as described in
  * the TimedRobot documentation. If you change the name of this class or the package after creating
@@ -41,6 +42,9 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void robotInit() {
+    // Start Reduxlib server
+    CanandEventLoop.getInstance();
+    
     //! ADVANTAGE KIT LOGGING
     Logger.addDataReceiver(new NT4Publisher());
     if (Constants.Logging.kUseURCL) Logger.registerURCL(URCL.startExternal());
