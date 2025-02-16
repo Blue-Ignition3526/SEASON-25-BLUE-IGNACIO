@@ -110,6 +110,29 @@ public class Constants {
         );
     }
 
+    public static final class ArmPivotConstants {
+        // Motor
+        public static final int kArmPivotMotorID = 40;
+        public static final int kArmPivotMotorCurrentLimit = 30;
+        public static final double kArmPivotMotorRampRate = 0.15;
+
+        // Encoder
+        public static final int kArmPivotEncoderPort = 2;
+        public static final Angle kArmPivotEncoderOffset = Degrees.of(0);
+
+        // Angle limits
+        public static final Angle kMinAngle = Degrees.of(0);
+        public static final Angle kMaxAngle = Degrees.of(90);
+
+        // PID Controller
+        // TODO: Tune
+        public static final Angle epsilon = Degrees.of(1);
+        public static final ProfiledPIDController kArmPivotPIDController = new ProfiledPIDController(
+            0.05, 0, 0,
+            new TrapezoidProfile.Constraints(10, 20)
+        );
+    }
+
     //* Swerve Drive
     public static final class SwerveDriveConstants {
         public static final class PoseControllers {
