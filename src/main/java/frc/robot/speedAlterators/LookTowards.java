@@ -29,11 +29,13 @@ public class LookTowards extends SpeedAlterator {
     }
 
     public ChassisSpeeds alterSpeed(ChassisSpeeds speeds, boolean robotRelative) {
-        double speed = -Constants.SwerveDriveConstants.PoseControllers.rotationPID.calculate(angleSupplier.get() % 1, targetAngle.get() % 1);
+        double rotSpeed = -Constants.SwerveDriveConstants.PoseControllers.rotationPID.calculate(angleSupplier.get() % 1, targetAngle.get() % 1);
         SmartDashboard.putNumber("Alterators/DesiredAngle", targetAngle.get() % 1);
         SmartDashboard.putNumber("Alterators/CurrentAngle", angleSupplier.get() % 1);
-        SmartDashboard.putNumber("Alterators/Speed", speed);
+        SmartDashboard.putNumber("Alterators/Speed", rotSpeed);
 
-        return new ChassisSpeeds(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond, speed);
+        speeds.omegaRadiansPerSecond = rotSpeed;
+
+        return speeds;
     }
 }

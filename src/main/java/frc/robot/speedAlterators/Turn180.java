@@ -1,7 +1,5 @@
 package frc.robot.speedAlterators;
 
-import java.util.function.Supplier;
-
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -32,11 +30,13 @@ public class Turn180 extends SpeedAlterator {
     }
 
     public ChassisSpeeds alterSpeed(ChassisSpeeds speeds, boolean robotRelative) {
-        double speed = Constants.SwerveDriveConstants.PoseControllers.rotationPID.calculate((swerveDrive.odometry.getPoseMeters().getRotation().getRotations()), targetAngle);        SmartDashboard.putNumber("Alterators/DesiredAngle", targetAngle);
+        double speed = Constants.SwerveDriveConstants.PoseControllers.rotationPID.calculate((swerveDrive.odometry.getPoseMeters().getRotation().getRotations()), targetAngle);
+        SmartDashboard.putNumber("Alterators/DesiredAngle", targetAngle);
         SmartDashboard.putNumber("Alterators/CurrentAngle", (swerveDrive.odometry.getPoseMeters().getRotation().getRotations()));
         SmartDashboard.putNumber("Alterators/Speed", speed);
 
         speeds.omegaRadiansPerSecond = speed;
+
         return speeds;
     }
 }

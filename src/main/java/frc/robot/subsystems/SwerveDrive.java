@@ -229,7 +229,7 @@ public class SwerveDrive extends SubsystemBase {
      */
     public void drive(ChassisSpeeds speeds) {
         // Alter the speeds if needed
-        this.speeds = this.speedAlterator != null ? this.speedAlterator.alterSpeed(speeds, drivingRobotRelative) : speeds;
+        this.speeds = ChassisSpeeds.discretize(this.speedAlterator != null ? this.speedAlterator.alterSpeed(speeds, drivingRobotRelative) : speeds, 0);
 
         // Convert speeds to module states
         SwerveModuleState[] m_moduleStates = Constants.SwerveDriveConstants.PhysicalModel.kDriveKinematics.toSwerveModuleStates(this.speeds);
