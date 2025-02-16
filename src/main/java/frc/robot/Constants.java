@@ -1,8 +1,8 @@
 package frc.robot;
 
-// import com.pathplanner.lib.util.PIDConstants;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.AngleUnit;
 import edu.wpi.first.units.AngularAccelerationUnit;
 import edu.wpi.first.units.AngularVelocityUnit;
@@ -10,6 +10,7 @@ import edu.wpi.first.units.DistanceUnit;
 import edu.wpi.first.units.LinearAccelerationUnit;
 import edu.wpi.first.units.LinearVelocityUnit;
 import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.measure.Angle;
 import lib.team3526.constants.CTRECANDevice;
 import lib.team3526.constants.PIDFConstants;
 import lib.team3526.constants.SwerveModuleOptions;
@@ -26,19 +27,26 @@ public class Constants {
     }
 
     public static final class ArmPivotConstants {
-        public static final int motorID = 40; // TODO: All arm pivot constants
-        public static final int encodeID = 41;
+        // Motor
+        public static final int kArmPivotMotorID = 40;
+        public static final int kArmPivotMotorCurrentLimit = 30;
+        public static final double kArmPivotMotorRampRate = 0.15;
 
-        public static final Constraints constraints = new Constraints(1, 1);
+        // Encoder
+        public static final int kArmPivotEncoderPort = 2;
+        public static final Angle kArmPivotEncoderOffset = Degrees.of(0);
 
-        public static final PIDFConstants pidConstants = new PIDFConstants(0.05, 0, 0); // TODO: tune
+        // Angle limits
+        public static final Angle kMinAngle = Degrees.of(0);
+        public static final Angle kMaxAngle = Degrees.of(90);
 
-        public static final class PhysicalModel {
-            public static final double maxRot = 1; // TODO: Get Max and Min Poses
-            public static final double minRot = 0;
-
-            public static final boolean inverted = false;
-        }
+        // PID Controller
+        // TODO: Tune
+        public static final Angle epsilon = Degrees.of(1);
+        public static final ProfiledPIDController kArmPivotPIDController = new ProfiledPIDController(
+            0.05, 0, 0,
+            new TrapezoidProfile.Constraints(10, 20)
+        );
     }
 
     //* Swerve Drive
