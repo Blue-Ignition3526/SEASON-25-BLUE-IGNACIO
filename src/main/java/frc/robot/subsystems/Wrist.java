@@ -1,124 +1,128 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.Rotations;
 import com.revrobotics.spark.SparkFlex;
-
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
-
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.WristConstants;
+import lib.team3526.utils.BluePWMEncoder;
 
 public class Wrist extends SubsystemBase {
+  // Motor
   private final SparkFlex motor;
-  private final SparkFlexConfig motorConfig;
-  private final DutyCycleEncoder encoder;
-  private final ProfiledPIDController pidController;
 
-  
-  private boolean pidEnabled = true;
-  private double goalPosition;
+  // Config
+  private final SparkFlexConfig motorConfig;
+
+  // Through bore encoder
+  private final BluePWMEncoder encoder;
+
+  // Setpoint angle
+  private Angle setpoint;
 
   /** Creates a new Wrist. */
   public Wrist() {
-    this.motor = new SparkFlex(WristConstants.motorID, MotorType.kBrushless);
+    // Create motor
+    this.motor = new SparkFlex(WristConstants.kWristMotorID, MotorType.kBrushless);
+
+    // Motor config
     this.motorConfig = new SparkFlexConfig();
-    this.encoder = new DutyCycleEncoder(WristConstants.encodePort);
+    this.motorConfig
+      .idleMode(IdleMode.kBrake)
+      .openLoopRampRate(WristConstants.kWristMotorRampRate)
+      .closedLoopRampRate(WristConstants.kWristMotorRampRate)
+      .smartCurrentLimit(WristConstants.kWristMotorCurrentLimit)
+      .voltageCompensation(12);
 
-    pidController = new ProfiledPIDController(
-      WristConstants.pidConstants.kP,
-      WristConstants.pidConstants.kI,
-      WristConstants.pidConstants.kD,
-      WristConstants.constraints
-    );
+    // Apply motor config
+    motor.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
 
-    motorConfig.inverted(WristConstants.PhysicalModel.inverted);
+    // Create and configure encoder
+    this.encoder = new BluePWMEncoder(WristConstants.kWristEncoderPort);
+    this.encoder.setOffset(WristConstants.kWristEncoderOffset.in(Rotations));
+
+    // Setpoint angle
+    this.setpoint = getAngle();
   }
 
   /**
-   * Stops the wrist, disables PID
+   * Gets the current angle of the wrist
    */
-  public void stop() {
-    pidEnabled = false;
-    motor.set(0);
+  public Angle getAngle() {
+    return encoder.getAngle();
   }
 
   /**
-   * Enables PID
+   * Resets the PID Controller
    */
-  public void restart() {
-    pidEnabled = true;
+  public void resetPID() {
+    WristConstants.kWristPIDController.reset(getAngle().in(Radians));
   }
 
   /**
-   * Gets the current position of the wrist
-   * @return the current position of the wrist in Rotations
+   * Resets the PID controller
+   * @return
    */
-  public double getPosition() {
-    return encoder.get();
+  public Command resetPIDCommand() {
+    return runOnce(this::resetPID);
   }
 
   /**
-   * Sets the goal position of the wrist
-   * 
-   * @param position The position you want to set in Rotations. It is clamped
+   * Sets the setpoint of the PID controller
+   * @param setpoint
    */
-  public void setGoalPosition(double position) {
-    MathUtil.clamp(position, WristConstants.PhysicalModel.minRot, WristConstants.PhysicalModel.maxRot);
-    
-    this.goalPosition = position;
-    pidController.setGoal(position);
+  public void setSetpoint(Angle setpoint) {
+    this.setpoint = Radians.of(MathUtil.clamp(
+      setpoint.in(Radians),
+      WristConstants.kMinAngle.in(Radians),
+      WristConstants.kMaxAngle.in(Radians)
+    ));
   }
 
   /**
-   * Gets the goal position of the wrist
-   * @return the goal position of the wrist in Rotations
+   * Sets the setpoint of the PID controller
+   * @param setpoint
+   * @return
    */
-  public double getGoalPosition() {
-    return goalPosition;
+  public Command setSetpointCommand(Angle setpoint) {
+    return runOnce(() -> setSetpoint(setpoint));
   }
 
-  public boolean isAtGoal() {
-    return pidController.atGoal();
+  /**
+   * Returns wether or not the PID controller is at the setpoint
+   * @return
+   */
+  public boolean atSetpoint() {
+    return WristConstants.kWristPIDController.atSetpoint();
   }
 
   @Override
   public void periodic() {
-    if(pidEnabled) motor.set(pidController.calculate(getPosition()));
+    double currentAngleRad = getAngle().in(Radians);
+    // ! CLAMPS ANGLE HERE
+    // double setpointAngleRad = MathUtil.clamp(
+    //   setpoint.in(Radians),
+    //   ClimbertakeConstants.Pivot.kPivotLowerLimit.in(Radians),
+    //   ClimbertakeConstants.Pivot.kPivotUpperLimit.in(Radians)
+    // );
+    double setpointAngleRad = setpoint.in(Radians);
 
-    log();
-  }
+    double resultVolts = WristConstants.kWristPIDController.calculate(currentAngleRad, setpointAngleRad);
 
-  public Command goTo(double angle) {
-    return new FunctionalCommand(
-      // Init
-      ()->setGoalPosition(angle),
-      // Periodic
-      () -> {},
-      // End
-      interrupted -> {},
-      // isfinished
-      () -> isAtGoal(),
-      // addRequirements
-      this);
-  }
+    // ! CHECK APPLIED VOLTAGE IN THE DASHBOARD FIRST BEFORE POWERING THE MOTOR
+    // pivotMotor.setVoltage(resultVolts);
 
-  public void log() {
-    SmartDashboard.putNumber("Wrist/position", getPosition());
-    SmartDashboard.putNumber("Wrist/goalPosition", goalPosition);
-    SmartDashboard.putNumber("Wrist/motorOutput", motor.get());
-    SmartDashboard.putNumber("Wrist/encoderPosition", encoder.get());
-    SmartDashboard.putNumber("Wrist/pidError", pidController.getPositionError());
-    SmartDashboard.putNumber("Wrist/pidOutput", pidController.calculate(getPosition()));
+    SmartDashboard.putNumber("Wrist/SetpointAngle", Math.toDegrees(setpointAngleRad));
+    SmartDashboard.putNumber("Wrist/CurrentAngle", Math.toDegrees(currentAngleRad));
+    SmartDashboard.putNumber("Wrist/OutputVolts", resultVolts);
   }
 }
