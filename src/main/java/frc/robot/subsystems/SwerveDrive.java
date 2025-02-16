@@ -1,5 +1,8 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.hal.FRCNetComm.tInstances;
+import edu.wpi.first.hal.FRCNetComm.tResourceType;
+import edu.wpi.first.hal.HAL;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -15,10 +18,9 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.subsystems.Gyro.Gyro;
-import lib.team3526.math.RotationalInertiaAccumulator;
+import lib.BlueShift.control.SpeedAlterator;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import org.littletonrobotics.junction.Logger;
-
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
@@ -41,8 +43,8 @@ public class SwerveDrive extends SubsystemBase {
     private boolean drivingRobotRelative = false;
     private ChassisSpeeds speeds = new ChassisSpeeds();
 
-    //* Rotational inertia accumulator
-    RotationalInertiaAccumulator rotationalInertiaAccumulator = new RotationalInertiaAccumulator(Constants.SwerveDrive.PhysicalModel.kRobotMassKg);
+    // * Speed alterator
+    SpeedAlterator speedAlterator = null;
 
     /**
      * Create a new Swerve drivetrain with the provided Swerve Modules and gyroscope
@@ -64,7 +66,7 @@ public class SwerveDrive extends SubsystemBase {
 
         // Create odometry with initial data
         this.odometry = new SwerveDriveOdometry(
-            Constants.SwerveDrive.PhysicalModel.kDriveKinematics,
+            Constants.SwerveDriveConstants.PhysicalModel.kDriveKinematics,
             this.getHeading(),
             new SwerveModulePosition[]{
                 frontLeft.getPosition(),
@@ -74,11 +76,11 @@ public class SwerveDrive extends SubsystemBase {
             }
         );
 
+        // Resource reporting
+        HAL.report(tResourceType.kResourceType_RobotDrive, tInstances.kRobotDriveSwerve_Other);
+
         //! ENCODERS ARE RESET IN EACH MODULE
         //! DO NOT RESET THEM HERE IN THE CONSTRUCTOR
-
-        // Reset gyroscope
-        this.gyro.reset();
 
         // Configure the auto builder
         this.configureAutoBuilder(this);
@@ -103,8 +105,8 @@ public class SwerveDrive extends SubsystemBase {
             this::getRelativeChassisSpeeds,
             (speeds, feedforwards) -> driveRobotRelative(speeds),
             new PPHolonomicDriveController(
-                Constants.SwerveDrive.Autonomous.kTranslatePIDConstants,
-                Constants.SwerveDrive.Autonomous.kRotatePIDConstants
+                Constants.SwerveDriveConstants.AutonomousConstants.kTranslatePIDConstants,
+                Constants.SwerveDriveConstants.AutonomousConstants.kRotatePIDConstants
             ),
             config,
             () -> {
@@ -151,6 +153,7 @@ public class SwerveDrive extends SubsystemBase {
      */
     public void resetOdometry(Pose2d pose) {
         odometry.resetPosition(this.getHeading(), getModulePositions(), pose);
+
     }
 
     /**
@@ -211,7 +214,7 @@ public class SwerveDrive extends SubsystemBase {
      * @param states
      */
     public void setModuleStates(SwerveModuleState[] states) {
-        SwerveDriveKinematics.desaturateWheelSpeeds(states, Constants.SwerveDrive.PhysicalModel.kMaxSpeed.in(MetersPerSecond));
+        SwerveDriveKinematics.desaturateWheelSpeeds(states, Constants.SwerveDriveConstants.PhysicalModel.kMaxSpeed.in(MetersPerSecond));
         frontLeft.setTargetState(states[0]);
         frontRight.setTargetState(states[1]);
         backLeft.setTargetState(states[2]);
@@ -225,10 +228,30 @@ public class SwerveDrive extends SubsystemBase {
      * @param rotSpeed
      */
     public void drive(ChassisSpeeds speeds) {
-        this.speeds = speeds;
-        SwerveModuleState[] m_moduleStates = Constants.SwerveDrive.PhysicalModel.kDriveKinematics.toSwerveModuleStates(speeds);
+        // Alter the speeds if needed
+        this.speeds = ChassisSpeeds.discretize(this.speedAlterator != null ? this.speedAlterator.alterSpeed(speeds, drivingRobotRelative) : speeds, 0);
+
+        // Convert speeds to module states
+        SwerveModuleState[] m_moduleStates = Constants.SwerveDriveConstants.PhysicalModel.kDriveKinematics.toSwerveModuleStates(this.speeds);
+
+        // Set the target states for the modules
         this.setModuleStates(m_moduleStates);
     }
+
+    public Command enableSpeedAlteratorCommand(SpeedAlterator alterator) {
+        return runOnce(() -> {
+            alterator.onEnable();
+            this.speedAlterator = alterator;
+        });
+    }
+
+    public Command disableSpeedAlteratorCommand() {
+        return runOnce(() -> {
+            if(this.speedAlterator != null) this.speedAlterator.onDisable();
+            this.speedAlterator = null;
+        });
+    }
+
 
     /**
      * Drive the robot with the provided speeds <b>(ROBOT RELATIVE)</b>
@@ -319,22 +342,21 @@ public class SwerveDrive extends SubsystemBase {
     }
 
     public Command zeroHeadingCommand() {
-        return Commands.runOnce(this::zeroHeading, this);
+        return Commands.runOnce(this::zeroHeading);
+    }
+
+    public Command resetPoseCommand() {
+        return runOnce(this::resetPose);
     }
 
     @Override
     public void periodic() {
-        // Update inertia acculumator
-        rotationalInertiaAccumulator.update(this.getHeading().getRadians());
-
         // Update odometry
         this.odometry.update(getHeading(), getModulePositions());
 
         // Log data
         Logger.recordOutput("SwerveDrive/RobotHeadingRad", this.getHeading().getRadians());
         Logger.recordOutput("SwerveDrive/RobotHeadingDeg", this.getHeading().getDegrees());
-
-        Logger.recordOutput("SwerveDrive/RobotRotationalInertia", rotationalInertiaAccumulator.getTotalRotationalInertia());
         
         Logger.recordOutput("SwerveDrive/RobotPose", this.getPose());
 
