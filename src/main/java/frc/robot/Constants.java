@@ -189,4 +189,26 @@ public class Constants {
             public static final Measure<LinearVelocityUnit> kMaxSpeedMetersPerSecond = MetersPerSecond.of(1);
         }
     }
+
+    public static final class IntakeCoralConstants {
+        // Motor IDs
+        public static final int kUpperMotorId = 10;
+        public static final int kLowerMotorId = 11;
+
+        // Motor limits
+        public static final int kMotorCurrentLimit = 40;
+        public static final double kMotorRampRate = 0.15;
+
+        // Sensor
+        public static final int kSensorId = 12;
+        public static final double kPieceSensorLedBrightness = 0.5;
+        public static final Color kCoralColor = new Color(1, 1, 1);
+        public static final double kCoralColorThreshold = 0.15;
+        public static final double kCoralProximityThreshold = 0.75;
+
+        // Parameters
+        public static final double kRollersInVoltage = 6;
+        public static final double kRollersOutVoltage = -kRollersInVoltage;
+
+    }
 }
