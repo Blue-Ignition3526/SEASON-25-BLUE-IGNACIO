@@ -1,5 +1,7 @@
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Degrees;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -37,7 +39,7 @@ public class RobotContainer {
   private final SendableChooser<Command> autonomousChooser;
 
   private final ClimbertakePivot m_climbertakePivot;
-  private final ClimbertakeRollers m_climbertakeRollers;
+  //private final ClimbertakeRollers m_climbertakeRollers;
   
   private final SpeedAlterator turn180;
   private final SpeedAlterator lookAt;
@@ -82,12 +84,15 @@ public class RobotContainer {
     // this.m_limelight3G.enable();
     // this.m_poseTracker.start();
     // this.m_poseTracker.startVision();
-
     // Subsystems
     m_climbertakePivot = new ClimbertakePivot();
-    m_climbertakeRollers = new ClimbertakeRollers();
+    //m_climbertakeRollers = new ClimbertakeRollers();
 
-    configureBindings();
+    SmartDashboard.putData("ClimbertakePivot/0", m_climbertakePivot.setSetpointCommand(Degrees.of(0)).ignoringDisable(true));
+    SmartDashboard.putData("ClimbertakePivot/90", m_climbertakePivot.setSetpointCommand(Degrees.of(80)).ignoringDisable(true));
+    SmartDashboard.putData("ClimbertakePivot/-90", m_climbertakePivot.setSetpointCommand(Degrees.of(-60)).ignoringDisable(true));
+
+    //configureBindings();
   }
 
   private void configureBindings() {

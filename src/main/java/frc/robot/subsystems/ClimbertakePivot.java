@@ -1,7 +1,9 @@
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Rotation;
+import static edu.wpi.first.units.Units.Rotations;
 
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.PersistMode;
@@ -12,6 +14,7 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -24,7 +27,7 @@ public class ClimbertakePivot extends SubsystemBase {
   private final SparkMax pivotMotor;
 
   // * Encoder
-  private final BluePWMEncoder pivotEncoder;
+  private final DutyCycleEncoder pivotEncoder;
 
   // * Setpoint
   private Angle setpoint;
@@ -48,11 +51,14 @@ public class ClimbertakePivot extends SubsystemBase {
 
     // Configure PID
     ClimbertakeConstants.Pivot.kPivotPIDController.setTolerance(ClimbertakeConstants.Pivot.epsilon.in(Radians));
+    
     ClimbertakeConstants.Pivot.kPivotPIDController.disableContinuousInput();
 
     // * Create and configure the Encoder
-    pivotEncoder = new BluePWMEncoder(ClimbertakeConstants.Pivot.kPivotEncoderPort);
-    pivotEncoder.setOffset(ClimbertakeConstants.Pivot.kPivotEncoderOffset.in(Rotation));
+    pivotEncoder = new DutyCycleEncoder(ClimbertakeConstants.Pivot.kPivotEncoderPort);
+    //pivotEncoder.setOffset(ClimbertakeConstants.Pivot.kPivotEncoderOffset.in(Rotation));
+
+    SmartDashboard.putData("ClimbertakePivot/PID", ClimbertakeConstants.Pivot.kPivotPIDController);
 
     // * Setpoint
     setpoint = getAngle();
@@ -63,7 +69,7 @@ public class ClimbertakePivot extends SubsystemBase {
    * @return
    */
   public Angle getAngle() {
-    return pivotEncoder.getAngle();
+    return Rotations.of(pivotEncoder.get()).plus(ClimbertakeConstants.Pivot.kPivotEncoderOffset);
   }
 
   /**
@@ -122,8 +128,9 @@ public class ClimbertakePivot extends SubsystemBase {
     double resultVolts = pidOutputVolts + feedforwardVolts;
 
     // ! CHECK APPLIED VOLTAGE IN THE DASHBOARD FIRST BEFORE POWERING THE MOTOR
-    // pivotMotor.setVoltage(resultVolts);
+    pivotMotor.setVoltage(resultVolts);
 
+    //SmartDashboard.putNumber("Climbertake/Pivot/AngleNoOffset", pivotEncoder.getAngleNoOffset().in(Degrees));
     SmartDashboard.putNumber("Climbertake/Pivot/SetpointAngle", Math.toDegrees(setpointAngleRad));
     SmartDashboard.putNumber("Climbertake/Pivot/CurrentAngle", Math.toDegrees(currentAngleRad));
     SmartDashboard.putNumber("Climbertake/Pivot/OutputVolts", resultVolts);
