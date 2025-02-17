@@ -69,7 +69,7 @@ public class Constants {
 
         public static final class Rollers {
             // Motor and current limit
-            public static final int kRollersMotorID = 31;
+            public static final int kRollersMotorID = 17;
             public static final int kRollersMotorCurrentLimit = 30;
             public static final double kRollersMotorRampRate = 0;
 
@@ -79,11 +79,11 @@ public class Constants {
             public static final double kRollersStoreCurrent = 5;
 
             // Canandcolor piece sensor
-            public static final int kPieceSensorID = 15;
-            public static final double kPieceSensorLedBrightness = 0.5;
-            public static final Color kAlgaeColor = new Color(0, 0.5, 0.5);
-            public static final double kAlgaeColorThreshold = 0.15;
-            public static final double kAlgaeProximityThreshold = 0.75;
+            public static final int kPieceSensorID = 18;
+            public static final double kPieceSensorLedBrightness = 0.25;
+            public static final Color kAlgaeColor = new Color(0.3, 1, 0.65);
+            public static final double kAlgaeColorThreshold = 0.3;
+            public static final double kAlgaeProximityThreshold = 0.03;
         }
     }
 
