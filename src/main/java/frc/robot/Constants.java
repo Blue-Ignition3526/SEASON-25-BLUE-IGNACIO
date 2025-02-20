@@ -42,13 +42,13 @@ public class Constants {
             // Motor
             public static final int kPivotMotorID = 16;
             public static final int kPivotMotorCurrentLimit = 40;
-            public static final double kPivotMotorRampRate = 0.15;
+            public static final double kPivotMotorRampRate = 0.05;
 
             // Encoder
             public static final int kPivotEncoderPort = 0;
             public static final Angle kPivotEncoderOffset = Degrees.of(-161);
-            // public static final Angle kPivotUpperLimit = Degrees.of(180);
-            // public static final Angle kPivotLowerLimit = Degrees.of(90);
+            public static final Angle kPivotUpperLimit = Degrees.of(75);
+            public static final Angle kPivotLowerLimit = Degrees.of(-60);
 
             // PID Controller
             public static final ProfiledPIDController kPivotPIDController = new ProfiledPIDController(

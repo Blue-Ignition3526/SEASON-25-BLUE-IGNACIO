@@ -1,10 +1,7 @@
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.Rotation;
 import static edu.wpi.first.units.Units.Rotations;
-
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -19,7 +16,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ClimbertakeConstants;
-import lib.team3526.utils.BluePWMEncoder;
 
 public class ClimbertakePivot extends SubsystemBase {
   // * Motor
@@ -51,12 +47,10 @@ public class ClimbertakePivot extends SubsystemBase {
 
     // Configure PID
     ClimbertakeConstants.Pivot.kPivotPIDController.setTolerance(ClimbertakeConstants.Pivot.epsilon.in(Radians));
-    
     ClimbertakeConstants.Pivot.kPivotPIDController.disableContinuousInput();
 
     // * Create and configure the Encoder
     pivotEncoder = new DutyCycleEncoder(ClimbertakeConstants.Pivot.kPivotEncoderPort);
-    //pivotEncoder.setOffset(ClimbertakeConstants.Pivot.kPivotEncoderOffset.in(Rotation));
 
     SmartDashboard.putData("ClimbertakePivot/PID", ClimbertakeConstants.Pivot.kPivotPIDController);
 
@@ -116,12 +110,11 @@ public class ClimbertakePivot extends SubsystemBase {
   public void periodic() {
     double currentAngleRad = getAngle().in(Radians);
     // ! CLAMPS ANGLE HERE
-    // double setpointAngleRad = MathUtil.clamp(
-    //   setpoint.in(Radians),
-    //   ClimbertakeConstants.Pivot.kPivotLowerLimit.in(Radians),
-    //   ClimbertakeConstants.Pivot.kPivotUpperLimit.in(Radians)
-    // );
-    double setpointAngleRad = setpoint.in(Radians);
+    double setpointAngleRad = MathUtil.clamp(
+      setpoint.in(Radians),
+      ClimbertakeConstants.Pivot.kPivotLowerLimit.in(Radians),
+      ClimbertakeConstants.Pivot.kPivotUpperLimit.in(Radians)
+    );
 
     double pidOutputVolts = ClimbertakeConstants.Pivot.kPivotPIDController.calculate(currentAngleRad, setpointAngleRad);
     double feedforwardVolts = ClimbertakeConstants.Pivot.kPivotFeedforward.calculate(currentAngleRad, pidOutputVolts);
@@ -130,7 +123,7 @@ public class ClimbertakePivot extends SubsystemBase {
     // ! CHECK APPLIED VOLTAGE IN THE DASHBOARD FIRST BEFORE POWERING THE MOTOR
     pivotMotor.setVoltage(resultVolts);
 
-    //SmartDashboard.putNumber("Climbertake/Pivot/AngleNoOffset", pivotEncoder.getAngleNoOffset().in(Degrees));
+    // Logging
     SmartDashboard.putNumber("Climbertake/Pivot/SetpointAngle", Math.toDegrees(setpointAngleRad));
     SmartDashboard.putNumber("Climbertake/Pivot/CurrentAngle", Math.toDegrees(currentAngleRad));
     SmartDashboard.putNumber("Climbertake/Pivot/OutputVolts", resultVolts);
