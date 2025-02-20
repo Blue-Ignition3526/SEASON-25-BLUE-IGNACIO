@@ -10,14 +10,14 @@ public class ClimbertakeCommands {
     public static Command intakeCommand(ClimbertakePivot pivot, ClimbertakeRollers rollers) {
         return new ParallelCommandGroup(
             rollers.setInCommand(),
-            pivot.setSetpointCommand(ClimbertakeConstants.Pivot.kOutAngle)
+            pivot.setSetpointCommand(ClimbertakeConstants.Pivot.kIntakeAngle)
         );
     }
 
     public static Command storeCommand(ClimbertakePivot pivot, ClimbertakeRollers rollers) {
         return new ParallelCommandGroup(
             rollers.stopCommand(),
-            pivot.setSetpointCommand(ClimbertakeConstants.Pivot.kInAngle)
+            pivot.setSetpointCommand(ClimbertakeConstants.Pivot.kStoreAngle)
         );
     }
 
