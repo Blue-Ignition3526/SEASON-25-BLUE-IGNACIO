@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Inches;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -13,8 +15,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 // import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.commands.DriveSwerve;
 import frc.robot.commands.ZeroHeading;
+import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.SwerveDrive;
 import frc.robot.subsystems.SwerveModule;
 import frc.robot.subsystems.Gyro.Gyro;
@@ -34,16 +38,25 @@ public class RobotContainer {
   private final SwerveDrive m_swerveDrive;
   private final Gyro gyro;
 
+  private final Elevator elevator;
+
   private final SendableChooser<Command> autonomousChooser;
 
   public RobotContainer() {
     gyro = new Gyro(new GyroIOPigeon(Constants.SwerveDrive.kGyroDevice));
     m_swerveDrive = new SwerveDrive(frontLeft, frontRight, backLeft, backRight, gyro);
 
+    this.elevator = new Elevator();
+
     SmartDashboard.putData(new ZeroHeading(m_swerveDrive));
 
     autonomousChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("Autonomous", autonomousChooser);
+
+    SmartDashboard.putData("Elevator/0", elevator.setSetpointCommand(Inches.of(10)).ignoringDisable(true));
+    SmartDashboard.putData("Elevator/1", elevator.setSetpointCommand(Inches.of(0)).ignoringDisable(true));
+    SmartDashboard.putData("Elevator/0", elevator.setSetpointCommand(Inches.of(50)).ignoringDisable(true));
+
 
     configureBindings();
   }

@@ -81,8 +81,10 @@ public class Elevator extends SubsystemBase {
     // * Encoder
     this.m_encoder = m_rightElevatorMotor.getEncoder();
 
-    // ! SET SETPOINT TO INITIAL POSTIION
+    // * Set setpoint to initial postiion
+    this.m_setpoint = getPosition();
 
+    // Start device check
     deviceCheckNotifier.startPeriodic(10);
   }
 
@@ -116,7 +118,7 @@ public class Elevator extends SubsystemBase {
    * Get the current position of the elevator
    * @return
    */
-  public Distance getPosition(){
+  public Distance getPosition() {
     return Inches.of(this.m_encoder.getPosition());
   }
 
@@ -124,7 +126,7 @@ public class Elevator extends SubsystemBase {
    * Set the setpoint of the elevator
    * @param setpoint
    */
-  public void setSetpoint(Distance setpoint){
+  public void setSetpoint(Distance setpoint) {
     this.m_setpoint = setpoint;
   }
 
