@@ -1,9 +1,6 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Inches;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.PersistMode;
@@ -11,112 +8,165 @@ import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-
+import frc.robot.Constants.ElevatorConstants;
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Notifier;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
 
+/** Creates a new Elevator. */
 public class Elevator extends SubsystemBase {
-  /** Creates a new Elevator. */
-
-  //motors
-  private final SparkMax m_rightElevatorMotor;
-  private final SparkMaxConfig m_rightElevatorMotorConfig;
+  // Left motor
   private final SparkMax m_leftElevatorMotor;
   private final SparkMaxConfig m_leftElevatorMotorConfig;
 
-  //encoder
+  // Right motor
+  private final SparkMax m_rightElevatorMotor;
+  private final SparkMaxConfig m_rightElevatorMotorConfig;
+
+  // Encoder (right motor integrated encoder)
   private final RelativeEncoder m_encoder;
 
-  //setpoint
-  private double m_setpoint = 0.0;
+  // Setpoint
+  private Distance m_setpoint;
+
+  // Alerts
+  private Alert alert_leftMotorUnreachable = new Alert(getName() + " left motor unreachable.", AlertType.kError);
+  private Alert alert_rightMotorUnreachable = new Alert(getName() + " right motor unreachable.", AlertType.kError);
+  private Alert alert_encoderUnreachable = new Alert(getName() + " encoder unreachable.", AlertType.kError);
+
+  // Device check
+  private Notifier deviceCheckNotifier = new Notifier(this::deviceCheck);
 
   public Elevator() {
-    //motors
-    this.m_rightElevatorMotor = new SparkMax(Constants.Elevator.kRightMotorID, MotorType.kBrushless);
+    // * Right motor (MASTER)
+    this.m_rightElevatorMotor = new SparkMax(ElevatorConstants.kRightMotorID, MotorType.kBrushless);
+
+    // Configure motor
     this.m_rightElevatorMotorConfig = new SparkMaxConfig();
-    this.m_rightElevatorMotorConfig.idleMode(IdleMode.kBrake);
-    this.m_rightElevatorMotorConfig.encoder.positionConversionFactor(m_setpoint);
+    this.m_rightElevatorMotorConfig
+      .voltageCompensation(12)
+      .idleMode(IdleMode.kBrake)
+      .smartCurrentLimit(ElevatorConstants.kElevatorMotorCurrentLimit)
+      .openLoopRampRate(ElevatorConstants.kElevatorMotorRampRate)
+      .closedLoopRampRate(ElevatorConstants.kElevatorMotorRampRate);
+    
+    // Configure encoder
+    this.m_rightElevatorMotorConfig.encoder.positionConversionFactor(ElevatorConstants.kRotationsToInches);
+
+    // Apply right motor configuration
     this.m_rightElevatorMotor.configure(m_rightElevatorMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
 
-    this.m_leftElevatorMotor = new SparkMax(Constants.Elevator.kLeftMotorID, MotorType.kBrushless);
+    // * Left motor (FOLLOWER)
+    this.m_leftElevatorMotor = new SparkMax(ElevatorConstants.kLeftMotorID, MotorType.kBrushless);
+
+    // Configure motor
     this.m_leftElevatorMotorConfig = new SparkMaxConfig();
-    this.m_leftElevatorMotorConfig.idleMode(IdleMode.kBrake);
-    this.m_leftElevatorMotorConfig.follow(m_rightElevatorMotor, true);
+    this.m_leftElevatorMotorConfig
+      .voltageCompensation(12)
+      .idleMode(IdleMode.kBrake)
+      .smartCurrentLimit(ElevatorConstants.kElevatorMotorCurrentLimit)
+      .openLoopRampRate(ElevatorConstants.kElevatorMotorRampRate)
+      .closedLoopRampRate(ElevatorConstants.kElevatorMotorRampRate)
+      .follow(m_rightElevatorMotor, true);
+
+    // Apply left motor configuration
     this.m_leftElevatorMotor.configure(m_leftElevatorMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
 
-    //encoders
-    this.m_encoder = m_rightElevatorMotor.getEncoder();    
+    // * Encoder
+    this.m_encoder = m_rightElevatorMotor.getEncoder();
+
+    // ! SET SETPOINT TO INITIAL POSTIION
+
+    deviceCheckNotifier.startPeriodic(10);
   }
 
-  //get position of elevator
+  private void deviceCheck() {
+    try {
+      m_rightElevatorMotor.getFirmwareVersion();
+      alert_rightMotorUnreachable.set(false);
+    } catch (Exception e) {
+      alert_rightMotorUnreachable.set(true);
+      DriverStation.reportError(alert_rightMotorUnreachable.getText(), false);
+    }
 
-  public double getPosition(){
-    return this.m_encoder.getPosition() * (Constants.Elevator.kElevatorPulleyDiameter * Math.PI);
+    try {
+      m_leftElevatorMotor.getFirmwareVersion();
+      alert_leftMotorUnreachable.set(false);
+    } catch (Exception e) {
+      alert_leftMotorUnreachable.set(true);
+      DriverStation.reportError(alert_leftMotorUnreachable.getText(), false);
+    }
+
+    try {
+      m_encoder.getPosition();
+      alert_encoderUnreachable.set(false);
+    } catch (Exception e) {
+      alert_encoderUnreachable.set(true);
+      DriverStation.reportError(alert_encoderUnreachable.getText(), false);
+    }
   }
 
-  //get setpoint
-  public double getSetpoint(){
-    return this.m_setpoint;
+  /**
+   * Get the current position of the elevator
+   * @return
+   */
+  public Distance getPosition(){
+    return Inches.of(this.m_encoder.getPosition());
   }
 
-  //place the setpoint for elevator
-
-  public void placeSetpoint(double setpoint){
+  /**
+   * Set the setpoint of the elevator
+   * @param setpoint
+   */
+  public void setSetpoint(Distance setpoint){
     this.m_setpoint = setpoint;
   }
 
-  //get the absolut difference of the setpoint and current position
-  public double getSetpointError(){
-    return Math.abs(m_setpoint)-(getPosition());
-  }
-
-  // return if elevator is at setpoint
-  public boolean atSetpoint(){
-    return Math.abs(getSetpointError()) < Constants.Elevator.kElevatorTolerance;
-  }
-
-  //stop elevator
+  /**
+   * Stop the elevator
+   */
   public void stop() {
-    this.m_rightElevatorMotor.set(0);
+    this.m_rightElevatorMotor.setVoltage(0);
   }
 
   //command for establishing the setpoint in inches
-  public Command setPositionCommand(double position){
-    return runOnce(() -> m_setpoint = position / (Constants.Elevator.kElevatorPulleyDiameter * Math.PI));
+  public Command setSetpointCommand(Distance setpoint){
+    return runOnce(() -> setSetpoint(setpoint));
   }
 
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    double currentPosition = getPosition();
-    double desiredPosition = m_setpoint;
+    double currentPositionInches = getPosition().in(Inches);
+    // ! SETPOINT CLAMPED HERE
+    double setpointPositionInches = MathUtil.clamp(
+      m_setpoint.in(Inches),
+      ElevatorConstants.kElevatorMinHeight.in(Inches),
+      ElevatorConstants.kElevatorMaxHeight.in(Inches)
+    );
 
-    //set Voltage
-
-    double setVoltage = 0;
-
-    // if elevator is not at the deserid point put the voltage to it with pid
-    if (!atSetpoint()){
-      double pid = Constants.Elevator.kElevatorPIDController.calculate(currentPosition, desiredPosition);
-      setVoltage = pid;
-    } else {
-      setVoltage = 0;
-    }
+    // Calculate needed voltage
+    double pidOutputVolts = ElevatorConstants.kElevatorPIDController.calculate(currentPositionInches, setpointPositionInches);
+    double feedforwardVolts = ElevatorConstants.kElevatorFeedforward.calculate(currentPositionInches, pidOutputVolts);
+    double resultVolts = pidOutputVolts + feedforwardVolts;
     
-    //set voltage to right motor, left should follow
-    m_rightElevatorMotor.setVoltage(setVoltage);
+    // Set the voltage to the motor
+    // ! CHECK APPLIED VOLTAGE IN THE DASHBOARD FIRST BEFORE POWERING THE MOTOR
+    // m_rightElevatorMotor.setVoltage(resultVolts);
     
     //telemetry 
-    SmartDashboard.putNumber("Elevator/CurrentPosition", getPosition());
-    SmartDashboard.putNumber("Elevator/DesiredPosition", desiredPosition);
-    SmartDashboard.putNumber("Elevator/SetVoltage", setVoltage);
-    SmartDashboard.putNumber("Elevator/SetpointError", getSetpointError());
-    SmartDashboard.putBoolean("Elevator/AtSetpoint", atSetpoint());
-    SmartDashboard.putNumber("Elevator/LeftAmperage", m_leftElevatorMotor.getOutputCurrent());
-    SmartDashboard.putNumber("Elevator/RightAmperage", m_rightElevatorMotor.getOutputCurrent());
+    SmartDashboard.putNumber("Elevator/CurrentPosition", currentPositionInches);
+    SmartDashboard.putNumber("Elevator/SetpointPosition", setpointPositionInches);
+    SmartDashboard.putNumber("Elevator/SetpointVoltage", resultVolts);
+    SmartDashboard.putNumber("Elevator/LeftCurrent", m_leftElevatorMotor.getOutputCurrent());
+    SmartDashboard.putNumber("Elevator/RightCurrent", m_rightElevatorMotor.getOutputCurrent());
  
   }
 }

@@ -1,9 +1,9 @@
 package frc.robot;
 
+import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
-// import com.pathplanner.lib.util.PIDConstants;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.AngleUnit;
 import edu.wpi.first.units.AngularAccelerationUnit;
 import edu.wpi.first.units.AngularVelocityUnit;
@@ -11,15 +11,13 @@ import edu.wpi.first.units.DistanceUnit;
 import edu.wpi.first.units.LinearAccelerationUnit;
 import edu.wpi.first.units.LinearVelocityUnit;
 import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.measure.Distance;
 import lib.team3526.constants.CTRECANDevice;
 import lib.team3526.constants.PIDFConstants;
 import lib.team3526.constants.SwerveModuleOptions;
 import lib.team3526.utils.SwerveChassis;
-
 import static edu.wpi.first.units.Units.*;
-
 import com.pathplanner.lib.config.PIDConstants;
-import com.pathplanner.lib.config.RobotConfig;
 
 public class Constants {
     //* Logging options
@@ -122,23 +120,30 @@ public class Constants {
         }
     }
 
-    public static final class Elevator {
-        //motors ids
+    public static final class ElevatorConstants {
+        // Motor IDs
         public static final int kRightMotorID = 1;
         public static final int kLeftMotorID = 2;
 
-        //PID
-        public static final Constraints kElevatorConstraints = new Constraints(110, 90);
-        public static final ProfiledPIDController kElevatorPIDController = new ProfiledPIDController(1, 0, 0, kElevatorConstraints);
-        
-        //tolerance in inches
+        // Motor configs
+        public static final int kElevatorMotorCurrentLimit = 40;
+        public static final int kElevatorMotorRampRate = 0;
+
+        // Limits
+        public static final Distance kElevatorMaxHeight = Inches.of(60);
+        public static final Distance kElevatorMinHeight = Inches.of(0);
+
+        // Controller
+        public static final ElevatorFeedforward kElevatorFeedforward = new ElevatorFeedforward(0.0, 0.0, 0.0);
+        public static final ProfiledPIDController kElevatorPIDController = new ProfiledPIDController(
+            1, 0, 0,
+            new TrapezoidProfile.Constraints(110, 90)
+        );
         public static final double kElevatorTolerance = 1.0;
-
-        //mechanical reduction in inches
-        public static final double kElevatorReduction = 1/20;
-
-        //pulley diameter in inches 
-        public static final double kElevatorPulleyDiameter = 0.5752; 
-
+        
+        // Conversions
+        public static final double kElevatorReduction = 1. / 20.;
+        public static final Distance kElevatorPulleyDiameter = Inches.of(0.5752);
+        public static final double kRotationsToInches = kElevatorReduction * kElevatorPulleyDiameter.in(Inches) * Math.PI;
     }
 }
