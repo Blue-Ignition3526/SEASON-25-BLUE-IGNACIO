@@ -81,6 +81,15 @@ public class Constants {
 
         //* Swerve modules configuration
         public static final class SwerveModuleConstants {
+            // * Motor config
+            // Ramp rates
+            public static final double kDriveMotorRampRate = 0;
+            public static final double kTurningMotorRampRate = 0;
+
+            // Current limits
+            public static final int kDriveMotorCurrentLimit = 40;
+            public static final int kTurningMotorCurrentLimit = 30;
+
             //* PID
             public static final PIDFConstants kTurningPIDConstants = new PIDFConstants(1.57);
 
