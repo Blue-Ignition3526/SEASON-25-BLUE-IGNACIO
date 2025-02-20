@@ -73,8 +73,8 @@ public class Constants {
             public static final double kTurningEncoder_RPS = kTurningEncoder_Rotation / 60.0;
 
             // Robot Without bumpers measures
-            public static final Measure<DistanceUnit> kTrackWidth = Inches.of(23.08);
-            public static final Measure<DistanceUnit> kWheelBase = Inches.of(22.64);
+            public static final Measure<DistanceUnit> kTrackWidth = Inches.of(26);
+            public static final Measure<DistanceUnit> kWheelBase = Inches.of(26);
     
             // Create a kinematics instance with the positions of the swerve modules
             public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(SwerveChassis.sizeToModulePositions(kTrackWidth.in(Meters), kWheelBase.in(Meters)));

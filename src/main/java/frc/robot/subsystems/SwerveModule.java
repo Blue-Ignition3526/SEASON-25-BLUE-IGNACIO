@@ -24,6 +24,7 @@ import lib.BlueShift.constants.SwerveModuleOptions;
 import static edu.wpi.first.units.Units.*;
 import org.littletonrobotics.junction.Logger;
 
+// TODO: ADD CURRENT LIMITS
 public class SwerveModule extends SubsystemBase {
     // * Options for the module
     public final SwerveModuleOptions options;

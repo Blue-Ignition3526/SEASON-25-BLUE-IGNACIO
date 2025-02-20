@@ -161,12 +161,8 @@ public class SwerveDrive extends SubsystemBase {
      * @return
      */
     public ChassisSpeeds getRelativeChassisSpeeds() {
-        //! PAST IMPLEMENTATION (RETURNS SPEEDS DIRECTLY)
         if (this.drivingRobotRelative) return this.speeds;
         else return ChassisSpeeds.fromFieldRelativeSpeeds(speeds, getHeading());
-
-        // TODO: NEW IMPLEMENTATION (RETURNS REAL SPEEDS FROM GYRO)
-        // return new ChassisSpeeds(this.gyro.getVelocityX(), this.gyro.getVelocityY(), Math.toRadians(this.gyro.getYawVelocity()));
     }
 
     /**
