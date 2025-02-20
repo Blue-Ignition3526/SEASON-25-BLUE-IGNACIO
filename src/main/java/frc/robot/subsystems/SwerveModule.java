@@ -67,7 +67,6 @@ public class SwerveModule extends SubsystemBase {
         // * Create Drive motor and configure it
         this.driveMotor = new SparkMax(options.driveMotorID, MotorType.kBrushless);
         this.driveConfig = new SparkMaxConfig();
-        this.driveConfig.inverted(options.driveMotorInverted);
 
         // Configure the drive encoder
         this.driveConfig.encoder
@@ -83,7 +82,7 @@ public class SwerveModule extends SubsystemBase {
         // * Create Turn motor and configure it
         this.turnMotor = new SparkMax(options.turningMotorID, MotorType.kBrushless);
         this.turnConfig = new SparkMaxConfig();
-        this.turnConfig.inverted(options.turningMotorInverted);
+        this.turnConfig.inverted(true);
 
         // Configure the turning encoder
         this.turnConfig.encoder
@@ -135,6 +134,9 @@ public class SwerveModule extends SubsystemBase {
 
         // * Reset the Drive encoder
         resetDriveEncoder();
+
+        // * Start the device check notifier
+        deviceCheckNotifier.startPeriodic(10);
     }
 
     /**
