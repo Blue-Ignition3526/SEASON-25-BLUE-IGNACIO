@@ -11,7 +11,11 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -27,6 +31,13 @@ public class ClimbertakePivot extends SubsystemBase {
 
   // * Setpoint
   private Angle setpoint;
+
+  // * Alerts
+  private final Alert alert_motorUnreachable = new Alert(getName() + " motor unreachable", AlertType.kError);
+  private final Alert alert_encoderUnreachable = new Alert(getName() + " encoder unreachable", AlertType.kError);
+
+  // Device check notifier
+  private final Notifier deviceCheckNotifier = new Notifier(this::deviceCheck);
 
   public ClimbertakePivot() {
     // * Create and configure the Motor
@@ -56,6 +67,23 @@ public class ClimbertakePivot extends SubsystemBase {
 
     // * Setpoint
     setpoint = getAngle();
+  }
+
+  private void deviceCheck() {
+    try {
+      pivotMotor.getFirmwareVersion();
+      alert_motorUnreachable.set(false);
+    } catch (Exception e) {
+      alert_motorUnreachable.set(true);
+      DriverStation.reportError(getName() + " encoder unreachable", false);
+    }
+
+    if (pivotEncoder.isConnected()) {
+      alert_encoderUnreachable.set(false);
+    } else {
+      alert_encoderUnreachable.set(true);
+      DriverStation.reportError(getName() + " piece sensor unreachable", false);
+    }
   }
 
   /**
