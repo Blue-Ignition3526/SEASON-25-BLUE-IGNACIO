@@ -21,7 +21,6 @@ import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.Constants.SwerveDriveConstants;
 import frc.robot.Constants.SwerveDriveConstants.SwerveModuleConstants;
 import lib.BlueShift.constants.SwerveModuleOptions;
 import static edu.wpi.first.units.Units.*;
