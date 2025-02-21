@@ -110,7 +110,9 @@ public class Robot extends LoggedRobot {
 
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+    Elastic.sendAlert(new ElasticNotification(NotificationLevel.INFO, "Robot Disabled.", "Robot has been disabled."));
+  }
 
   @Override
   public void disabledPeriodic() {}
@@ -118,6 +120,8 @@ public class Robot extends LoggedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
+    Elastic.sendAlert(new ElasticNotification(NotificationLevel.WARNING, "Robot Enabled Autonomous.", "Robot has been enabled in autonomous mode, BE CAUTIOUS."));
+
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
     // schedule the autonomous command (example)
@@ -132,6 +136,7 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void teleopInit() {
+    Elastic.sendAlert(new ElasticNotification(NotificationLevel.WARNING, "Robot Enabled Teleop.", "Robot has been enabled in Teleop mode, BE CAUTIOUS."));
     // This makes sure that the autonomous stops running when
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
