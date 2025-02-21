@@ -1,5 +1,6 @@
 package frc.robot;
 
+import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -12,6 +13,7 @@ import edu.wpi.first.units.LinearAccelerationUnit;
 import edu.wpi.first.units.LinearVelocityUnit;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.util.Color;
 import lib.BlueShift.constants.CTRECANDevice;
 import lib.BlueShift.constants.PIDFConstants;
@@ -236,6 +238,33 @@ public class Constants {
         }
     }
 
+    public static final class ElevatorConstants {
+        // Motor IDs
+        public static final int kRightMotorID = 30;
+        public static final int kLeftMotorID = 31;
+
+        // Motor configs
+        public static final int kElevatorMotorCurrentLimit = 40;
+        public static final int kElevatorMotorRampRate = 0;
+
+        // Limits
+        public static final Distance kElevatorMaxHeight = Inches.of(60);
+        public static final Distance kElevatorMinHeight = Inches.of(0);
+
+        // Controller
+        public static final ElevatorFeedforward kElevatorFeedforward = new ElevatorFeedforward(0.0, 0.0, 0.0);
+        public static final ProfiledPIDController kElevatorPIDController = new ProfiledPIDController(
+            0.1, 0, 0,
+            new TrapezoidProfile.Constraints(110, 90)
+        );
+        public static final double kElevatorTolerance = 1.0;
+        
+        // Conversions
+        public static final double kElevatorReduction = 1. / 20.;
+        public static final Distance kElevatorPulleyDiameter = Inches.of(0.5752);
+        public static final double kRotationsToInches = kElevatorReduction * kElevatorPulleyDiameter.in(Inches) * Math.PI;
+    }
+
     public static final class IntakeCoralConstants {
         // Motor IDs
         public static final int kUpperMotorId = 10;
@@ -255,6 +284,5 @@ public class Constants {
         // Parameters
         public static final double kRollersInVoltage = 6;
         public static final double kRollersOutVoltage = -kRollersInVoltage;
-
     }
 }

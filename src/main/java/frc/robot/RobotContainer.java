@@ -1,7 +1,7 @@
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Degrees;
-
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.commands.DriveSwerve;
+import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.ClimbertakePivot;
 import frc.robot.subsystems.ClimbertakeRollers;
 import frc.robot.subsystems.SwerveDrive;
@@ -36,6 +37,8 @@ public class RobotContainer {
   private final SwerveDrive m_swerveDrive;
   private final Gyro gyro;
 
+  private final Elevator elevator;
+
   private final SendableChooser<Command> autonomousChooser;
 
   private final ClimbertakePivot m_climbertakePivot;
@@ -54,6 +57,8 @@ public class RobotContainer {
   public RobotContainer() {
     gyro = new Gyro(new GyroIOPigeon(Constants.SwerveDriveConstants.kGyroDevice));
     m_swerveDrive = new SwerveDrive(frontLeft, frontRight, backLeft, backRight, gyro);
+
+    this.elevator = new Elevator();
 
     this.turn180 = new Turn180(this.m_swerveDrive);
     this.lookAt = new LookController(this.gyro::getYaw, this.m_driverControllerCustom::getRightX, this.m_driverControllerCustom::getRightY, 0.1);
@@ -84,11 +89,16 @@ public class RobotContainer {
     m_climbertakePivot = new ClimbertakePivot();
     m_climbertakeRollers = new ClimbertakeRollers();
 
+    SmartDashboard.putData("Elevator/10", elevator.setSetpointCommand(Inches.of(10)).ignoringDisable(true));
+    SmartDashboard.putData("Elevator/0", elevator.setSetpointCommand(Inches.of(0)).ignoringDisable(true));
+    SmartDashboard.putData("Elevator/50", elevator.setSetpointCommand(Inches.of(50)).ignoringDisable(true));
+
+
+    configureBindings();
+
     SmartDashboard.putData("Climbertake/Pivot/Home", m_climbertakePivot.setSetpointCommand(Degrees.of(0)).ignoringDisable(true));
     SmartDashboard.putData("Climbertake/Pivot/Explode", m_climbertakePivot.setSetpointCommand(Degrees.of(80)).ignoringDisable(true));
     SmartDashboard.putData("Climbertake/Pivot/Implode", m_climbertakePivot.setSetpointCommand(Degrees.of(-60)).ignoringDisable(true));
-
-    //configureBindings();
   }
 
   private void configureBindings() {
