@@ -51,14 +51,6 @@ public class Robot extends LoggedRobot {
     Logger.start();
   }
 
-  @Override
-  public void robotInit() {
-    //! ADVANTAGE KIT LOGGING
-    Logger.addDataReceiver(new NT4Publisher());
-    if (Constants.Logging.kDebug) Logger.registerURCL(URCL.startExternal());
-    Logger.start();
-  }
-
   /**
    * This function is called every 20 ms, no matter the mode. Use this for items like diagnostics
    * that you want ran during disabled, autonomous, teleoperated and test.
