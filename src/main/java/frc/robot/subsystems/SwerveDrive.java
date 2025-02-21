@@ -25,7 +25,6 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
-
 public class SwerveDrive extends SubsystemBase {
     //* Swerve modules
     public final SwerveModule frontLeft;

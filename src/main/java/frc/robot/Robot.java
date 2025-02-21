@@ -4,16 +4,25 @@
 
 package frc.robot;
 
+import edu.wpi.first.net.PortForwarder;
+import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.Threads;
+import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import lib.Elastic;
+import lib.Elastic.ElasticNotification;
+import lib.Elastic.ElasticNotification.NotificationLevel;
 
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.urcl.URCL;
+
+import com.ctre.phoenix6.SignalLogger;
 /**
  * The methods in this class are called automatically corresponding to each mode, as described in
  * the TimedRobot documentation. If you change the name of this class or the package after creating
@@ -41,10 +50,36 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void robotInit() {
+    // * DISABLE LIVE WINDOW
+    LiveWindow.disableAllTelemetry();
+
+    // * DISABLE PHOENIX LOGGING
+    SignalLogger.enableAutoLogging(false);
+    SignalLogger.stop();
+
+    // * Cameras port forwarding over USB
+    // for (int port = 5800; port <= 5807; port++) PortForwarder.add(port, Constants.Vision.Limelight3.kName + ".local", port);
+    for (int port = 5800; port <= 5807; port++) PortForwarder.add(port, Constants.Vision.Limelight3G.kName + ".local", port);
+    // for (int port = 5800; port <= 5807; port++) PortForwarder.add(port, Constants.Vision.LimelightTwoPlus.kName + ".local", port);
+    for (int port = 5800; port <= 5807; port++) PortForwarder.add(port, "photonvision.local", port);
+
+    // * DataLogManager
+    try {
+      DataLogManager.start();
+      DataLogManager.logNetworkTables(true);
+      DriverStation.startDataLog(DataLogManager.getLog(), true);
+      Elastic.sendAlert(new ElasticNotification(NotificationLevel.INFO, "DataLogManager started", "DataLogManager started successfully."));
+    } catch (Exception e) {
+      Elastic.sendAlert(new ElasticNotification(NotificationLevel.ERROR, "DataLogManager failed to start", "DataLogManager failed to start."));
+    }
+
     //! ADVANTAGE KIT LOGGING
     Logger.addDataReceiver(new NT4Publisher());
     if (Constants.Logging.kUseURCL) Logger.registerURCL(URCL.startExternal());
     Logger.start();
+    URCL.start();
+
+    Elastic.sendAlert(new ElasticNotification(NotificationLevel.INFO, "Robot ready!", "Wait for subsystem initialization to complete."));
   }
 
   /**
