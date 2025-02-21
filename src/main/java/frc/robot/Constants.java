@@ -122,8 +122,8 @@ public class Constants {
 
     public static final class ElevatorConstants {
         // Motor IDs
-        public static final int kRightMotorID = 1;
-        public static final int kLeftMotorID = 2;
+        public static final int kRightMotorID = 30;
+        public static final int kLeftMotorID = 31;
 
         // Motor configs
         public static final int kElevatorMotorCurrentLimit = 40;
@@ -136,7 +136,7 @@ public class Constants {
         // Controller
         public static final ElevatorFeedforward kElevatorFeedforward = new ElevatorFeedforward(0.0, 0.0, 0.0);
         public static final ProfiledPIDController kElevatorPIDController = new ProfiledPIDController(
-            1, 0, 0,
+            0.1, 0, 0,
             new TrapezoidProfile.Constraints(110, 90)
         );
         public static final double kElevatorTolerance = 1.0;

@@ -53,9 +53,9 @@ public class RobotContainer {
     autonomousChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("Autonomous", autonomousChooser);
 
-    SmartDashboard.putData("Elevator/0", elevator.setSetpointCommand(Inches.of(10)).ignoringDisable(true));
-    SmartDashboard.putData("Elevator/1", elevator.setSetpointCommand(Inches.of(0)).ignoringDisable(true));
-    SmartDashboard.putData("Elevator/0", elevator.setSetpointCommand(Inches.of(50)).ignoringDisable(true));
+    SmartDashboard.putData("Elevator/10", elevator.setSetpointCommand(Inches.of(10)).ignoringDisable(true));
+    SmartDashboard.putData("Elevator/0", elevator.setSetpointCommand(Inches.of(0)).ignoringDisable(true));
+    SmartDashboard.putData("Elevator/50", elevator.setSetpointCommand(Inches.of(50)).ignoringDisable(true));
 
 
     configureBindings();
