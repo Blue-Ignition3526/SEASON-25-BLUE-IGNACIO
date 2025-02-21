@@ -56,6 +56,7 @@ public class RobotContainer {
     SmartDashboard.putData("Elevator/10", elevator.setSetpointCommand(Inches.of(10)).ignoringDisable(true));
     SmartDashboard.putData("Elevator/0", elevator.setSetpointCommand(Inches.of(0)).ignoringDisable(true));
     SmartDashboard.putData("Elevator/50", elevator.setSetpointCommand(Inches.of(50)).ignoringDisable(true));
+    SmartDashboard.putData("Elevator/-10", elevator.setSetpointCommand(Inches.of(-10)).ignoringDisable(true));
 
 
     configureBindings();
@@ -71,6 +72,8 @@ public class RobotContainer {
       )
     );
 
+    //this.m_driverControllerCustom.povDown().onTrue(elevator.testCommand());
+    //this.m_driverControllerCustom.povUp().onTrue(elevator.stopCommand());
     this.m_driverControllerCustom.rightButton().onTrue(this.m_swerveDrive.zeroHeadingCommand());
   }
 

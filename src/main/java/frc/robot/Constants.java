@@ -136,14 +136,13 @@ public class Constants {
         // Controller
         public static final ElevatorFeedforward kElevatorFeedforward = new ElevatorFeedforward(0.0, 0.0, 0.0);
         public static final ProfiledPIDController kElevatorPIDController = new ProfiledPIDController(
-            0.1, 0, 0,
+            0.7, 0, 0,
             new TrapezoidProfile.Constraints(110, 90)
         );
         public static final double kElevatorTolerance = 1.0;
-        
         // Conversions
         public static final double kElevatorReduction = 1. / 20.;
         public static final Distance kElevatorPulleyDiameter = Inches.of(0.5752);
-        public static final double kRotationsToInches = kElevatorReduction * kElevatorPulleyDiameter.in(Inches) * Math.PI;
+        public static final double kRotationsToInches = kElevatorReduction * kElevatorPulleyDiameter.in(Inches) * Math.PI; // TODO: Es tamal
     }
 }

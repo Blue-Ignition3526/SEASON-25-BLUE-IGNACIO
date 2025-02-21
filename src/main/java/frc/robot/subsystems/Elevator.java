@@ -58,6 +58,7 @@ public class Elevator extends SubsystemBase {
     
     // Configure encoder
     this.m_rightElevatorMotorConfig.encoder.positionConversionFactor(ElevatorConstants.kRotationsToInches);
+    this.m_rightElevatorMotorConfig.inverted(true);
 
     // Apply right motor configuration
     this.m_rightElevatorMotor.configure(m_rightElevatorMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
@@ -157,11 +158,11 @@ public class Elevator extends SubsystemBase {
     // Calculate needed voltage
     double pidOutputVolts = ElevatorConstants.kElevatorPIDController.calculate(currentPositionInches, setpointPositionInches);
     double feedforwardVolts = ElevatorConstants.kElevatorFeedforward.calculate(currentPositionInches, pidOutputVolts);
-    double resultVolts = pidOutputVolts + feedforwardVolts;
+    double resultVolts = MathUtil.clamp(pidOutputVolts + feedforwardVolts, -12, 12);
     
     // Set the voltage to the motor
     // ! CHECK APPLIED VOLTAGE IN THE DASHBOARD FIRST BEFORE POWERING THE MOTOR
-    // m_rightElevatorMotor.setVoltage(resultVolts);
+    m_rightElevatorMotor.setVoltage(resultVolts);
     
     //telemetry 
     SmartDashboard.putNumber("Elevator/CurrentPosition", currentPositionInches);
