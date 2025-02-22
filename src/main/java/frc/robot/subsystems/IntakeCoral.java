@@ -34,6 +34,7 @@ public class IntakeCoral extends SubsystemBase {
 
   // Alternate piece detection
   private Debouncer currentPieceDetectionDebouncer = new Debouncer(0.25, DebounceType.kRising);
+  private boolean currentPieceDetectionState = false;
 
   // Alerts
   private final Alert alert_upperMotorUnreachable = new Alert(getName() + " motor unreachable", AlertType.kError);
@@ -184,6 +185,9 @@ public class IntakeCoral extends SubsystemBase {
 
   @Override
   public void periodic() {
+    // Update piece detection debouncer
+    this.currentPieceDetectionState = currentPieceDetectionDebouncer.calculate(m_upperMotor.getOutputCurrent() > Constants.IntakeCoralConstants.kPieceDetectionCurrent);
+
     SmartDashboard.putString(getName() + "/Color", getColor().toHexString());
   }
 }
