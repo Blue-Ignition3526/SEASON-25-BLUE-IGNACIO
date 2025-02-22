@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.DutyCycleEncoder;
 
 public class BluePWMEncoder extends DutyCycleEncoder {
     private double offset = 0;
+    private boolean inverted = false;
 
     /**
      * Blueshift-extended PWM encoder
@@ -28,15 +29,24 @@ public class BluePWMEncoder extends DutyCycleEncoder {
      * @param offset
      */
     public void setOffset(double offset) {
-        this.offset = MathUtil.clamp(offset, 0, 1);
+        this.offset = MathUtil.clamp(offset, -1, 1);
     }
+
+    /*
+     * Sets wether or not the encoder is inverted
+     */
+    public void setInverted(boolean inverted) {
+        this.inverted = inverted;
+    }
+
+
     
     /**
      * Returns the angle without an offset
      * @return
      */
     public Angle getAngleNoOffset() {
-        return Rotations.of(get());
+        return Rotations.of(get() * (inverted ? -1 : 1));
     }
 
     /**
@@ -44,6 +54,6 @@ public class BluePWMEncoder extends DutyCycleEncoder {
      * @return
      */
     public Angle getAngle() {
-        return Rotations.of(MathUtil.inputModulus(get() + offset, 0, 1));
+        return Rotations.of(MathUtil.inputModulus((get() * (inverted ? -1 : 1)) + offset, 0, 1));
     }
 }

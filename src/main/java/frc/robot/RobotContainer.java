@@ -1,5 +1,7 @@
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Degrees;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -76,16 +78,15 @@ public class RobotContainer {
     this.m_limelight3G.enable();
     this.m_odometry.startVision();
 
-    SmartDashboard.putData("SwerveDrive/ResetTurningEncoders", new InstantCommand(m_swerveDrive::resetTurningEncoders));
-
-    // Enable vision measurements and pose estimation
-    // this.m_limelight3G.enable();
-    // this.m_poseTracker.start();
-    // this.m_poseTracker.startVision();
+    SmartDashboard.putData("SwerveDrive/ResetTurningEncoders", new InstantCommand(m_swerveDrive::resetTurningEncoders).ignoringDisable(true));
 
     // Subsystems
     m_climbertakePivot = new ClimbertakePivot();
     m_climbertakeRollers = new ClimbertakeRollers();
+
+    SmartDashboard.putData("Climbertake/Pivot/Home", m_climbertakePivot.setSetpointCommand(Degrees.of(0)).ignoringDisable(true));
+    SmartDashboard.putData("Climbertake/Pivot/Explode", m_climbertakePivot.setSetpointCommand(Degrees.of(80)).ignoringDisable(true));
+    SmartDashboard.putData("Climbertake/Pivot/Implode", m_climbertakePivot.setSetpointCommand(Degrees.of(-60)).ignoringDisable(true));
 
     configureBindings();
   }
