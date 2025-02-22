@@ -1,6 +1,8 @@
 package frc.robot;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.AngularAccelerationUnit;
@@ -14,6 +16,9 @@ import lib.BlueShift.constants.PIDFConstants;
 import lib.BlueShift.constants.SwerveModuleOptions;
 import lib.BlueShift.utils.SwerveChassis;
 import static edu.wpi.first.units.Units.*;
+
+import java.util.HashMap;
+
 import com.pathplanner.lib.config.PIDConstants;
 
 public class Constants {
@@ -117,6 +122,38 @@ public class Constants {
                 .setTurningMotorID(12)
                 .setAbsoluteEncoderCANDevice(new CTRECANDevice(13, "*"))
                 .setName("Back Right");
+        }
+
+        /**
+         * Poses for each reef branch
+         */
+        public static enum ReefBranch {
+            A(new Pose2d(0, 0, new Rotation2d())),
+            B(new Pose2d(0, 0, new Rotation2d())),
+            C(new Pose2d(0, 0, new Rotation2d())),
+            D(new Pose2d(0, 0, new Rotation2d())),
+            E(new Pose2d(0, 0, new Rotation2d())),
+            F(new Pose2d(0, 0, new Rotation2d())),
+            G(new Pose2d(0, 0, new Rotation2d())),
+            H(new Pose2d(0, 0, new Rotation2d())),
+            I(new Pose2d(0, 0, new Rotation2d())),
+            J(new Pose2d(0, 0, new Rotation2d())),
+            K(new Pose2d(0, 0, new Rotation2d())),
+            L(new Pose2d(0, 0, new Rotation2d()));
+
+            private final Pose2d pose;
+            private ReefBranch(Pose2d pose) { this.pose = pose; }
+            public Pose2d getPose() { return pose; }
+        }
+
+        /**
+         * Levels of the reef
+         */
+        public static enum ReefLevel {
+            L1,
+            L2,
+            L3,
+            L4;
         }
 
         //* AUTONOMOUS

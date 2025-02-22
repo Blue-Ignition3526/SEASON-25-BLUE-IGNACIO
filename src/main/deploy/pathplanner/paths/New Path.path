@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.297489275251116,
-        "y": 7.062115478515625
+        "x": 8.143921232876712,
+        "y": 7.263035102739726
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.0324262152777766,
-        "y": 7.336715494791666
+        "x": 6.37509556702088,
+        "y": 5.935328166499686
       },
-      "isLocked": false,
-      "linkedName": null
+      "isLocked": true,
+      "linkedName": "OuterCage"
     },
     {
       "anchor": {
-        "x": 5.224795532226563,
-        "y": 5.2389892578125
+        "x": 5.289041095890411,
+        "y": 5.054259417808219
       },
       "prevControl": {
-        "x": 4.339638671874999,
-        "y": 5.830834418402777
+        "x": 6.121994776802417,
+        "y": 5.743368169344263
       },
       "nextControl": null,
       "isLocked": false,
@@ -31,7 +31,19 @@
   "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "LeaveCoral-L2",
+      "waypointRelativePos": 0.9457627118644001,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "LeaveCoral-L2"
+        }
+      }
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 3.0,
     "maxAcceleration": 3.0,
@@ -42,13 +54,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -118.64262371613091
+    "rotation": 59.99999999999999
   },
   "reversed": false,
-  "folder": "Source_L-Reef",
+  "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 127.4292595834143
+    "rotation": 0.0
   },
   "useDefaultConstraints": true
 }

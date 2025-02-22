@@ -23,6 +23,7 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.urcl.URCL;
 
 import com.ctre.phoenix6.SignalLogger;
+import com.pathplanner.lib.commands.PathfindingCommand;
 /**
  * The methods in this class are called automatically corresponding to each mode, as described in
  * the TimedRobot documentation. If you change the name of this class or the package after creating
@@ -79,7 +80,12 @@ public class Robot extends LoggedRobot {
     Logger.start();
     URCL.start();
 
+    // * Initialization alert
     Elastic.sendAlert(new ElasticNotification(NotificationLevel.INFO, "Robot ready!", "Wait for subsystem initialization to complete."));
+
+    // * Path finding warmup
+    System.out.println("Pathfinding warmup...");
+    PathfindingCommand.warmupCommand().schedule();
   }
 
   /**
