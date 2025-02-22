@@ -40,7 +40,7 @@ public class Constants {
     public static final class ClimbertakeConstants {
         public static final class Pivot {
             // Motor
-            public static final int kPivotMotorID = 30;
+            public static final int kPivotMotorID = 50;
             public static final int kPivotMotorCurrentLimit = 40;
             public static final double kPivotMotorRampRate = 0.15;
 
