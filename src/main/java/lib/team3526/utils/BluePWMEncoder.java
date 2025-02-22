@@ -17,8 +17,6 @@ public class BluePWMEncoder extends DutyCycleEncoder {
      * <p>
      * - Offsets
      * <p>
-     * - Velocity calculation
-     * <p>
      * - Units
      * @param channel
      */
