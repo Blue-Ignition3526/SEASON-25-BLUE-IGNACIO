@@ -91,7 +91,7 @@ public class Constants {
 
     public static final class WristConstants {
         // Motor
-        public static final int kWristMotorID = 33;
+        public static final int kWristMotorID = 43;
         public static final int kWristMotorCurrentLimit = 15;
         public static final double kWristMotorRampRate = 0.15;
 
@@ -114,7 +114,7 @@ public class Constants {
 
     public static final class ArmPivotConstants {
         // Motor
-        public static final int kArmPivotMotorID = 40;
+        public static final int kArmPivotMotorID = 50;
         public static final int kArmPivotMotorCurrentLimit = 30;
         public static final double kArmPivotMotorRampRate = 0.15;
 
@@ -266,15 +266,15 @@ public class Constants {
 
     public static final class IntakeCoralConstants {
         // Motor IDs
-        public static final int kUpperMotorId = 10;
-        public static final int kLowerMotorId = 11;
+        public static final int kUpperMotorId = 40;
+        public static final int kLowerMotorId = 41;
 
         // Motor limits
         public static final int kMotorCurrentLimit = 40;
         public static final double kMotorRampRate = 0.15;
 
         // Sensor
-        public static final int kSensorId = 12;
+        public static final int kSensorId = 42;
         public static final double kPieceSensorLedBrightness = 0.5;
         public static final Color kCoralColor = new Color(1, 1, 1);
         public static final double kCoralColorThreshold = 0.15;

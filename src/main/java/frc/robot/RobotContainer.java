@@ -94,12 +94,11 @@ public class RobotContainer {
     SmartDashboard.putData("Elevator/50", elevator.setSetpointCommand(Inches.of(50)).ignoringDisable(true));
     SmartDashboard.putData("Elevator/-10", elevator.setSetpointCommand(Inches.of(-10)).ignoringDisable(true));
 
-
-    configureBindings();
-
     SmartDashboard.putData("Climbertake/Pivot/Home", m_climbertakePivot.setSetpointCommand(Degrees.of(0)).ignoringDisable(true));
     SmartDashboard.putData("Climbertake/Pivot/Explode", m_climbertakePivot.setSetpointCommand(Degrees.of(80)).ignoringDisable(true));
     SmartDashboard.putData("Climbertake/Pivot/Implode", m_climbertakePivot.setSetpointCommand(Degrees.of(-60)).ignoringDisable(true));
+    
+    configureBindings();
   }
 
   private void configureBindings() {
