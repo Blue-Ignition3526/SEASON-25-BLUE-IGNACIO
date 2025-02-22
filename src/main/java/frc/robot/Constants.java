@@ -1,5 +1,6 @@
 package frc.robot;
 
+import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -12,6 +13,7 @@ import edu.wpi.first.units.LinearAccelerationUnit;
 import edu.wpi.first.units.LinearVelocityUnit;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.util.Color;
 import lib.BlueShift.constants.CTRECANDevice;
 import lib.BlueShift.constants.PIDFConstants;
@@ -64,8 +66,7 @@ public class Constants {
             // Feedforward
             // Calculated with https://www.reca.lc/arm?armMass=%7B%22s%22%3A8%2C%22u%22%3A%22kg%22%7D&comLength=%7B%22s%22%3A12%2C%22u%22%3A%22in%22%7D&currentLimit=%7B%22s%22%3A40%2C%22u%22%3A%22A%22%7D&efficiency=100&endAngle=%7B%22s%22%3A180%2C%22u%22%3A%22deg%22%7D&iterationLimit=10000&motor=%7B%22quantity%22%3A1%2C%22name%22%3A%22NEO%22%7D&ratio=%7B%22magnitude%22%3A130%2C%22ratioType%22%3A%22Reduction%22%7D&startAngle=%7B%22s%22%3A0%2C%22u%22%3A%22deg%22%7D
             // TODO: kS needs manual tuning
-
-            public static final ArmFeedforward kPivotFeedforward = new ArmFeedforward(0.0, 0.0, 0.0);
+            public static final ArmFeedforward kPivotFeedforward = new ArmFeedforward(0.2, 0.67, 2.53);
         }
 
         public static final class Rollers {
@@ -237,6 +238,32 @@ public class Constants {
         }
     }
 
+    public static final class ElevatorConstants {
+        // Motor IDs
+        public static final int kRightMotorID = 30;
+        public static final int kLeftMotorID = 31;
+
+        // Motor configs
+        public static final int kElevatorMotorCurrentLimit = 40;
+        public static final int kElevatorMotorRampRate = 0;
+
+        // Limits
+        public static final Distance kElevatorMaxHeight = Inches.of(60);
+        public static final Distance kElevatorMinHeight = Inches.of(0);
+
+        // Controller
+        public static final ElevatorFeedforward kElevatorFeedforward = new ElevatorFeedforward(0.0, 0.0, 0.0);
+        public static final ProfiledPIDController kElevatorPIDController = new ProfiledPIDController(
+            0.7, 0, 0,
+            new TrapezoidProfile.Constraints(110, 90)
+        );
+        public static final double kElevatorTolerance = 1.0;
+        // Conversions
+        public static final double kElevatorReduction = 1. / 20.;
+        public static final Distance kElevatorPulleyDiameter = Inches.of(0.5752);
+        public static final double kRotationsToInches = kElevatorReduction * kElevatorPulleyDiameter.in(Inches) * Math.PI; // TODO: Es tamal
+    }
+
     public static final class IntakeCoralConstants {
         // Motor IDs
         public static final int kUpperMotorId = 40;
@@ -256,6 +283,5 @@ public class Constants {
         // Parameters
         public static final double kRollersInVoltage = 6;
         public static final double kRollersOutVoltage = -kRollersInVoltage;
-
     }
 }
