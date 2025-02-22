@@ -192,8 +192,8 @@ public class Constants {
 
     public static final class IntakeCoralConstants {
         // Motor IDs
-        public static final int kUpperMotorId = 30;
-        public static final int kLowerMotorId = 31;
+        public static final int kUpperMotorId = 40;
+        public static final int kLowerMotorId = 41;
 
         // Motor limits
         public static final int kMotorCurrentLimit = 25;
@@ -204,7 +204,7 @@ public class Constants {
         public static final int kPieceDetectionCurrent = 20;
 
         // Sensor
-        public static final int kSensorId = 32;
+        public static final int kSensorId = 42;
         public static final double kPieceSensorLedBrightness = 0.5;
         public static final Color kCoralColor = new Color(1, 1, 1);
         public static final double kCoralColorThreshold = 0.15;
