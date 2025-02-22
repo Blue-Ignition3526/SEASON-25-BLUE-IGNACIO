@@ -40,7 +40,7 @@ public class Constants {
     public static final class ClimbertakeConstants {
         public static final class Pivot {
             // Motor
-            public static final int kPivotMotorID = 30;
+            public static final int kPivotMotorID = 16;
             public static final int kPivotMotorCurrentLimit = 40;
             public static final double kPivotMotorRampRate = 0.15;
 
@@ -64,12 +64,12 @@ public class Constants {
             // Feedforward
             // Calculated with https://www.reca.lc/arm?armMass=%7B%22s%22%3A8%2C%22u%22%3A%22kg%22%7D&comLength=%7B%22s%22%3A12%2C%22u%22%3A%22in%22%7D&currentLimit=%7B%22s%22%3A40%2C%22u%22%3A%22A%22%7D&efficiency=100&endAngle=%7B%22s%22%3A180%2C%22u%22%3A%22deg%22%7D&iterationLimit=10000&motor=%7B%22quantity%22%3A1%2C%22name%22%3A%22NEO%22%7D&ratio=%7B%22magnitude%22%3A130%2C%22ratioType%22%3A%22Reduction%22%7D&startAngle=%7B%22s%22%3A0%2C%22u%22%3A%22deg%22%7D
             // TODO: kS needs manual tuning
-            public static final ArmFeedforward kPivotFeedforward = new ArmFeedforward(0.0, 0.67, 2.53);
+            // public static final ArmFeedforward kPivotFeedforward = new ArmFeedforward(0.0, 0.67, 2.53);
         }
 
         public static final class Rollers {
             // Motor and current limit
-            public static final int kRollersMotorID = 31;
+            public static final int kRollersMotorID = 17;
             public static final int kRollersMotorCurrentLimit = 30;
             public static final double kRollersMotorRampRate = 0;
 
@@ -89,7 +89,7 @@ public class Constants {
 
     public static final class WristConstants {
         // Motor
-        public static final int kWristMotorID = 33;
+        public static final int kWristMotorID = 43;
         public static final int kWristMotorCurrentLimit = 15;
         public static final double kWristMotorRampRate = 0.15;
 
@@ -112,7 +112,7 @@ public class Constants {
 
     public static final class ArmPivotConstants {
         // Motor
-        public static final int kArmPivotMotorID = 40;
+        public static final int kArmPivotMotorID = 50;
         public static final int kArmPivotMotorCurrentLimit = 30;
         public static final double kArmPivotMotorRampRate = 0.15;
 
@@ -238,15 +238,15 @@ public class Constants {
 
     public static final class IntakeCoralConstants {
         // Motor IDs
-        public static final int kUpperMotorId = 10;
-        public static final int kLowerMotorId = 11;
+        public static final int kUpperMotorId = 40;
+        public static final int kLowerMotorId = 41;
 
         // Motor limits
         public static final int kMotorCurrentLimit = 40;
         public static final double kMotorRampRate = 0.15;
 
         // Sensor
-        public static final int kSensorId = 12;
+        public static final int kSensorId = 42;
         public static final double kPieceSensorLedBrightness = 0.5;
         public static final Color kCoralColor = new Color(1, 1, 1);
         public static final double kCoralColorThreshold = 0.15;
