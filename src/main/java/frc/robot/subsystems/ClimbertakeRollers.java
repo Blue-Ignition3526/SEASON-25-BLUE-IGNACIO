@@ -24,9 +24,6 @@ public class ClimbertakeRollers extends SubsystemBase {
   // Motor
   private final SparkFlex rollers;
 
-  // Closed loop controller
-  private final SparkClosedLoopController rollersClosedLoopController;
-
   // Config
   private final SparkFlexConfig config;
 
@@ -43,9 +40,6 @@ public class ClimbertakeRollers extends SubsystemBase {
   public ClimbertakeRollers() {
     // Create roller motor
     rollers = new SparkFlex(ClimbertakeConstants.Rollers.kRollersMotorID, MotorType.kBrushless);
-
-    // Create closed loop controller
-    rollersClosedLoopController = rollers.getClosedLoopController();
 
     // Configure roller motor
     config = new SparkFlexConfig();
@@ -103,14 +97,6 @@ public class ClimbertakeRollers extends SubsystemBase {
    */
   public void stop() {
     rollers.setVoltage(0);
-  }
-
-  /**
-   * Sets the rollers to store current
-   */
-  // ! CAREFUL WITH THIS METHOD, IT CAN DAMAGE THE MECHANISM IF UNLOADED
-  public void setStore() {
-    rollersClosedLoopController.setReference(ClimbertakeConstants.Rollers.kRollersStoreCurrent, ControlType.kCurrent);
   }
 
   /**
