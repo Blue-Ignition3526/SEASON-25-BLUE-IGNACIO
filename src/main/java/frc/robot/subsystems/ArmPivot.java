@@ -1,12 +1,17 @@
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.Rotations;
 import com.revrobotics.spark.SparkMax;
+import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.hardware.Pigeon2;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
@@ -14,7 +19,6 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmPivotConstants;
-import lib.team3526.utils.BluePWMEncoder;
 
 public class ArmPivot extends SubsystemBase {
   // Motor
@@ -23,11 +27,21 @@ public class ArmPivot extends SubsystemBase {
   // Config
   private final SparkMaxConfig motorConfig;
 
-  // Through bore encoder
-  private final BluePWMEncoder encoder;
+  // Gyro for angle
+  private final Pigeon2 gyro;
+  private final StatusSignal<Double> gVecX;
+  private final StatusSignal<Double> gVecY;
+  private final StatusSignal<Double> gVecZ;
 
   // Setpoint angle
   private Angle setpoint;
+
+  // Alerts
+  private final Alert alert_motorUnreachable = new Alert(getName() + " motor unreachable", AlertType.kError);
+  private final Alert alert_gyroUnreachable = new Alert(getName() + " gyro unreachable", AlertType.kError);
+
+  // Device check notifier
+  private final Notifier deviceCheckNotifier = new Notifier(this::deviceCheck);
 
   /** Creates a new ArmPivot. */
   public ArmPivot() {
@@ -46,19 +60,52 @@ public class ArmPivot extends SubsystemBase {
     // Apply motor config
     motor.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
 
-    // Create and configure encoder
-    this.encoder = new BluePWMEncoder(ArmPivotConstants.kArmPivotEncoderPort);
-    this.encoder.setOffset(ArmPivotConstants.kArmPivotEncoderOffset.in(Rotations));
-
+    // Create and configure gyro
+    this.gyro = new Pigeon2(ArmPivotConstants.kArmPivotGyroID);
+    this.gVecX = gyro.getGravityVectorX();
+    this.gVecY = gyro.getGravityVectorY();
+    this.gVecZ = gyro.getGravityVectorZ();
+    
     // Setpoint angle
     this.setpoint = getAngle();
+
+    // Device check
+    deviceCheckNotifier.startPeriodic(10);
+  }
+
+  public void deviceCheck() {
+    try {
+      motor.getFirmwareVersion();
+      alert_motorUnreachable.set(false);
+    } catch (Exception e) {
+      alert_motorUnreachable.set(true);
+      DriverStation.reportError(alert_motorUnreachable.getText(), false);
+    }
+
+    if (gyro.isConnected()) {
+      alert_gyroUnreachable.set(false);
+    } else {
+      alert_gyroUnreachable.set(true);
+      DriverStation.reportError(alert_gyroUnreachable.getText(), false);
+    }
   }
 
   /**
-   * Gets the current angle of the ArmPivot
+   * Gets the current angle of the arm from 0 to 2pi
+   */
+  public Angle getGyroAngle() {
+    double xVec = gVecX.refresh().getValueAsDouble();
+    double yVec = gVecZ.refresh().getValueAsDouble();
+
+    return Radians.of(Math.atan2(yVec, xVec) + Math.PI);
+  }
+
+  /**
+   * Dev interface for quickly switching out feedback devices
+   * @return
    */
   public Angle getAngle() {
-    return encoder.getAngle();
+    return getGyroAngle();
   }
 
   /**
