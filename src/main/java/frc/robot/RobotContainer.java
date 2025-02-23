@@ -1,5 +1,7 @@
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Degrees;
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -8,6 +10,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.commands.DriveSwerve;
+import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.ClimbertakePivot;
 import frc.robot.subsystems.ClimbertakeRollers;
 import frc.robot.subsystems.SwerveDrive;
@@ -34,6 +37,8 @@ public class RobotContainer {
   private final SwerveDrive m_swerveDrive;
   private final Gyro gyro;
 
+  private final Elevator elevator;
+
   private final SendableChooser<Command> autonomousChooser;
 
   private final ClimbertakePivot m_climbertakePivot;
@@ -52,6 +57,8 @@ public class RobotContainer {
   public RobotContainer() {
     gyro = new Gyro(new GyroIOPigeon(Constants.SwerveDriveConstants.kGyroDevice));
     m_swerveDrive = new SwerveDrive(frontLeft, frontRight, backLeft, backRight, gyro);
+
+    this.elevator = new Elevator();
 
     this.turn180 = new Turn180(this.m_swerveDrive);
     this.lookAt = new LookController(this.gyro::getYaw, this.m_driverControllerCustom::getRightX, this.m_driverControllerCustom::getRightY, 0.1);
@@ -76,31 +83,42 @@ public class RobotContainer {
     this.m_limelight3G.enable();
     this.m_odometry.startVision();
 
-    SmartDashboard.putData("SwerveDrive/ResetTurningEncoders", new InstantCommand(m_swerveDrive::resetTurningEncoders));
-
-    // Enable vision measurements and pose estimation
-    // this.m_limelight3G.enable();
-    // this.m_poseTracker.start();
-    // this.m_poseTracker.startVision();
+    SmartDashboard.putData("SwerveDrive/ResetTurningEncoders", new InstantCommand(m_swerveDrive::resetTurningEncoders).ignoringDisable(true));
 
     // Subsystems
     m_climbertakePivot = new ClimbertakePivot();
     m_climbertakeRollers = new ClimbertakeRollers();
 
+    SmartDashboard.putData("Elevator/10", elevator.setSetpointCommand(Inches.of(10)).ignoringDisable(true));
+    SmartDashboard.putData("Elevator/0", elevator.setSetpointCommand(Inches.of(0)).ignoringDisable(true));
+    SmartDashboard.putData("Elevator/50", elevator.setSetpointCommand(Inches.of(50)).ignoringDisable(true));
+    SmartDashboard.putData("Elevator/-10", elevator.setSetpointCommand(Inches.of(-10)).ignoringDisable(true));
+
+    SmartDashboard.putData("Climbertake/Pivot/Home", m_climbertakePivot.setSetpointCommand(Degrees.of(0)).ignoringDisable(true));
+    SmartDashboard.putData("Climbertake/Pivot/Explode", m_climbertakePivot.setSetpointCommand(Degrees.of(80)).ignoringDisable(true));
+    SmartDashboard.putData("Climbertake/Pivot/Implode", m_climbertakePivot.setSetpointCommand(Degrees.of(-60)).ignoringDisable(true));
+    
     configureBindings();
   }
 
   private void configureBindings() {
-    this.m_swerveDrive.setDefaultCommand(new DriveSwerve(
-        m_swerveDrive,
-        () -> -this.m_driverControllerCustom.getLeftY(),
-        () -> -this.m_driverControllerCustom.getLeftX(),
-        () -> -this.m_driverControllerCustom.getRightX(),
-        () -> true
-      )
-    );
+    //this.m_swerveDrive.setDefaultCommand(new DriveSwerve(
+    //    m_swerveDrive,
+    //    () -> -m_driverControllerCustom.getLeftY(),
+    //    () -> -m_driverControllerCustom.getLeftX(),
+    //    () -> -m_driverControllerCustom.getRightX(),
+    //    () -> true
+    //  )
+    //);
 
-    this.m_driverControllerCustom.rightButton().onTrue(this.m_swerveDrive.zeroHeadingCommand());
+    m_driverControllerCustom.povUp().whileTrue(elevator.setVoltageCommand(6));
+    m_driverControllerCustom.povUp().onFalse(elevator.stopCommand());
+    
+    m_driverControllerCustom.povDown().whileTrue(elevator.setVoltageCommand(-6));
+    m_driverControllerCustom.povDown().onFalse(elevator.stopCommand());
+
+
+    /* this.m_driverControllerCustom.rightButton().onTrue(this.m_swerveDrive.zeroHeadingCommand());
     this.m_driverControllerCustom.leftButton().onTrue(this.m_swerveDrive.resetPoseCommand());
 
     this.m_driverControllerCustom.rightBumper().onTrue(m_swerveDrive.enableSpeedAlteratorCommand(turn180));
@@ -110,7 +128,7 @@ public class RobotContainer {
     this.m_driverControllerCustom.rightBumper().onFalse(m_swerveDrive.disableSpeedAlteratorCommand());
     this.m_driverControllerCustom.leftBumper().onFalse(m_swerveDrive.disableSpeedAlteratorCommand());
     this.m_driverControllerCustom.bottomButton().onFalse(m_swerveDrive.disableSpeedAlteratorCommand());
-    this.m_driverControllerCustom.topButton().onFalse(m_swerveDrive.disableSpeedAlteratorCommand());
+    this.m_driverControllerCustom.topButton().onFalse(m_swerveDrive.disableSpeedAlteratorCommand()); */
   }
 
   public Command getAutonomousCommand() {

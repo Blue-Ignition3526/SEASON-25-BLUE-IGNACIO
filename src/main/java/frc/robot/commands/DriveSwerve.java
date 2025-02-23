@@ -13,6 +13,7 @@ import static edu.wpi.first.units.Units.Second;
 
 import frc.robot.Constants;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.SwerveDrive;
 
@@ -74,7 +75,7 @@ public class DriveSwerve extends Command {
     if (this.fieldRelative.get()) {
       swerveDrive.driveFieldRelative(x, y, rot);
     } else {
-      swerveDrive.driveRobotRelative(x, y, rot);
+      //swerveDrive.driveRobotRelative(x, y, rot);
     }
   }
 
