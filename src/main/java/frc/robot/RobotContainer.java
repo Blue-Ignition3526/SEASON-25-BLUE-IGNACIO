@@ -88,7 +88,7 @@ public class RobotContainer {
     SmartDashboard.putData("Climbertake/Pivot/Explode", m_climbertakePivot.setSetpointCommand(Degrees.of(80)).ignoringDisable(true));
     SmartDashboard.putData("Climbertake/Pivot/Implode", m_climbertakePivot.setSetpointCommand(Degrees.of(-60)).ignoringDisable(true));
 
-    //configureBindings();
+    configureBindings();
   }
 
   private void configureBindings() {
