@@ -10,6 +10,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import lib.BlueShift.odometry.vision.OdometryCamera;
 import lib.BlueShift.odometry.vision.VisionOdometryPoseEstimate;
@@ -124,5 +125,8 @@ public class BlueShiftOdometry extends SubsystemBase {
 
         // Update field pose
         m_field.setRobotPose(m_poseEstimator.getEstimatedPosition());
+
+        // Send field to dash
+        SmartDashboard.putData("Field", m_field);
     }
 }
