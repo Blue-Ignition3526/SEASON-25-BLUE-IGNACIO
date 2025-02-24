@@ -67,6 +67,9 @@ public class ClimbertakePivot extends SubsystemBase {
 
     // * Setpoint
     setpoint = getAngle();
+
+    // * Device check
+    deviceCheckNotifier.startPeriodic(10);
   }
 
   private void deviceCheck() {
@@ -117,6 +120,10 @@ public class ClimbertakePivot extends SubsystemBase {
     this.setpoint = setpoint;
   }
 
+  public void stop() {
+    this.pivotMotor.setVoltage(0);
+  }
+
   /**
    * Sets the setpoint of the PID controller
    * @param setpoint
@@ -124,6 +131,10 @@ public class ClimbertakePivot extends SubsystemBase {
    */
   public Command setSetpointCommand(Angle setpoint) {
     return runOnce(() -> setSetpoint(setpoint));
+  }
+
+  public Command setVoltageCommand(double voltage) {
+    return runOnce(() -> pivotMotor.setVoltage(voltage));
   }
 
   /**
@@ -146,10 +157,14 @@ public class ClimbertakePivot extends SubsystemBase {
 
     double pidOutputVolts = ClimbertakeConstants.Pivot.kPivotPIDController.calculate(currentAngleRad, setpointAngleRad);
     double feedforwardVolts = ClimbertakeConstants.Pivot.kPivotFeedforward.calculate(currentAngleRad, pidOutputVolts);
-    double resultVolts = pidOutputVolts + feedforwardVolts;
+    double resultVolts = pidOutputVolts;
 
     // ! CHECK APPLIED VOLTAGE IN THE DASHBOARD FIRST BEFORE POWERING THE MOTOR
-    //pivotMotor.setVoltage(resultVolts);
+    if (pivotEncoder.isConnected()) {
+      //pivotMotor.setVoltage(resultVolts);
+    } else {
+      this.stop();
+    }
 
     // Logging
     SmartDashboard.putNumber("Climbertake/Pivot/SetpointAngle", Math.toDegrees(setpointAngleRad));

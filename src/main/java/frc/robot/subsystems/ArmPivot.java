@@ -1,7 +1,10 @@
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Rotations;
+
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -14,7 +17,6 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmPivotConstants;
-import lib.team3526.utils.BluePWMEncoder;
 
 public class ArmPivot extends SubsystemBase {
   // Motor
@@ -23,8 +25,8 @@ public class ArmPivot extends SubsystemBase {
   // Config
   private final SparkMaxConfig motorConfig;
 
-  // Through bore encoder
-  private final BluePWMEncoder encoder;
+  // Encoder
+  private final RelativeEncoder encoder;
 
   // Setpoint angle
   private Angle setpoint;
@@ -43,22 +45,37 @@ public class ArmPivot extends SubsystemBase {
       .smartCurrentLimit(ArmPivotConstants.kArmPivotMotorCurrentLimit)
       .voltageCompensation(12);
 
+    this.motorConfig.encoder
+      .positionConversionFactor(1. / 240.);
+      
+    // Get and configure encoder
+    this.encoder = motor.getEncoder();
+    
     // Apply motor config
     motor.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
 
-    // Create and configure encoder
-    this.encoder = new BluePWMEncoder(ArmPivotConstants.kArmPivotEncoderPort);
-    this.encoder.setOffset(ArmPivotConstants.kArmPivotEncoderOffset.in(Rotations));
-
     // Setpoint angle
     this.setpoint = getAngle();
+
+    SmartDashboard.putData("ArmPivot/PID", ArmPivotConstants.kArmPivotPIDController);
+  }
+
+  /*
+   * Resets the angle
+   */
+  public void resetAngle() {
+    encoder.setPosition(0);
+  }
+
+  public Command resetAngleCommand() {
+    return runOnce(this::resetAngle);
   }
 
   /**
    * Gets the current angle of the ArmPivot
    */
   public Angle getAngle() {
-    return encoder.getAngle();
+    return Rotations.of(encoder.getPosition()).plus(Degrees.of(66));
   }
 
   /**
@@ -108,18 +125,12 @@ public class ArmPivot extends SubsystemBase {
   @Override
   public void periodic() {
     double currentAngleRad = getAngle().in(Radians);
-    // ! CLAMPS ANGLE HERE
-    // double setpointAngleRad = MathUtil.clamp(
-    //   setpoint.in(Radians),
-    //   ClimbertakeConstants.Pivot.kPivotLowerLimit.in(Radians),
-    //   ClimbertakeConstants.Pivot.kPivotUpperLimit.in(Radians)
-    // );
     double setpointAngleRad = setpoint.in(Radians);
 
     double resultVolts = ArmPivotConstants.kArmPivotPIDController.calculate(currentAngleRad, setpointAngleRad);
 
     // ! CHECK APPLIED VOLTAGE IN THE DASHBOARD FIRST BEFORE POWERING THE MOTOR
-    // pivotMotor.setVoltage(resultVolts);
+    motor.setVoltage(resultVolts);
 
     SmartDashboard.putNumber("ArmPivot/SetpointAngle", Math.toDegrees(setpointAngleRad));
     SmartDashboard.putNumber("ArmPivot/CurrentAngle", Math.toDegrees(currentAngleRad));

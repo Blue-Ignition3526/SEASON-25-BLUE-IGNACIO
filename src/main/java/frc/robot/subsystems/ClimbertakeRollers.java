@@ -54,6 +54,7 @@ public class ClimbertakeRollers extends SubsystemBase {
       .openLoopRampRate(ClimbertakeConstants.Rollers.kRollersMotorRampRate)
       .closedLoopRampRate(ClimbertakeConstants.Rollers.kRollersMotorRampRate)
       .smartCurrentLimit(ClimbertakeConstants.Rollers.kRollersMotorCurrentLimit)
+      .inverted(true)
       .voltageCompensation(12);
 
     // Apply config

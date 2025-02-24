@@ -143,6 +143,9 @@ public class Elevator extends SubsystemBase {
     return runOnce(() -> setSetpoint(setpoint));
   }
 
+  public Command setVoltageCommand(double voltage) {
+    return runOnce(() -> m_rightElevatorMotor.setVoltage(voltage));
+  }
 
   @Override
   public void periodic() {
@@ -158,11 +161,11 @@ public class Elevator extends SubsystemBase {
     // Calculate needed voltage
     double pidOutputVolts = ElevatorConstants.kElevatorPIDController.calculate(currentPositionInches, setpointPositionInches);
     double feedforwardVolts = ElevatorConstants.kElevatorFeedforward.calculate(currentPositionInches, pidOutputVolts);
-    double resultVolts = MathUtil.clamp(pidOutputVolts + feedforwardVolts, -12, 12);
+    double resultVolts = pidOutputVolts;
     
     // Set the voltage to the motor
     // ! CHECK APPLIED VOLTAGE IN THE DASHBOARD FIRST BEFORE POWERING THE MOTOR
-    m_rightElevatorMotor.setVoltage(resultVolts);
+    //m_rightElevatorMotor.setVoltage(resultVolts);
     
     //telemetry 
     SmartDashboard.putNumber("Elevator/CurrentPosition", currentPositionInches);

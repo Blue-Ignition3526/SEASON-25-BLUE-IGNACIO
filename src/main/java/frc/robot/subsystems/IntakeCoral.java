@@ -67,7 +67,9 @@ public class IntakeCoral extends SubsystemBase {
       .smartCurrentLimit(IntakeCoralConstants.kMotorCurrentLimit)
       .voltageCompensation(12)
       // * Lower motor follows upper motor inverted
-      .follow(m_upperMotor, true);
+      .follow(m_upperMotor, false);
+
+    this.m_lowerMotor.configure(m_lowerMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
 
     // Create piece sensor
     pieceSensor = new Canandcolor(Constants.IntakeCoralConstants.kSensorId);
