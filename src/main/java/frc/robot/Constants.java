@@ -294,6 +294,6 @@ public class Constants {
 
         // Parameters
         public static final double kRollersInVoltage = 6;
-        public static final double kRollersOutVoltage = -kRollersInVoltage;
+        public static final double kRollersOutVoltage = -3;
     }
 }
