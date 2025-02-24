@@ -57,16 +57,17 @@ public class Constants {
                 0, 0, 0, 
                 new TrapezoidProfile.Constraints(12, 20)
             );
-            
-            // Angles
-            public static final Angle epsilon = Degrees.of(0);
-            public static final Angle kIntakeAngle = Degrees.of(15);
-            public static final Angle kStoreAngle = Degrees.of(-15);
-            
+          
             // Feedforward
             // Calculated with https://www.reca.lc/arm?armMass=%7B%22s%22%3A8%2C%22u%22%3A%22kg%22%7D&comLength=%7B%22s%22%3A12%2C%22u%22%3A%22in%22%7D&currentLimit=%7B%22s%22%3A40%2C%22u%22%3A%22A%22%7D&efficiency=100&endAngle=%7B%22s%22%3A180%2C%22u%22%3A%22deg%22%7D&iterationLimit=10000&motor=%7B%22quantity%22%3A1%2C%22name%22%3A%22NEO%22%7D&ratio=%7B%22magnitude%22%3A130%2C%22ratioType%22%3A%22Reduction%22%7D&startAngle=%7B%22s%22%3A0%2C%22u%22%3A%22deg%22%7D
             // TODO: kS needs manual tuning
             public static final ArmFeedforward kPivotFeedforward = new ArmFeedforward(0.2, 0.67, 2.53);
+          
+            // Angles
+            public static final Angle epsilon = Degrees.of(0);
+
+            public static final Angle kIntakeAngle = Degrees.of(15);
+            public static final Angle kStoreAngle = Degrees.of(-15);
         }
 
         public static final class Rollers {
@@ -119,8 +120,8 @@ public class Constants {
         public static final double kArmPivotMotorRampRate = 0.15;
 
         // Encoder
-        public static final int kArmPivotEncoderPort = 2;
-        public static final Angle kArmPivotEncoderOffset = Degrees.of(0);
+        public static final int kArmPivotGyroID = 2;
+        public static final Angle kArmPivotGyroOffset = Degrees.of(0);
 
         // Angle limits
         public static final Angle kMinAngle = Degrees.of(0);
@@ -133,6 +134,7 @@ public class Constants {
             0.0, 0, 0,
             new TrapezoidProfile.Constraints(10, 20)
         );
+        public static final ArmFeedforward kArmPivotFeedforward = new ArmFeedforward(0.0, 0.0, 0.0);
     }
 
     //* Swerve Drive
