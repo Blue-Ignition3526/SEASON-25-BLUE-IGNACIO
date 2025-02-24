@@ -1,7 +1,8 @@
 package frc.robot;
 
 import java.util.HashMap;
-
+import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Degrees;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.config.PIDConstants;
@@ -16,6 +17,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.commands.DriveSwerve;
+import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.ClimbertakePivot;
+import frc.robot.subsystems.ClimbertakeRollers;
 import frc.robot.subsystems.SwerveDrive;
 import frc.robot.subsystems.SwerveModule;
 import frc.robot.subsystems.Gyro.Gyro;
@@ -53,6 +57,10 @@ public class RobotContainer {
   private final SpeedAlterator m_speedAlterator_lookAt;
   private final SpeedAlterator m_speedAlterator_goTo0;
   private final SpeedAlterator m_speedAlterator_gotTo1;
+  private final Elevator elevator;
+
+  private final ClimbertakePivot m_climbertakePivot;
+  private final ClimbertakeRollers m_climbertakeRollers;
 
   // * Odometry and Vision
   private final LimelightOdometryCamera m_limelight3G;
@@ -62,6 +70,7 @@ public class RobotContainer {
   // * Autonomous
   private final SendableChooser<Command> m_autonomousChooser;
 
+  
   public RobotContainer() {
     // * Gyro
     m_gyro = new Gyro(new GyroIOPigeon(Constants.SwerveDriveConstants.kGyroDevice));
@@ -102,6 +111,19 @@ public class RobotContainer {
       Elastic.sendAlert(new ElasticNotification(NotificationLevel.ERROR, "ERROR! COULD NOT LOAD PP ROBOT CONFIG", e.getMessage()));
       DriverStation.reportError("ERROR! COULD NOT LOAD PP ROBOT CONFIG", e.getStackTrace());
     }
+    SmartDashboard.putData("SwerveDrive/ResetTurningEncoders", new InstantCommand(m_swerveDrive::resetTurningEncoders).ignoringDisable(true));
+
+    // Subsystems
+    m_climbertakePivot = new ClimbertakePivot();
+    m_climbertakeRollers = new ClimbertakeRollers();
+
+    // Elevator
+    elevator = new Elevator();
+
+    SmartDashboard.putData("Elevator/10", elevator.setSetpointCommand(Inches.of(10)).ignoringDisable(true));
+    SmartDashboard.putData("Elevator/0", elevator.setSetpointCommand(Inches.of(0)).ignoringDisable(true));
+    SmartDashboard.putData("Elevator/50", elevator.setSetpointCommand(Inches.of(50)).ignoringDisable(true));
+
 
     // Auto builder
     AutoBuilder.configure(
@@ -128,6 +150,10 @@ public class RobotContainer {
 
     // * Add controller bindings
     configureBindings();
+
+    SmartDashboard.putData("Climbertake/Pivot/Home", m_climbertakePivot.setSetpointCommand(Degrees.of(0)).ignoringDisable(true));
+    SmartDashboard.putData("Climbertake/Pivot/Explode", m_climbertakePivot.setSetpointCommand(Degrees.of(80)).ignoringDisable(true));
+    SmartDashboard.putData("Climbertake/Pivot/Implode", m_climbertakePivot.setSetpointCommand(Degrees.of(-60)).ignoringDisable(true));
   }
 
   private void configureBindings() {
