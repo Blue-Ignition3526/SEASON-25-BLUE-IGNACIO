@@ -272,8 +272,12 @@ public class Constants {
         public static final int kLowerMotorId = 41;
 
         // Motor limits
-        public static final int kMotorCurrentLimit = 40;
+        public static final int kMotorCurrentLimit = 25;
         public static final double kMotorRampRate = 0.15;
+
+        // Alternate piece detection
+        public static final double kPieceDetectionDebounceTime = 0.3;
+        public static final int kPieceDetectionCurrent = 20;
 
         // Sensor
         public static final int kSensorId = 42;
