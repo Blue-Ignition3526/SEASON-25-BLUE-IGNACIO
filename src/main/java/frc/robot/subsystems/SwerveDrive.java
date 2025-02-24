@@ -26,7 +26,6 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
-
 public class SwerveDrive extends SubsystemBase {
     //* Swerve modules
     public final SwerveModule frontLeft;
@@ -36,9 +35,6 @@ public class SwerveDrive extends SubsystemBase {
 
     //* Gyroscope
     public final Gyro gyro;
-
-    //* Odometry
-    public final SwerveDriveOdometry odometry;
 
     //* Speed stats
     private boolean drivingRobotRelative = false;
@@ -65,18 +61,6 @@ public class SwerveDrive extends SubsystemBase {
         // Store the gyroscope
         this.gyro = gyro;
 
-        // Create odometry with initial data
-        this.odometry = new SwerveDriveOdometry(
-            Constants.SwerveDriveConstants.PhysicalModel.kDriveKinematics,
-            this.getHeading(),
-            new SwerveModulePosition[]{
-                frontLeft.getPosition(),
-                frontRight.getPosition(),
-                backLeft.getPosition(),
-                backRight.getPosition()
-            }
-        );
-
         // Resource reporting
         HAL.report(tResourceType.kResourceType_RobotDrive, tInstances.kRobotDriveSwerve_Other);
 
@@ -99,23 +83,6 @@ public class SwerveDrive extends SubsystemBase {
         } catch (Exception e) {
             e.printStackTrace();            
         }
-
-        AutoBuilder.configure(
-            this::getPose,
-            this::resetOdometry,
-            this::getRelativeChassisSpeeds,
-            (speeds, feedforwards) -> driveRobotRelative(speeds),
-            new PPHolonomicDriveController(
-                Constants.SwerveDriveConstants.AutonomousConstants.kTranslatePIDConstants,
-                Constants.SwerveDriveConstants.AutonomousConstants.kRotatePIDConstants
-            ),
-            config,
-            () -> {
-                if (DriverStation.getAlliance().isPresent()) return DriverStation.getAlliance().get() == Alliance.Red;
-                return false;
-            },
-            swerveDrive
-        );
     }
 
     /**
@@ -134,40 +101,12 @@ public class SwerveDrive extends SubsystemBase {
     }
 
     /**
-     * Get the current pose of the robot
-     * @return
-     */
-    public Pose2d getPose() {
-        return odometry.getPoseMeters();
-    }
-
-    /**
-     * Reset the pose of the robot to (0, 0)
-     */
-    public void resetPose() {
-        resetOdometry(new Pose2d());
-    }
-
-    /**
-     * Reset the pose of the robot to the provided pose
-     * @param pose
-     */
-    public void resetOdometry(Pose2d pose) {
-        odometry.resetPosition(this.getHeading(), getModulePositions(), pose);
-
-    }
-
-    /**
      * If the robot is driving robot relative it will return the speeds directly, otherwise it will return the speeds relative to the field
      * @return
      */
-    public ChassisSpeeds getRelativeChassisSpeeds() {
-        //! PAST IMPLEMENTATION (RETURNS SPEEDS DIRECTLY)
+    public ChassisSpeeds getRobotRelativeChassisSpeeds() {
         if (this.drivingRobotRelative) return this.speeds;
         else return ChassisSpeeds.fromFieldRelativeSpeeds(speeds, getHeading());
-
-        // TODO: NEW IMPLEMENTATION (RETURNS REAL SPEEDS FROM GYRO)
-        // return new ChassisSpeeds(this.gyro.getVelocityX(), this.gyro.getVelocityY(), Math.toRadians(this.gyro.getYawVelocity()));
     }
 
     /**
@@ -352,26 +291,17 @@ public class SwerveDrive extends SubsystemBase {
     }
 
     public Command zeroHeadingCommand() {
-        return Commands.runOnce(this::zeroHeading);
-    }
-
-    public Command resetPoseCommand() {
-        return runOnce(this::resetPose);
+        return runOnce(this::zeroHeading).ignoringDisable(true);
     }
 
     @Override
     public void periodic() {
-        // Update odometry
-        this.odometry.update(getHeading(), getModulePositions());
-
         // Log data
         Logger.recordOutput("SwerveDrive/RobotHeadingRad", this.getHeading().getRadians());
         Logger.recordOutput("SwerveDrive/RobotHeadingDeg", this.getHeading().getDegrees());
-        
-        Logger.recordOutput("SwerveDrive/RobotPose", this.getPose());
 
         Logger.recordOutput("SwerveDrive/RobotRelative", this.drivingRobotRelative);
-        Logger.recordOutput("SwerveDrive/RobotSpeeds", this.getRelativeChassisSpeeds());
+        Logger.recordOutput("SwerveDrive/RobotSpeeds", this.getRobotRelativeChassisSpeeds());
         
         Logger.recordOutput("SwerveDrive/ModuleRealStates", this.getModuleRealStates());
         Logger.recordOutput("SwerveDrive/ModuleTargetStates", this.getModuleTargetStates());

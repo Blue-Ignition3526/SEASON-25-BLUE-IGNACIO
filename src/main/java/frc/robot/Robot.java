@@ -4,15 +4,25 @@
 
 package frc.robot;
 
+import edu.wpi.first.net.PortForwarder;
+import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.Threads;
+import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import lib.Elastic;
+import lib.Elastic.ElasticNotification;
+import lib.Elastic.ElasticNotification.NotificationLevel;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.urcl.URCL;
+
+import com.ctre.phoenix6.SignalLogger;
+import com.pathplanner.lib.commands.PathfindingCommand;
 import com.reduxrobotics.canand.CanandEventLoop;
 
 /**
@@ -42,6 +52,29 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void robotInit() {
+    // * DISABLE LIVE WINDOW
+    LiveWindow.disableAllTelemetry();
+
+    // * DISABLE PHOENIX LOGGING
+    SignalLogger.enableAutoLogging(false);
+    SignalLogger.stop();
+
+    // * Cameras port forwarding over USB
+    // for (int port = 5800; port <= 5807; port++) PortForwarder.add(port, Constants.Vision.Limelight3.kName + ".local", port);
+    for (int port = 5800; port <= 5807; port++) PortForwarder.add(port, Constants.Vision.Limelight3G.kName + ".local", port);
+    // for (int port = 5800; port <= 5807; port++) PortForwarder.add(port, Constants.Vision.LimelightTwoPlus.kName + ".local", port);
+    for (int port = 5800; port <= 5807; port++) PortForwarder.add(port, "photonvision.local", port);
+
+    // * DataLogManager
+    try {
+      DataLogManager.start();
+      DataLogManager.logNetworkTables(true);
+      DriverStation.startDataLog(DataLogManager.getLog(), true);
+      Elastic.sendAlert(new ElasticNotification(NotificationLevel.INFO, "DataLogManager started", "DataLogManager started successfully."));
+    } catch (Exception e) {
+      Elastic.sendAlert(new ElasticNotification(NotificationLevel.ERROR, "DataLogManager failed to start", "DataLogManager failed to start."));
+    }
+
     // Start Reduxlib server
     CanandEventLoop.getInstance();
     
@@ -49,6 +82,14 @@ public class Robot extends LoggedRobot {
     Logger.addDataReceiver(new NT4Publisher());
     if (Constants.Logging.kUseURCL) Logger.registerURCL(URCL.startExternal());
     Logger.start();
+    URCL.start();
+
+    // * Initialization alert
+    Elastic.sendAlert(new ElasticNotification(NotificationLevel.INFO, "Robot ready!", "Wait for subsystem initialization to complete."));
+
+    // * Path finding warmup
+    System.out.println("Pathfinding warmup...");
+    PathfindingCommand.warmupCommand().schedule();
   }
 
   /**
@@ -79,7 +120,9 @@ public class Robot extends LoggedRobot {
 
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+    Elastic.sendAlert(new ElasticNotification(NotificationLevel.INFO, "Robot Disabled.", "Robot has been disabled."));
+  }
 
   @Override
   public void disabledPeriodic() {}
@@ -87,6 +130,8 @@ public class Robot extends LoggedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
+    Elastic.sendAlert(new ElasticNotification(NotificationLevel.WARNING, "Robot Enabled Autonomous.", "Robot has been enabled in autonomous mode, BE CAUTIOUS."));
+
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
     // schedule the autonomous command (example)
@@ -101,6 +146,7 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void teleopInit() {
+    Elastic.sendAlert(new ElasticNotification(NotificationLevel.WARNING, "Robot Enabled Teleop.", "Robot has been enabled in Teleop mode, BE CAUTIOUS."));
     // This makes sure that the autonomous stops running when
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove

@@ -1,26 +1,27 @@
 package frc.robot.speedAlterators;
 
+import java.util.function.Supplier;
+
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import lib.BlueShift.control.SpeedAlterator;
 import frc.robot.Constants;
-import frc.robot.subsystems.SwerveDrive;
 
 public class Turn180 extends SpeedAlterator {
-    private final SwerveDrive swerveDrive;
-
+    private final Supplier<Pose2d> poseSupplier;
     private double targetAngle;
 
-    public Turn180(SwerveDrive swerveDrive) {
-        this.swerveDrive = swerveDrive;
+    public Turn180(Supplier<Pose2d> poseSupplier) {
+        this.poseSupplier = poseSupplier;
         SmartDashboard.putBoolean("Alterators/turning180", false);
         Constants.SwerveDriveConstants.PoseControllers.rotationPID.enableContinuousInput(-0.5, 0.5);
     }
     
     @Override
     public void onEnable() {
-        targetAngle = swerveDrive.odometry.getPoseMeters().getRotation().rotateBy(Rotation2d.k180deg).getRotations();
+        targetAngle = poseSupplier.get().getRotation().rotateBy(Rotation2d.k180deg).getRotations();
         SmartDashboard.putBoolean("Alterators/turning180", true);
     }
 
@@ -30,9 +31,9 @@ public class Turn180 extends SpeedAlterator {
     }
 
     public ChassisSpeeds alterSpeed(ChassisSpeeds speeds, boolean robotRelative) {
-        double speed = Constants.SwerveDriveConstants.PoseControllers.rotationPID.calculate((swerveDrive.odometry.getPoseMeters().getRotation().getRotations()), targetAngle);
+        double speed = Constants.SwerveDriveConstants.PoseControllers.rotationPID.calculate((poseSupplier.get().getRotation().getRotations()), targetAngle);
         SmartDashboard.putNumber("Alterators/DesiredAngle", targetAngle);
-        SmartDashboard.putNumber("Alterators/CurrentAngle", (swerveDrive.odometry.getPoseMeters().getRotation().getRotations()));
+        SmartDashboard.putNumber("Alterators/CurrentAngle", (poseSupplier.get().getRotation().getRotations()));
         SmartDashboard.putNumber("Alterators/Speed", speed);
 
         speeds.omegaRadiansPerSecond = speed;

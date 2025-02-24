@@ -3,9 +3,10 @@ package frc.robot;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.units.AngleUnit;
 import edu.wpi.first.units.AngularAccelerationUnit;
 import edu.wpi.first.units.AngularVelocityUnit;
 import edu.wpi.first.units.DistanceUnit;
@@ -20,6 +21,9 @@ import lib.BlueShift.constants.PIDFConstants;
 import lib.BlueShift.constants.SwerveModuleOptions;
 import lib.BlueShift.utils.SwerveChassis;
 import static edu.wpi.first.units.Units.*;
+
+import java.util.HashMap;
+
 import com.pathplanner.lib.config.PIDConstants;
 
 public class Constants {
@@ -189,59 +193,83 @@ public class Constants {
             public static final double kTurningEncoder_RPS = kTurningEncoder_Rotation / 60.0;
 
             // Robot Without bumpers measures
-            public static final Measure<DistanceUnit> kTrackWidth = Inches.of(23.08);
-            public static final Measure<DistanceUnit> kWheelBase = Inches.of(22.64);
+            public static final Measure<DistanceUnit> kTrackWidth = Inches.of(26);
+            public static final Measure<DistanceUnit> kWheelBase = Inches.of(26);
     
             // Create a kinematics instance with the positions of the swerve modules
             public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(SwerveChassis.sizeToModulePositions(kTrackWidth.in(Meters), kWheelBase.in(Meters)));
-
-            // Rotation lock PIDF Constants
-            public static final PIDFConstants kHeadingControllerPIDConstants = new PIDFConstants(0.1, 0.0, 0.0);
-
-            // Physical model constants
-            public static final double kRobotMassKg = 46;
         }
 
         //* Swerve modules configuration
         public static final class SwerveModuleConstants {
+            // * Motor config
+            // Ramp rates
+            public static final double kDriveMotorRampRate = 0;
+            public static final double kTurningMotorRampRate = 0;
+
+            // Current limits
+            public static final int kDriveMotorCurrentLimit = 40;
+            public static final int kTurningMotorCurrentLimit = 30;
+
             //* PID
             public static final PIDFConstants kTurningPIDConstants = new PIDFConstants(1.57);
 
-            //* Global offset
-            public static final Measure<AngleUnit> kGlobalOffset = Degrees.of(0);
-
             //* Swerve modules options
             public static final SwerveModuleOptions kFrontLeftOptions = new SwerveModuleOptions()
-                .setAbsoluteEncoderInverted(false)
-                .setTurningMotorInverted(true)
                 .setDriveMotorID(2)
                 .setTurningMotorID(3)
                 .setAbsoluteEncoderCANDevice(new CTRECANDevice(4, "*"))
                 .setName("Front Left");
 
             public static final SwerveModuleOptions kFrontRightOptions = new SwerveModuleOptions()
-                .setAbsoluteEncoderInverted(false)
-                .setTurningMotorInverted(true)
                 .setDriveMotorID(5)
                 .setTurningMotorID(6)
                 .setAbsoluteEncoderCANDevice(new CTRECANDevice(7, "*"))
                 .setName("Front Right");
 
             public static final SwerveModuleOptions kBackLeftOptions = new SwerveModuleOptions()
-                .setAbsoluteEncoderInverted(false)
-                .setTurningMotorInverted(true)
                 .setDriveMotorID(8)
                 .setTurningMotorID(9)
                 .setAbsoluteEncoderCANDevice(new CTRECANDevice(10, "*"))
                 .setName("Back Left");
 
             public static final SwerveModuleOptions kBackRightOptions = new SwerveModuleOptions()
-                .setAbsoluteEncoderInverted(false)
-                .setTurningMotorInverted(true)
                 .setDriveMotorID(11)
                 .setTurningMotorID(12)
                 .setAbsoluteEncoderCANDevice(new CTRECANDevice(13, "*"))
                 .setName("Back Right");
+        }
+
+        /**
+         * Poses for each reef branch
+         */
+        public static enum ReefBranch {
+            A(new Pose2d(0, 0, new Rotation2d())),
+            B(new Pose2d(0, 0, new Rotation2d())),
+            C(new Pose2d(0, 0, new Rotation2d())),
+            D(new Pose2d(0, 0, new Rotation2d())),
+            E(new Pose2d(0, 0, new Rotation2d())),
+            F(new Pose2d(0, 0, new Rotation2d())),
+            G(new Pose2d(0, 0, new Rotation2d())),
+            H(new Pose2d(0, 0, new Rotation2d())),
+            I(new Pose2d(0, 0, new Rotation2d())),
+            J(new Pose2d(0, 0, new Rotation2d())),
+            K(new Pose2d(0, 0, new Rotation2d())),
+            L(new Pose2d(0, 0, new Rotation2d()));
+
+            private final Pose2d pose;
+            private ReefBranch(Pose2d pose) { this.pose = pose; }
+            public Pose2d getPose() { return pose; }
+        }
+
+        /**
+         * Levels of the reef
+         */
+        public static enum ReefLevel {
+            L1,
+            L2,
+            L3,
+            L4;
         }
 
         //* AUTONOMOUS

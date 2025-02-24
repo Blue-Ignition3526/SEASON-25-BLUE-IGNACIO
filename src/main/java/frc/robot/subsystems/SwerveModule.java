@@ -9,6 +9,7 @@ import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -21,6 +22,7 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.Constants.SwerveDriveConstants.SwerveModuleConstants;
 import lib.BlueShift.constants.SwerveModuleOptions;
 import static edu.wpi.first.units.Units.*;
 import org.littletonrobotics.junction.Logger;
@@ -67,7 +69,12 @@ public class SwerveModule extends SubsystemBase {
         // * Create Drive motor and configure it
         this.driveMotor = new SparkMax(options.driveMotorID, MotorType.kBrushless);
         this.driveConfig = new SparkMaxConfig();
-        this.driveConfig.inverted(options.driveMotorInverted);
+        this.driveConfig
+            .idleMode(IdleMode.kBrake)
+            .openLoopRampRate(SwerveModuleConstants.kDriveMotorRampRate)
+            .closedLoopRampRate(SwerveModuleConstants.kDriveMotorRampRate)
+            .smartCurrentLimit(SwerveModuleConstants.kDriveMotorCurrentLimit)
+            .voltageCompensation(12);
 
         // Configure the drive encoder
         this.driveConfig.encoder
@@ -83,7 +90,13 @@ public class SwerveModule extends SubsystemBase {
         // * Create Turn motor and configure it
         this.turnMotor = new SparkMax(options.turningMotorID, MotorType.kBrushless);
         this.turnConfig = new SparkMaxConfig();
-        this.turnConfig.inverted(options.turningMotorInverted);
+        this.turnConfig
+            .idleMode(IdleMode.kBrake)
+            .openLoopRampRate(SwerveModuleConstants.kDriveMotorRampRate)
+            .closedLoopRampRate(SwerveModuleConstants.kDriveMotorRampRate)
+            .smartCurrentLimit(SwerveModuleConstants.kDriveMotorCurrentLimit)
+            .voltageCompensation(12)
+            .inverted(true);
 
         // Configure the turning encoder
         this.turnConfig.encoder
@@ -139,6 +152,9 @@ public class SwerveModule extends SubsystemBase {
 
         // * Reset the Drive encoder
         resetDriveEncoder();
+
+        // * Start the device check notifier
+        deviceCheckNotifier.startPeriodic(10);
     }
 
     /**
