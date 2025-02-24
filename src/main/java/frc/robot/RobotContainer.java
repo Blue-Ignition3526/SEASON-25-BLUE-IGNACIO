@@ -141,14 +141,21 @@ public class RobotContainer {
   }
 
   private void configureBindings() {
-    this.m_swerveDrive.setDefaultCommand(new DriveSwerve(
-        m_swerveDrive,
-        () -> -m_driverControllerCustom.getLeftY(),
-        () -> -m_driverControllerCustom.getLeftX(),
-        () -> -m_driverControllerCustom.getRightX(),
-        () -> true
-      )
-    );
+    //this.m_swerveDrive.setDefaultCommand(new DriveSwerve(
+    //    m_swerveDrive,
+    //    () -> -m_driverControllerCustom.getLeftY(),
+    //    () -> -m_driverControllerCustom.getLeftX(),
+    //    () -> -m_driverControllerCustom.getRightX(),
+    //    () -> true
+    //  )
+    //);
+
+    m_driverControllerCustom.povUp().whileTrue(elevator.setVoltageCommand(6));
+    m_driverControllerCustom.povUp().onFalse(elevator.stopCommand());
+    
+    m_driverControllerCustom.povDown().whileTrue(elevator.setVoltageCommand(-6));
+    m_driverControllerCustom.povDown().onFalse(elevator.stopCommand());
+
 
     this.m_driverControllerCustom.rightButton().onTrue(this.m_swerveDrive.zeroHeadingCommand());
     this.m_driverControllerCustom.leftButton().onTrue(this.m_swerveDrive.resetPoseCommand());

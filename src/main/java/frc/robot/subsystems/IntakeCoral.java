@@ -7,7 +7,8 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
-
+import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -30,6 +31,10 @@ public class IntakeCoral extends SubsystemBase {
 
   // Piece sensor 
   private final Canandcolor pieceSensor;
+
+  // Alternate piece detection
+  private Debouncer currentPieceDetectionDebouncer = new Debouncer(0.25, DebounceType.kRising);
+  private boolean currentPieceDetectionState = false;
 
   // Alerts
   private final Alert alert_upperMotorUnreachable = new Alert(getName() + " motor unreachable", AlertType.kError);
@@ -182,7 +187,9 @@ public class IntakeCoral extends SubsystemBase {
 
   @Override
   public void periodic() {
+    // Update piece detection debouncer
+    this.currentPieceDetectionState = currentPieceDetectionDebouncer.calculate(m_upperMotor.getOutputCurrent() > Constants.IntakeCoralConstants.kPieceDetectionCurrent);
+
     SmartDashboard.putString(getName() + "/Color", getColor().toHexString());
   }
-
 }

@@ -69,7 +69,6 @@ public class ClimbertakePivot extends SubsystemBase {
     setpoint = getAngle();
 
     // * Device check
-    deviceCheckNotifier.startPeriodic(10);
   }
 
   private void deviceCheck() {

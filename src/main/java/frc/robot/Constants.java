@@ -62,13 +62,14 @@ public class Constants {
                 12.0, 0, 0, 
                 new TrapezoidProfile.Constraints(30, 45)
             );
-            
+          
             // Angles
             public static final Angle epsilon = Degrees.of(0);
             public static final Angle kIntakeAngle = Degrees.of(60);
             public static final Angle kStoreAngle = Degrees.of(-20);
             public static final Angle kClimbHighAngle = Degrees.of(-10);
             public static final Angle kClimbLowAngle = Degrees.of(120);
+
         }
 
         public static final class Rollers {
@@ -125,8 +126,8 @@ public class Constants {
         public static final double kArmPivotMotorRampRate = 0.15;
 
         // Encoder
-        public static final int kArmPivotEncoderPort = 2;
-        public static final Angle kArmPivotEncoderOffset = Degrees.of(0);
+        public static final int kArmPivotGyroID = 2;
+        public static final Angle kArmPivotGyroOffset = Degrees.of(0);
 
         // Angle limits
         public static final Angle kMinAngle = Degrees.of(0);
@@ -145,6 +146,7 @@ public class Constants {
             22.0, 0, 0,
             new TrapezoidProfile.Constraints(20, 35)
         );
+        public static final ArmFeedforward kArmPivotFeedforward = new ArmFeedforward(0.0, 0.0, 0.0);
     }
 
     //* Swerve Drive
@@ -282,8 +284,12 @@ public class Constants {
         public static final int kLowerMotorId = 41;
 
         // Motor limits
-        public static final int kMotorCurrentLimit = 40;
+        public static final int kMotorCurrentLimit = 25;
         public static final double kMotorRampRate = 0.15;
+
+        // Alternate piece detection
+        public static final double kPieceDetectionDebounceTime = 0.3;
+        public static final int kPieceDetectionCurrent = 20;
 
         // Sensor
         public static final int kSensorId = 42;

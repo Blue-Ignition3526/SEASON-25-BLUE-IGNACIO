@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 /** Creates a new Elevator. */
@@ -138,6 +139,14 @@ public class Elevator extends SubsystemBase {
     this.m_rightElevatorMotor.setVoltage(0);
   }
 
+  public Command setVoltageCommand(double voltage) {
+    return runOnce(() -> m_rightElevatorMotor.setVoltage(voltage));
+  }
+
+  public Command stopCommand() {
+    return runOnce(this::stop);
+  }
+
   //command for establishing the setpoint in inches
   public Command setSetpointCommand(Distance setpoint){
     return runOnce(() -> setSetpoint(setpoint));
@@ -168,6 +177,7 @@ public class Elevator extends SubsystemBase {
     //m_rightElevatorMotor.setVoltage(resultVolts);
     
     //telemetry 
+    SmartDashboard.putNumber("Elevator/AppliedOutput", m_rightElevatorMotor.get());
     SmartDashboard.putNumber("Elevator/CurrentPosition", currentPositionInches);
     SmartDashboard.putNumber("Elevator/SetpointPosition", setpointPositionInches);
     SmartDashboard.putNumber("Elevator/SetpointVoltage", resultVolts);
