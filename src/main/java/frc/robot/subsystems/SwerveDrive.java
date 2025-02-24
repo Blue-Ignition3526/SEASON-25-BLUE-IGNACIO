@@ -12,6 +12,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
@@ -168,7 +169,11 @@ public class SwerveDrive extends SubsystemBase {
      */
     public void drive(ChassisSpeeds speeds) {
         // Alter the speeds if needed
-        this.speeds = ChassisSpeeds.discretize(this.speedAlterator != null ? this.speedAlterator.alterSpeed(speeds, drivingRobotRelative) : speeds, 0);
+        this.speeds = speedAlterator != null ? this.speedAlterator.alterSpeed(speeds, drivingRobotRelative) : speeds;
+        
+        SmartDashboard.putNumber("Debugging/TF2/x", speeds.vxMetersPerSecond);
+        SmartDashboard.putNumber("Debugging/TF2/y", speeds.vyMetersPerSecond);
+        SmartDashboard.putNumber("Debugging/TF2/rot", speeds.omegaRadiansPerSecond);
 
         // Convert speeds to module states
         SwerveModuleState[] m_moduleStates = Constants.SwerveDriveConstants.PhysicalModel.kDriveKinematics.toSwerveModuleStates(this.speeds);
@@ -200,7 +205,12 @@ public class SwerveDrive extends SubsystemBase {
      */
     public void driveFieldRelative(double xSpeed, double ySpeed, double rotSpeed) {
         this.drivingRobotRelative = false;
-        this.drive(ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rotSpeed, this.getHeading()));
+        ChassisSpeeds Speeds = ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rotSpeed, this.getHeading());
+        SmartDashboard.putNumber("Debugging/TF/x", Speeds.vxMetersPerSecond);
+        SmartDashboard.putNumber("Debugging/TF/y", Speeds.vyMetersPerSecond);
+        SmartDashboard.putNumber("Debugging/TF/rot", Speeds.omegaRadiansPerSecond);
+
+        this.drive(Speeds);
     }
 
     /**

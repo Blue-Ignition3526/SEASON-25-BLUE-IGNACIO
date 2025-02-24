@@ -149,7 +149,7 @@ public class ClimbertakePivot extends SubsystemBase {
     double resultVolts = pidOutputVolts + feedforwardVolts;
 
     // ! CHECK APPLIED VOLTAGE IN THE DASHBOARD FIRST BEFORE POWERING THE MOTOR
-    pivotMotor.setVoltage(resultVolts);
+    //pivotMotor.setVoltage(resultVolts);
 
     // Logging
     SmartDashboard.putNumber("Climbertake/Pivot/SetpointAngle", Math.toDegrees(setpointAngleRad));

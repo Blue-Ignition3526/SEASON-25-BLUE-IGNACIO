@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.SwerveDriveConstants.SwerveModuleConstants;
@@ -240,6 +241,8 @@ public class SwerveModule extends SubsystemBase {
      * @param force If true, the module will ignore the current speed and turn to the target angle
      */
     public void setTargetState(SwerveModuleState state, boolean force) {
+        
+
         if (Math.abs(state.speedMetersPerSecond) < Double.MIN_VALUE || force) {
             stop();
             return;
@@ -255,6 +258,11 @@ public class SwerveModule extends SubsystemBase {
         this.targetState = state;
 
         // Set the motor speeds
+        SmartDashboard.putNumber("Debugging/TF3/drive"+this.options.name, state.speedMetersPerSecond);
+        SmartDashboard.putNumber("Debugging/TF3/maxSpeed"+this.options.name, Constants.SwerveDriveConstants.PhysicalModel.kMaxSpeed.in(MetersPerSecond));
+        SmartDashboard.putNumber("Debugging/TF3/rot"+this.options.name, state.angle.getRotations());
+
+
         driveMotor.set(state.speedMetersPerSecond / Constants.SwerveDriveConstants.PhysicalModel.kMaxSpeed.in(MetersPerSecond));
         turnPID.setReference(state.angle.getRotations(), ControlType.kPosition);
     }

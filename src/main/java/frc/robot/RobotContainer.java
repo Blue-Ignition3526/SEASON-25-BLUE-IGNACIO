@@ -154,19 +154,22 @@ public class RobotContainer {
     SmartDashboard.putData("Climbertake/Pivot/Home", m_climbertakePivot.setSetpointCommand(Degrees.of(0)).ignoringDisable(true));
     SmartDashboard.putData("Climbertake/Pivot/Explode", m_climbertakePivot.setSetpointCommand(Degrees.of(80)).ignoringDisable(true));
     SmartDashboard.putData("Climbertake/Pivot/Implode", m_climbertakePivot.setSetpointCommand(Degrees.of(-60)).ignoringDisable(true));
+    
+    configureBindings();
   }
 
   private void configureBindings() {
     this.m_swerveDrive.setDefaultCommand(new DriveSwerve(
         m_swerveDrive,
-        () -> -this.m_driverControllerCustom.getLeftY(),
-        () -> -this.m_driverControllerCustom.getLeftX(),
-        () -> -this.m_driverControllerCustom.getRightX(),
+        () -> -m_driverControllerCustom.getLeftY(),
+        () -> -m_driverControllerCustom.getLeftX(),
+        () -> -m_driverControllerCustom.getRightX(),
         () -> true
       )
     );
 
     this.m_driverControllerCustom.rightButton().onTrue(this.m_swerveDrive.zeroHeadingCommand());
+    this.m_driverControllerCustom.leftButton().onTrue(this.m_swerveDrive.resetPoseCommand());
 
     this.m_driverControllerCustom.rightBumper().onTrue(m_swerveDrive.enableSpeedAlteratorCommand(m_speedAlterator_turn180));
     this.m_driverControllerCustom.leftBumper().onTrue(m_swerveDrive.enableSpeedAlteratorCommand(m_speedAlterator_lookAt));
@@ -175,7 +178,7 @@ public class RobotContainer {
     this.m_driverControllerCustom.rightBumper().onFalse(m_swerveDrive.disableSpeedAlteratorCommand());
     this.m_driverControllerCustom.leftBumper().onFalse(m_swerveDrive.disableSpeedAlteratorCommand());
     this.m_driverControllerCustom.bottomButton().onFalse(m_swerveDrive.disableSpeedAlteratorCommand());
-    this.m_driverControllerCustom.topButton().onFalse(m_swerveDrive.disableSpeedAlteratorCommand());
+    this.m_driverControllerCustom.topButton().onFalse(m_swerveDrive.disableSpeedAlteratorCommand()); */
   }
 
   public Command getAutonomousCommand() {
