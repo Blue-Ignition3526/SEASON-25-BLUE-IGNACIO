@@ -152,6 +152,10 @@ public class Elevator extends SubsystemBase {
     return runOnce(() -> setSetpoint(setpoint));
   }
 
+  public Command setVoltageCommand(double voltage) {
+    return runOnce(() -> m_rightElevatorMotor.setVoltage(voltage));
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
@@ -166,7 +170,7 @@ public class Elevator extends SubsystemBase {
     // Calculate needed voltage
     double pidOutputVolts = ElevatorConstants.kElevatorPIDController.calculate(currentPositionInches, setpointPositionInches);
     double feedforwardVolts = ElevatorConstants.kElevatorFeedforward.calculate(currentPositionInches, pidOutputVolts);
-    double resultVolts = MathUtil.clamp(pidOutputVolts + feedforwardVolts, -12, 12);
+    double resultVolts = pidOutputVolts;
     
     // Set the voltage to the motor
     // ! CHECK APPLIED VOLTAGE IN THE DASHBOARD FIRST BEFORE POWERING THE MOTOR

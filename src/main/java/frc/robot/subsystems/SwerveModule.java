@@ -117,6 +117,9 @@ public class SwerveModule extends SubsystemBase {
         this.alert_turnMotorUnreachable = new Alert(options.name + " Swerve Module TurnMot unreachable", AlertType.kError);
         this.alert_turnEncodersOutOfSync = new Alert(options.name + " Swerve Module Encoders out of sync", AlertType.kWarning);
 
+        // * Device check
+        deviceCheckNotifier.startPeriodic(10);
+    
         // * Reset encoders
         // Wait for absolute encoder to become available and return the boot-up position
         System.out.println("Waiting for " + options.name + " Swerve Module absolute encoder to become available...");
@@ -131,6 +134,7 @@ public class SwerveModule extends SubsystemBase {
             System.out.println("If problem persists please align the wheels manually and restart the robot.");
             System.out.println("Setting current position as 0.");
             this.turnMotor.getEncoder().setPosition(0);
+            alert_cancoderUnreachable.set(true);
         }
 
         // * Reset the Drive encoder

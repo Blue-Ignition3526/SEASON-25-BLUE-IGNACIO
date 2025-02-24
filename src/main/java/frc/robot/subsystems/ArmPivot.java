@@ -1,6 +1,9 @@
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.Rotations;
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkMax;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.hardware.Pigeon2;
@@ -27,11 +30,9 @@ public class ArmPivot extends SubsystemBase {
   // Config
   private final SparkMaxConfig motorConfig;
 
-  // Gyro for angle
-  private final Pigeon2 gyro;
-  private final StatusSignal<Double> gVecX;
-  private final StatusSignal<Double> gVecY;
-  private final StatusSignal<Double> gVecZ;
+  // Encoder
+  private final RelativeEncoder encoder;
+
 
   // Setpoint angle
   private Angle setpoint;
@@ -57,37 +58,30 @@ public class ArmPivot extends SubsystemBase {
       .smartCurrentLimit(ArmPivotConstants.kArmPivotMotorCurrentLimit)
       .voltageCompensation(12);
 
+    this.motorConfig.encoder
+      .positionConversionFactor(1. / 240.);
+      
+    // Get and configure encoder
+    this.encoder = motor.getEncoder();
+    
     // Apply motor config
     motor.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
 
-    // Create and configure gyro
-    this.gyro = new Pigeon2(ArmPivotConstants.kArmPivotGyroID);
-    this.gVecX = gyro.getGravityVectorX();
-    this.gVecY = gyro.getGravityVectorY();
-    this.gVecZ = gyro.getGravityVectorZ();
-    
     // Setpoint angle
     this.setpoint = getAngle();
 
-    // Device check
-    deviceCheckNotifier.startPeriodic(10);
+    SmartDashboard.putData("ArmPivot/PID", ArmPivotConstants.kArmPivotPIDController);
   }
 
-  public void deviceCheck() {
-    try {
-      motor.getFirmwareVersion();
-      alert_motorUnreachable.set(false);
-    } catch (Exception e) {
-      alert_motorUnreachable.set(true);
-      DriverStation.reportError(alert_motorUnreachable.getText(), false);
-    }
+  /*
+   * Resets the angle
+   */
+  public void resetAngle() {
+    encoder.setPosition(0);
+  }
 
-    if (gyro.isConnected()) {
-      alert_gyroUnreachable.set(false);
-    } else {
-      alert_gyroUnreachable.set(true);
-      DriverStation.reportError(alert_gyroUnreachable.getText(), false);
-    }
+  public Command resetAngleCommand() {
+    return runOnce(this::resetAngle);
   }
 
   /**
@@ -105,7 +99,7 @@ public class ArmPivot extends SubsystemBase {
    * @return
    */
   public Angle getAngle() {
-    return getGyroAngle();
+    return Rotations.of(encoder.getPosition()).plus(Degrees.of(66));
   }
 
   /**
@@ -155,18 +149,12 @@ public class ArmPivot extends SubsystemBase {
   @Override
   public void periodic() {
     double currentAngleRad = getAngle().in(Radians);
-    // ! CLAMPS ANGLE HERE
-    // double setpointAngleRad = MathUtil.clamp(
-    //   setpoint.in(Radians),
-    //   ClimbertakeConstants.Pivot.kPivotLowerLimit.in(Radians),
-    //   ClimbertakeConstants.Pivot.kPivotUpperLimit.in(Radians)
-    // );
     double setpointAngleRad = setpoint.in(Radians);
 
     double resultVolts = ArmPivotConstants.kArmPivotPIDController.calculate(currentAngleRad, setpointAngleRad);
 
     // ! CHECK APPLIED VOLTAGE IN THE DASHBOARD FIRST BEFORE POWERING THE MOTOR
-    // pivotMotor.setVoltage(resultVolts);
+    motor.setVoltage(resultVolts);
 
     SmartDashboard.putNumber("ArmPivot/SetpointAngle", Math.toDegrees(setpointAngleRad));
     SmartDashboard.putNumber("ArmPivot/CurrentAngle", Math.toDegrees(currentAngleRad));

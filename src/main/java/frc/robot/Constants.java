@@ -49,25 +49,27 @@ public class Constants {
             // Encoder
             public static final int kPivotEncoderPort = 0;
             public static final Angle kPivotEncoderOffset = Degrees.of(-161);
-            public static final Angle kPivotUpperLimit = Degrees.of(75);
-            public static final Angle kPivotLowerLimit = Degrees.of(-50);
+            public static final Angle kPivotUpperLimit = Degrees.of(122);
+            public static final Angle kPivotLowerLimit = Degrees.of(-23);
 
-            // PID Controller
-            public static final ProfiledPIDController kPivotPIDController = new ProfiledPIDController(
-                0, 0, 0, 
-                new TrapezoidProfile.Constraints(12, 20)
-            );
-          
             // Feedforward
             // Calculated with https://www.reca.lc/arm?armMass=%7B%22s%22%3A8%2C%22u%22%3A%22kg%22%7D&comLength=%7B%22s%22%3A12%2C%22u%22%3A%22in%22%7D&currentLimit=%7B%22s%22%3A40%2C%22u%22%3A%22A%22%7D&efficiency=100&endAngle=%7B%22s%22%3A180%2C%22u%22%3A%22deg%22%7D&iterationLimit=10000&motor=%7B%22quantity%22%3A1%2C%22name%22%3A%22NEO%22%7D&ratio=%7B%22magnitude%22%3A130%2C%22ratioType%22%3A%22Reduction%22%7D&startAngle=%7B%22s%22%3A0%2C%22u%22%3A%22deg%22%7D
             // TODO: kS needs manual tuning
             public static final ArmFeedforward kPivotFeedforward = new ArmFeedforward(0.2, 0.67, 2.53);
+
+            // PID Controller
+            public static final ProfiledPIDController kPivotPIDController = new ProfiledPIDController(
+                12.0, 0, 0, 
+                new TrapezoidProfile.Constraints(30, 45)
+            );
           
             // Angles
             public static final Angle epsilon = Degrees.of(0);
+            public static final Angle kIntakeAngle = Degrees.of(60);
+            public static final Angle kStoreAngle = Degrees.of(-20);
+            public static final Angle kClimbHighAngle = Degrees.of(-10);
+            public static final Angle kClimbLowAngle = Degrees.of(120);
 
-            public static final Angle kIntakeAngle = Degrees.of(15);
-            public static final Angle kStoreAngle = Degrees.of(-15);
         }
 
         public static final class Rollers {
@@ -77,7 +79,7 @@ public class Constants {
             public static final double kRollersMotorRampRate = 0;
 
             // Voltages and store current
-            public static final double kRollersInVoltage = 6;
+            public static final double kRollersInVoltage = 8;
             public static final double kRollersOutVoltage = -kRollersInVoltage;
             public static final double kRollersStoreCurrent = 5;
 
@@ -93,23 +95,27 @@ public class Constants {
     public static final class WristConstants {
         // Motor
         public static final int kWristMotorID = 43;
-        public static final int kWristMotorCurrentLimit = 15;
+        public static final int kWristMotorCurrentLimit = 30;
         public static final double kWristMotorRampRate = 0.15;
 
         // Encoder
         public static final int kWristEncoderPort = 1;
-        public static final Angle kWristEncoderOffset = Degrees.of(0);
+        public static final Angle kWristEncoderOffset = Degrees.of(-33);
 
-        // Setpoint angles
-        public static final Angle kMinAngle = Degrees.of(0);
-        public static final Angle kMaxAngle = Degrees.of(90);
+        // Limits
+        public static final Angle kMinAngle = Degrees.of(-94);
+        public static final Angle kMaxAngle = Degrees.of(4);
+
+        // Angles
+        public static final Angle kParallel = Degrees.of(4);
+        public static final Angle kPerpendicular = Degrees.of(-94);
 
         // PID Controller
         // TODO: Tune
         public static final Angle epsilon = Degrees.of(1);
         public static final ProfiledPIDController kWristPIDController = new ProfiledPIDController(
-            0.0, 0, 0, 
-            new TrapezoidProfile.Constraints(10, 20)
+            1.6, 0, 0.2, 
+            new TrapezoidProfile.Constraints(30, 45)
         );
     }
 
@@ -125,14 +131,20 @@ public class Constants {
 
         // Angle limits
         public static final Angle kMinAngle = Degrees.of(0);
-        public static final Angle kMaxAngle = Degrees.of(90);
+        public static final Angle kMaxAngle = Degrees.of(50);
+
+        // Angles
+        public static final Angle kHighAngle = Degrees.of(45);
+        public static final Angle kMidAngle = Degrees.of(30);
+        public static final Angle kLowAngle = Degrees.of(0);
+
 
         // PID Controller
         // TODO: Tune
         public static final Angle epsilon = Degrees.of(1);
         public static final ProfiledPIDController kArmPivotPIDController = new ProfiledPIDController(
-            0.0, 0, 0,
-            new TrapezoidProfile.Constraints(10, 20)
+            22.0, 0, 0,
+            new TrapezoidProfile.Constraints(20, 35)
         );
         public static final ArmFeedforward kArmPivotFeedforward = new ArmFeedforward(0.0, 0.0, 0.0);
     }
@@ -288,6 +300,6 @@ public class Constants {
 
         // Parameters
         public static final double kRollersInVoltage = 6;
-        public static final double kRollersOutVoltage = -kRollersInVoltage;
+        public static final double kRollersOutVoltage = -3;
     }
 }
