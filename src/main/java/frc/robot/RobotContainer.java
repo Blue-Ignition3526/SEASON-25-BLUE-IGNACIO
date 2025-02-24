@@ -169,7 +169,7 @@ public class RobotContainer {
     );
 
     this.m_driverControllerCustom.rightButton().onTrue(this.m_swerveDrive.zeroHeadingCommand());
-    this.m_driverControllerCustom.leftButton().onTrue(this.m_swerveDrive.resetPoseCommand());
+    // this.m_driverControllerCustom.leftButton().onTrue(this.m_swerveDrive.resetPoseCommand());
 
     this.m_driverControllerCustom.rightBumper().onTrue(m_swerveDrive.enableSpeedAlteratorCommand(m_speedAlterator_turn180));
     this.m_driverControllerCustom.leftBumper().onTrue(m_swerveDrive.enableSpeedAlteratorCommand(m_speedAlterator_lookAt));
@@ -178,7 +178,7 @@ public class RobotContainer {
     this.m_driverControllerCustom.rightBumper().onFalse(m_swerveDrive.disableSpeedAlteratorCommand());
     this.m_driverControllerCustom.leftBumper().onFalse(m_swerveDrive.disableSpeedAlteratorCommand());
     this.m_driverControllerCustom.bottomButton().onFalse(m_swerveDrive.disableSpeedAlteratorCommand());
-    this.m_driverControllerCustom.topButton().onFalse(m_swerveDrive.disableSpeedAlteratorCommand()); */
+    this.m_driverControllerCustom.topButton().onFalse(m_swerveDrive.disableSpeedAlteratorCommand());
   }
 
   public Command getAutonomousCommand() {
