@@ -1,14 +1,14 @@
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Rotations;
-import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.Alert;
@@ -19,34 +19,62 @@ import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.Constants.ClimbertakeConstants;
 
-public class ClimbertakePivot extends SubsystemBase {
-  // * Motor
-  private final SparkMaxConfig pivotConfig;
-  private final SparkMax pivotMotor;
+public class AlgaeClimbertakePivot extends SubsystemBase {
+  // * Setpoints
+  public static enum ClimbertakePosition {
+    // 0 corelates to horizontal
+    // 90 corelates to vertical
+    // ! BE MINDFUL OF MECHANICAL LIMITS
+    CLIMB_LOW(Degrees.of(0)),
+    CLIMB_HIGH(Degrees.of(40)),
+    INTAKE(Degrees.of(40)),
+    STORE(Degrees.of(60));
+
+    private Angle angle;
+    private ClimbertakePosition(Angle angle) {
+      this.angle = angle;
+    }
+
+    public Angle getAngle() {
+      return angle;
+    }
+  }
+
+  // * Left Motor
+  private final SparkFlex leftMotor;
+  private final SparkFlexConfig leftMotorConfig;
+
+  // * Right Motor
+  private final SparkFlex rightMotor;
+  private final SparkFlexConfig rightMotorConfig;
 
   // * Encoder
   private final DutyCycleEncoder pivotEncoder;
 
-  // * Setpoint
+  // * Status
   private Angle setpoint;
+  private boolean pidEnabled = false;
 
   // * Alerts
-  private final Alert alert_motorUnreachable = new Alert(getName() + " motor unreachable", AlertType.kError);
+  private final Alert alert_leftMotorUnreachable = new Alert(getName() + " left motor unreachable", AlertType.kError);
+  private final Alert alert_rightMotorUnreachable = new Alert(getName() + " right motor unreachable", AlertType.kError);
   private final Alert alert_encoderUnreachable = new Alert(getName() + " encoder unreachable", AlertType.kError);
+  private final Alert alert_pidDisabled = new Alert(getName() + " PID disabled.", AlertType.kInfo);
 
-  // Device check notifier
+  // * Device check
   private final Notifier deviceCheckNotifier = new Notifier(this::deviceCheck);
 
-  public ClimbertakePivot() {
-    // * Create and configure the Motor
+  public AlgaeClimbertakePivot() {
+    // * Create and configure left motor
     // Motor
-    pivotMotor = new SparkMax(ClimbertakeConstants.Pivot.kPivotMotorID, MotorType.kBrushless);
+    leftMotor = new SparkFlex(ClimbertakeConstants.Pivot.kLeftPivotMotorID, MotorType.kBrushless);
 
     // Config
-    pivotConfig = new SparkMaxConfig();
-    pivotConfig
+    leftMotorConfig = new SparkFlexConfig();
+    leftMotorConfig
       .idleMode(IdleMode.kBrake)
       .openLoopRampRate(ClimbertakeConstants.Pivot.kPivotMotorRampRate)
       .closedLoopRampRate(ClimbertakeConstants.Pivot.kPivotMotorRampRate)
@@ -54,7 +82,24 @@ public class ClimbertakePivot extends SubsystemBase {
       .voltageCompensation(12);
 
     // Apply config
-    pivotMotor.configure(pivotConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+    leftMotor.configure(leftMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+
+    // * Create and configure right motor
+    // Motor
+    rightMotor = new SparkFlex(ClimbertakeConstants.Pivot.kRightPivotMotorID, MotorType.kBrushless);
+
+    // Config
+    rightMotorConfig = new SparkFlexConfig();
+    rightMotorConfig
+      .idleMode(IdleMode.kBrake)
+      .follow(leftMotor, true)
+      .openLoopRampRate(ClimbertakeConstants.Pivot.kPivotMotorRampRate)
+      .closedLoopRampRate(ClimbertakeConstants.Pivot.kPivotMotorRampRate)
+      .smartCurrentLimit(ClimbertakeConstants.Pivot.kPivotMotorCurrentLimit)
+      .voltageCompensation(12);
+
+    // Apply config
+    rightMotor.configure(rightMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
 
     // Configure PID
     ClimbertakeConstants.Pivot.kPivotPIDController.setTolerance(ClimbertakeConstants.Pivot.epsilon.in(Radians));
@@ -69,22 +114,31 @@ public class ClimbertakePivot extends SubsystemBase {
     setpoint = getAngle();
 
     // * Device check
+    deviceCheckNotifier.startPeriodic(Constants.deviceCheckPeriod);
   }
 
   private void deviceCheck() {
     try {
-      pivotMotor.getFirmwareVersion();
-      alert_motorUnreachable.set(false);
+      leftMotor.getFirmwareVersion();
+      alert_leftMotorUnreachable.set(false);
     } catch (Exception e) {
-      alert_motorUnreachable.set(true);
-      DriverStation.reportError(getName() + " encoder unreachable", false);
+      alert_leftMotorUnreachable.set(true);
+      DriverStation.reportError(alert_leftMotorUnreachable.getText(), false);
+    }
+
+    try {
+      rightMotor.getFirmwareVersion();
+      alert_rightMotorUnreachable.set(false);
+    } catch (Exception e) {
+      alert_rightMotorUnreachable.set(true);
+      DriverStation.reportError(alert_rightMotorUnreachable.getText(), false);
     }
 
     if (pivotEncoder.isConnected()) {
       alert_encoderUnreachable.set(false);
     } else {
       alert_encoderUnreachable.set(true);
-      DriverStation.reportError(getName() + " piece sensor unreachable", false);
+      DriverStation.reportError(alert_encoderUnreachable.getText(), false);
     }
   }
 
@@ -116,11 +170,15 @@ public class ClimbertakePivot extends SubsystemBase {
    * @param setpoint
    */
   public void setSetpoint(Angle setpoint) {
-    this.setpoint = setpoint;
+    this.setpoint = Rotations.of(MathUtil.clamp(
+      setpoint.in(Rotations),
+      ClimbertakeConstants.Pivot.kPivotLowerLimit.in(Rotations),
+      ClimbertakeConstants.Pivot.kPivotUpperLimit.in(Rotations)
+    ));
   }
 
   public void stop() {
-    this.pivotMotor.setVoltage(0);
+    this.leftMotor.setVoltage(0);
   }
 
   /**
@@ -132,8 +190,13 @@ public class ClimbertakePivot extends SubsystemBase {
     return runOnce(() -> setSetpoint(setpoint));
   }
 
+  /**
+   * Set voltage command
+   * @param voltage
+   * @return
+   */
   public Command setVoltageCommand(double voltage) {
-    return runOnce(() -> pivotMotor.setVoltage(voltage));
+    return runOnce(() -> leftMotor.setVoltage(voltage));
   }
 
   /**
@@ -146,24 +209,24 @@ public class ClimbertakePivot extends SubsystemBase {
 
   @Override
   public void periodic() {
+    // Get angles
     double currentAngleRad = getAngle().in(Radians);
-    // ! CLAMPS ANGLE HERE
-    double setpointAngleRad = MathUtil.clamp(
-      setpoint.in(Radians),
-      ClimbertakeConstants.Pivot.kPivotLowerLimit.in(Radians),
-      ClimbertakeConstants.Pivot.kPivotUpperLimit.in(Radians)
-    );
+    double setpointAngleRad = setpoint.in(Radians);
 
+    // Calculate voltage
     double pidOutputVolts = ClimbertakeConstants.Pivot.kPivotPIDController.calculate(currentAngleRad, setpointAngleRad);
     double feedforwardVolts = ClimbertakeConstants.Pivot.kPivotFeedforward.calculate(currentAngleRad, pidOutputVolts);
     double resultVolts = pidOutputVolts;
 
-    // ! CHECK APPLIED VOLTAGE IN THE DASHBOARD FIRST BEFORE POWERING THE MOTOR
-    if (pivotEncoder.isConnected()) {
-      //pivotMotor.setVoltage(resultVolts);
+    if (!pivotEncoder.isConnected()) {
+      if (pidEnabled) leftMotor.setVoltage(0);
+      pidEnabled = false;
     } else {
-      this.stop();
+      if (pidEnabled) leftMotor.setVoltage(resultVolts);
     }
+
+    // PID Alert
+    alert_pidDisabled.set(!pidEnabled);
 
     // Logging
     SmartDashboard.putNumber("Climbertake/Pivot/SetpointAngle", Math.toDegrees(setpointAngleRad));

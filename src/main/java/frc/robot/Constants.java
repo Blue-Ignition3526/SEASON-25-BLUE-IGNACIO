@@ -22,8 +22,6 @@ import lib.BlueShift.constants.SwerveModuleOptions;
 import lib.BlueShift.utils.SwerveChassis;
 import static edu.wpi.first.units.Units.*;
 
-import java.util.HashMap;
-
 import com.pathplanner.lib.config.PIDConstants;
 
 public class Constants {
@@ -32,6 +30,9 @@ public class Constants {
         public static final boolean kDebug = true;
         public static final boolean kUseURCL = true;
     }
+
+    public static final double deviceCheckPeriod = 5;
+    public static final double startupStatusSignalTimeout = 20;
 
     public static final class Vision {
         public static final class Limelight3G {
@@ -46,7 +47,8 @@ public class Constants {
     public static final class ClimbertakeConstants {
         public static final class Pivot {
             // Motor
-            public static final int kPivotMotorID = 16;
+            public static final int kLeftPivotMotorID = 16;
+            public static final int kRightPivotMotorID = 17;
             public static final int kPivotMotorCurrentLimit = 40;
             public static final double kPivotMotorRampRate = 0.05;
 
@@ -126,7 +128,7 @@ public class Constants {
     public static final class ArmPivotConstants {
         // Motor
         public static final int kArmPivotMotorID = 50;
-        public static final int kArmPivotMotorCurrentLimit = 30;
+        public static final int kArmPivotMotorCurrentLimit = 25;
         public static final double kArmPivotMotorRampRate = 0.15;
 
         // Encoder
@@ -142,6 +144,8 @@ public class Constants {
         public static final Angle kMidAngle = Degrees.of(30);
         public static final Angle kLowAngle = Degrees.of(0);
 
+        // Gyro 
+        public static final int kGyroID = 35;
 
         // PID Controller
         // TODO: Tune
@@ -290,8 +294,8 @@ public class Constants {
         public static final int kElevatorMotorRampRate = 0;
 
         // Limits
-        public static final Distance kElevatorMaxHeight = Inches.of(60);
-        public static final Distance kElevatorMinHeight = Inches.of(0);
+        public static final double kElevatorMaxHeight = 60.0;
+        public static final double kElevatorMinHeight = 0.0;
 
         // Controller
         public static final ElevatorFeedforward kElevatorFeedforward = new ElevatorFeedforward(0.0, 0.0, 0.0);
@@ -300,10 +304,6 @@ public class Constants {
             new TrapezoidProfile.Constraints(110, 90)
         );
         public static final double kElevatorTolerance = 1.0;
-        // Conversions
-        public static final double kElevatorReduction = 1. / 20.;
-        public static final Distance kElevatorPulleyDiameter = Inches.of(0.5752);
-        public static final double kRotationsToInches = kElevatorReduction * kElevatorPulleyDiameter.in(Inches) * Math.PI; // TODO: Es tamal
     }
 
     public static final class IntakeCoralConstants {
