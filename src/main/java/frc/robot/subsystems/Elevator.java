@@ -22,10 +22,11 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Elevator extends SubsystemBase {
   // * Setpoints
   public static enum ElevatorPosition {
-    L1(0.0),
+    L1(10.0),
     L2(0.0),
     L3(0.0),
     L4(0.0),
+    HOME(0.0),
     SOURCE(0.0);
 
     private double position;
@@ -52,6 +53,7 @@ public class Elevator extends SubsystemBase {
 
   // * Status
   private double setpoint;
+  private ElevatorPosition setpointEnum = null;
   private boolean pidEnabled = false;
 
   // * Alerts
@@ -146,7 +148,20 @@ public class Elevator extends SubsystemBase {
    */
   public void setSetpoint(double setpoint) {
     this.setpoint = setpoint;
+    this.setpointEnum = null;
+    this.pidEnabled = true;
   }
+
+    /**
+   * Set the setpoint of the elevator
+   * @param setpoint
+   */
+  public void setSetpoint(ElevatorPosition setpoint) {
+    this.setpoint = setpoint.getPosition();
+    this.setpointEnum = setpoint;
+    this.pidEnabled = true;
+  }
+
 
   /**
    * Stop the elevator
@@ -156,7 +171,7 @@ public class Elevator extends SubsystemBase {
   }
 
   public Command setVoltageCommand(double voltage) {
-    return runOnce(() -> rightElevatorMotor.setVoltage(voltage));
+    return runOnce(() -> {rightElevatorMotor.setVoltage(voltage); this.pidEnabled = false; });
   }
 
   public Command stopCommand() {
@@ -164,6 +179,10 @@ public class Elevator extends SubsystemBase {
   }
 
   public Command setSetpointCommand(double setpoint){
+    return runOnce(() -> setSetpoint(setpoint));
+  }
+
+  public Command setSetpointCommand(ElevatorPosition setpoint){
     return runOnce(() -> setSetpoint(setpoint));
   }
 
@@ -185,7 +204,7 @@ public class Elevator extends SubsystemBase {
     
     // Set the voltage to the motor
     // ! CHECK APPLIED VOLTAGE IN THE DASHBOARD FIRST BEFORE POWERING THE MOTOR
-    //m_rightElevatorMotor.setVoltage(resultVolts);
+    //if(pidEnabled) m_rightElevatorMotor.setVoltage(resultVolts);
     
     //telemetry 
     SmartDashboard.putNumber("Elevator/AppliedOutput", rightElevatorMotor.get());

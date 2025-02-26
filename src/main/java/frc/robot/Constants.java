@@ -16,6 +16,9 @@ import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.util.Color;
+import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.Elevator.ElevatorPosition;
+import frc.robot.subsystems.CoralIntakeArm.ArmPosition;
 import lib.BlueShift.constants.CTRECANDevice;
 import lib.BlueShift.constants.PIDFConstants;
 import lib.BlueShift.constants.SwerveModuleOptions;
@@ -49,8 +52,8 @@ public class Constants {
             // Motor
             public static final int kLeftPivotMotorID = 16;
             public static final int kRightPivotMotorID = 17;
-            public static final int kPivotMotorCurrentLimit = 40;
-            public static final double kPivotMotorRampRate = 0.05;
+            public static final int kPivotMotorCurrentLimit = 50;
+            public static final double kPivotMotorRampRate = 0.5;
 
             // Encoder
             public static final int kPivotEncoderPort = 0;
@@ -80,7 +83,7 @@ public class Constants {
 
         public static final class Rollers {
             // Motor and current limit
-            public static final int kRollersMotorID = 17;
+            public static final int kRollersMotorID = 18;
             public static final int kRollersMotorCurrentLimit = 30;
             public static final double kRollersMotorRampRate = 0;
 
@@ -90,7 +93,7 @@ public class Constants {
             public static final double kRollersStoreCurrent = 5;
 
             // Canandcolor piece sensor
-            public static final int kPieceSensorID = 18;
+            public static final int kPieceSensorID = 19;
             public static final double kPieceSensorLedBrightness = 0.25;
             public static final Color kAlgaeColor = new Color(0.3, 1, 0.65);
             public static final double kAlgaeColorThreshold = 0.3;
@@ -109,12 +112,12 @@ public class Constants {
         public static final Angle kWristEncoderOffset = Degrees.of(-33);
 
         // Limits
-        public static final Angle kMinAngle = Degrees.of(-94);
-        public static final Angle kMaxAngle = Degrees.of(4);
+        public static final Angle kMinAngle = Degrees.of(-90);
+        public static final Angle kMaxAngle = Degrees.of(0);
 
         // Angles
-        public static final Angle kParallel = Degrees.of(4);
-        public static final Angle kPerpendicular = Degrees.of(-94);
+        public static final Angle kParallel = Degrees.of(0);
+        public static final Angle kPerpendicular = Degrees.of(-90);
 
         // PID Controller
         // TODO: Tune
@@ -266,22 +269,33 @@ public class Constants {
             public Pose2d getPose() { return pose; }
         }
 
-        /**
-         * Levels of the reef
-         */
-        public static enum ReefLevel {
-            L1,
-            L2,
-            L3,
-            L4;
-        }
-
         //* AUTONOMOUS
         public static final class AutonomousConstants {
             public static final PIDConstants kTranslatePIDConstants = new PIDConstants(5.0, 0.0, 0.0);
             public static final PIDConstants kRotatePIDConstants = new PIDConstants(5.0, 0.0, 0.0);
             public static final Measure<LinearVelocityUnit> kMaxSpeedMetersPerSecond = MetersPerSecond.of(1);
         }
+    }
+
+    public static final class FieldConstants {
+        /**
+         * Levels of the reef
+         */
+        public static enum ReefLevel {
+            L1(ElevatorPosition.L1, ArmPosition.HORIZONTAL),
+            L3(ElevatorPosition.L2, ArmPosition.HIGH),
+            L2(ElevatorPosition.L3, ArmPosition.HIGH),
+            L4(ElevatorPosition.L4, ArmPosition.HIGH);
+
+            private final ElevatorPosition elevatorPos;
+            private final ArmPosition armPosition;
+            private ReefLevel(ElevatorPosition elevatorPosition, ArmPosition armPosition) {
+                this.elevatorPos = elevatorPosition;
+                this.armPosition = armPosition;
+            }
+            public ElevatorPosition getElevatorPosition() {return elevatorPos; }
+            public ArmPosition getArmPosition() { return armPosition; }
+        }   
     }
 
     public static final class ElevatorConstants {

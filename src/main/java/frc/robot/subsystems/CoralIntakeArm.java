@@ -32,10 +32,8 @@ public class CoralIntakeArm extends SubsystemBase {
     // 0 corelates to horizontal
     // 90 corelates to vertical
     // ! BE MINDFUL OF MECHANICAL LIMITS
-    L1(Degrees.of(0)),
-    L2(Degrees.of(40)),
-    L3(Degrees.of(40)),
-    L4(Degrees.of(60));
+    HORIZONTAL(Degrees.of(0)),
+    HIGH(Degrees.of(30));
 
     private Angle angle;
     private ArmPosition(Angle angle) {
@@ -64,6 +62,7 @@ public class CoralIntakeArm extends SubsystemBase {
 
   // State
   private Angle setpoint;
+  private ArmPosition setpointEnum;
   private boolean pidEnabled = false;
 
   // Alerts
@@ -105,20 +104,21 @@ public class CoralIntakeArm extends SubsystemBase {
     this.gVecZ = this.gyro.getGravityVectorZ();
 
     // * Wait for angle to become available to reset
+    // ! Blocking
     System.out.println("Waiting for " + getName() + " gyro to become available...");
     StatusCode absoluteEncoderStatusCode = this.gVecX.waitForUpdate(20).getStatus();
 
-    if (absoluteEncoderStatusCode.isOK()) {
-        System.out.println(getName() + " gyro is available, resetting position...");
-        resetAngle();
-    } else {
-        DriverStation.reportError("Failed to get " + getName() + " gyro position. Status: " + absoluteEncoderStatusCode, false);
-        System.out.println("Please check " + getName() + " gyro connection.");
-        System.out.println("If problem persists please align the wheels manually and restart the robot.");
-        System.out.println("Setting current position as 0.");
-        encoder.setPosition(0);
-        alert_gyroUnreachable.set(true);
-    }
+    // if (absoluteEncoderStatusCode.isOK()) {
+    //     System.out.println(getName() + " gyro is available, resetting position...");
+    //     resetAngle();
+    // } else {
+    //     DriverStation.reportError("Failed to get " + getName() + " gyro position. Status: " + absoluteEncoderStatusCode, false);
+    //     System.out.println("Please check " + getName() + " gyro connection.");
+    //     System.out.println("If problem persists please align the wheels manually and restart the robot.");
+    //     System.out.println("Setting current position as 0.");
+    //     encoder.setPosition(0);
+    //     alert_gyroUnreachable.set(true);
+    // }
 
     // * Setpoint
     this.setpoint = getAngle();
@@ -155,7 +155,8 @@ public class CoralIntakeArm extends SubsystemBase {
    * Resets the angle
    */
   public void resetAngle() {
-    encoder.setPosition(getGyroAngle().in(Rotations));
+    encoder.setPosition(0);
+    //encoder.setPosition(getGyroAngle().in(Rotations));
   }
 
   public Command resetAngleCommand() {
@@ -167,9 +168,11 @@ public class CoralIntakeArm extends SubsystemBase {
    */
   public Angle getGyroAngle() {
     double xVec = gVecX.refresh().getValueAsDouble();
-    double yVec = gVecZ.refresh().getValueAsDouble();
+    @SuppressWarnings("unused")
+    double yVec = gVecY.refresh().getValueAsDouble();
+    double zVec = gVecZ.refresh().getValueAsDouble();
 
-    return Radians.of(Math.atan2(yVec, xVec) + Math.PI);
+    return Radians.of(Math.atan2(xVec, zVec) + Math.PI);
   }
 
   /**
@@ -200,11 +203,23 @@ public class CoralIntakeArm extends SubsystemBase {
    * @param setpoint
    */
   public void setSetpoint(Angle setpoint) {
+    pidEnabled = true;
     this.setpoint = Radians.of(MathUtil.clamp(
       setpoint.in(Radians),
       ArmPivotConstants.kMinAngle.in(Radians),
       ArmPivotConstants.kMaxAngle.in(Radians)
     ));
+    setpointEnum = null;
+  }
+
+  public void setSetpoint(ArmPosition setpoint) {
+    pidEnabled = true;
+    this.setpoint = Radians.of(MathUtil.clamp(
+      setpoint.getAngle().in(Radians),
+      ArmPivotConstants.kMinAngle.in(Radians),
+      ArmPivotConstants.kMaxAngle.in(Radians)
+    ));
+    setpointEnum = setpoint;
   }
 
   /**
@@ -213,6 +228,15 @@ public class CoralIntakeArm extends SubsystemBase {
    * @return
    */
   public Command setSetpointCommand(Angle setpoint) {
+    return runOnce(() -> setSetpoint(setpoint));
+  }
+
+  /**
+   * Sets the setpoint of the PID controller
+   * @param setpoint
+   * @return
+   */
+  public Command setSetpointCommand(ArmPosition setpoint) {
     return runOnce(() -> setSetpoint(setpoint));
   }
 

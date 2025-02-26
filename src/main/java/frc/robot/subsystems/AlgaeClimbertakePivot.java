@@ -218,12 +218,12 @@ public class AlgaeClimbertakePivot extends SubsystemBase {
     double feedforwardVolts = ClimbertakeConstants.Pivot.kPivotFeedforward.calculate(currentAngleRad, pidOutputVolts);
     double resultVolts = pidOutputVolts;
 
-    if (!pivotEncoder.isConnected()) {
-      if (pidEnabled) leftMotor.setVoltage(0);
-      pidEnabled = false;
-    } else {
-      if (pidEnabled) leftMotor.setVoltage(resultVolts);
-    }
+    // if (!pivotEncoder.isConnected()) {
+    //   if (pidEnabled) leftMotor.setVoltage(0);
+    //   pidEnabled = false;
+    // } else {
+    //   if (pidEnabled) leftMotor.setVoltage(resultVolts);
+    // }
 
     // PID Alert
     alert_pidDisabled.set(!pidEnabled);
