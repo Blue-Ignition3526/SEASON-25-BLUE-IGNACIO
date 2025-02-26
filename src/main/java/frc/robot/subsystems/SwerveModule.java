@@ -277,7 +277,7 @@ public class SwerveModule extends SubsystemBase {
 
         // If it's locked, don't move
         // TODO: CHECK IF I SHOULD REMOVE THIS
-        if (lock.isLocked()) return;
+        //if (lock.isLocked()) return;
 
         // Set motor speeds
         driveMotor.set(state.speedMetersPerSecond / Constants.SwerveDriveConstants.PhysicalModel.kMaxSpeed.in(MetersPerSecond));

@@ -25,8 +25,8 @@ import frc.robot.Constants.WristConstants;
 public class CoralIntakeWrist extends SubsystemBase {
   // * Setpoints
   public static enum WristPosition {
-    PARALLEL(Degrees.of(4)),
-    PERPENDICULAR(Degrees.of(-94));
+    PARALLEL(Degrees.of(0)),
+    PERPENDICULAR(Degrees.of(-90));
 
     private Angle angle;
     
@@ -130,9 +130,10 @@ public class CoralIntakeWrist extends SubsystemBase {
    * Sets the setpoint of the PID controller
    * @param setpoint
    */
-  public void setSetpoint(Angle setpoint) {
+  public void setSetpoint(WristPosition setpoint) {
+    pidEnabled = true;
     this.setpoint = Radians.of(MathUtil.clamp(
-      setpoint.in(Radians),
+      setpoint.getPosition().in(Radians),
       WristConstants.kMinAngle.in(Radians),
       WristConstants.kMaxAngle.in(Radians)
     ));
@@ -143,7 +144,7 @@ public class CoralIntakeWrist extends SubsystemBase {
    * @param setpoint
    * @return
    */
-  public Command setSetpointCommand(Angle setpoint) {
+  public Command setSetpointCommand(WristPosition setpoint) {
     return runOnce(() -> setSetpoint(setpoint));
   }
 

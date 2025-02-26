@@ -8,8 +8,11 @@ import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.util.DriveFeedforwards;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -26,6 +29,7 @@ import frc.robot.subsystems.AlgaeClimbertakePivot;
 import frc.robot.subsystems.AlgaeClimbertakeRollers;
 import frc.robot.subsystems.SwerveDrive;
 import frc.robot.subsystems.SwerveModule;
+import frc.robot.subsystems.CoralIntakeWrist.WristPosition;
 import frc.robot.subsystems.CoralIntakeWrist;
 import frc.robot.subsystems.Gyro.Gyro;
 import frc.robot.subsystems.Gyro.GyroIOPigeon;
@@ -64,6 +68,7 @@ public class RobotContainer {
   private final SpeedAlterator m_speedAlterator_lookAt;
   private final SpeedAlterator m_speedAlterator_goTo0;
   private final SpeedAlterator m_speedAlterator_gotTo1;
+  private final SpeedAlterator m_speedAlterator_backUp;
 
   // * Elevator
   private final Elevator m_elevator;
@@ -83,7 +88,7 @@ public class RobotContainer {
   private final double m_visionPeriod = 0.1;
 
   // * Autonomous
-  private final SendableChooser<Command> m_autonomousChooser;
+  //private final SendableChooser<Command> m_autonomousChooser;
 
   public RobotContainer() {
     // * Gyro
@@ -110,6 +115,7 @@ public class RobotContainer {
     this.m_speedAlterator_lookAt = new LookController(this.m_gyro::getYaw, this.m_driverControllerCustom::getRightX, this.m_driverControllerCustom::getRightY, 0.1);
     this.m_speedAlterator_goTo0 = new GoToPose(m_odometry::getEstimatedPosition, new Pose2d(0, 0, new Rotation2d()));
     this.m_speedAlterator_gotTo1 = new GoToPose(m_odometry::getEstimatedPosition, new Pose2d(0, 3, Rotation2d.fromDegrees(180)));
+    this.m_speedAlterator_backUp = new BackUp(-0.1, m_gyro::getHeading);
     
     // * Autonomous
     // Register commands
@@ -125,21 +131,37 @@ public class RobotContainer {
       Elastic.sendAlert(new ElasticNotification(NotificationLevel.ERROR, "ERROR! COULD NOT LOAD PP ROBOT CONFIG", e.getMessage()));
       DriverStation.reportError("ERROR! COULD NOT LOAD PP ROBOT CONFIG", e.getStackTrace());
     }
-    SmartDashboard.putData("SwerveDrive/ResetTurningEncoders", new InstantCommand(m_swerveDrive::resetTurningEncoders).ignoringDisable(true));
 
+    AutoBuilder.configure(
+      m_odometry::getEstimatedPosition,
+      m_odometry::resetPosition,
+      m_swerveDrive::getRobotRelativeChassisSpeeds,
+      (ChassisSpeeds speeds, DriveFeedforwards ff) -> m_swerveDrive.drive(speeds),
+      new PPHolonomicDriveController(
+        new PIDConstants(0.5),
+        new PIDConstants(0.5)
+      ),
+      ppRobotConfig,
+      () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
+      m_swerveDrive
+    );
+    
     // * Elevator
     this.m_elevator = new Elevator();
-
+    
     // * Climbertake
     m_climbertakePivot = new AlgaeClimbertakePivot();
     m_intakeAlgea = new AlgaeClimbertakeRollers();
-
+    
     // * Coral intake
     m_wrist = new CoralIntakeWrist();
     m_armPivot = new CoralIntakeArm();
     m_intakeCoral = new CoralIntakeRollers();
-
+    
     // * Dashboard testing commands
+    // Chassis
+    SmartDashboard.putData("SwerveDrive/ResetTurningEncoders", new InstantCommand(m_swerveDrive::resetTurningEncoders).ignoringDisable(true));
+
     // Elevator
     SmartDashboard.putData("Elevator/50", m_elevator.setSetpointCommand(50).ignoringDisable(true));
     SmartDashboard.putData("Elevator/10", m_elevator.setSetpointCommand(10).ignoringDisable(true));
@@ -152,8 +174,8 @@ public class RobotContainer {
     SmartDashboard.putData("Climbertake/Pivot/ClimbLowAngleCommand", m_climbertakePivot.setSetpointCommand(Constants.ClimbertakeConstants.Pivot.kClimbLowAngle).ignoringDisable(true));
 
     // Wrist
-    SmartDashboard.putData("Wrist/Perpendicular", m_wrist.setSetpointCommand(WristConstants.kPerpendicular).ignoringDisable(true));
-    SmartDashboard.putData("Wrist/Parallel", m_wrist.setSetpointCommand(WristConstants.kParallel).ignoringDisable(true));
+    SmartDashboard.putData("Wrist/Perpendicular", m_wrist.setSetpointCommand(WristPosition.PERPENDICULAR).ignoringDisable(true));
+    SmartDashboard.putData("Wrist/Parallel", m_wrist.setSetpointCommand(WristPosition.PARALLEL).ignoringDisable(true));
 
     // Arm pivot
     SmartDashboard.putData("ArmPivot/ResetAngle", m_armPivot.resetAngleCommand().ignoringDisable(true));
@@ -161,43 +183,50 @@ public class RobotContainer {
     SmartDashboard.putData("ArmPivot/MidAngle", m_armPivot.setSetpointCommand(ArmPivotConstants.kMidAngle).ignoringDisable(true));
     SmartDashboard.putData("ArmPivot/HighAngle", m_armPivot.setSetpointCommand(ArmPivotConstants.kHighAngle).ignoringDisable(true));
 
+    // * Add controller bindings
     configureBindings();
   }
 
   private void configureBindings() {
-    //this.m_swerveDrive.setDefaultCommand(new DriveSwerve(
-    //    m_swerveDrive,
-    //    () -> -m_driverControllerCustom.getLeftY(),
-    //    () -> -m_driverControllerCustom.getLeftX(),
-    //    () -> -m_driverControllerCustom.getRightX(),
-    //    () -> true
-    //  )
-    //);
-
-    m_driverControllerCustom.povUp().whileTrue(elevator.setVoltageCommand(6));
-    m_driverControllerCustom.povUp().onFalse(elevator.stopCommand());
-    
-    m_driverControllerCustom.povDown().whileTrue(elevator.setVoltageCommand(-6));
-    m_driverControllerCustom.povDown().onFalse(elevator.stopCommand());
+    // * Swerve Drive
+    this.m_swerveDrive.setDefaultCommand(new DriveSwerve(
+        m_swerveDrive,
+        () -> -m_driverControllerCustom.getLeftY(),
+        () -> -m_driverControllerCustom.getLeftX(),
+        () -> -m_driverControllerCustom.getRightX(),
+        () -> true
+      )
+    );
 
     this.m_driverControllerCustom.rightButton().onTrue(this.m_swerveDrive.zeroHeadingCommand());
 
-    // this.m_driverControllerCustom.rightBumper().onTrue(this.m_climbertakePivot.setVoltageCommand(8));
-    // this.m_driverControllerCustom.rightBumper().onFalse(this.m_climbertakePivot.setVoltageCommand(0));
-// 
-    // this.m_driverControllerCustom.leftBumper().onTrue(this.m_climbertakePivot.setVoltageCommand(-6));
-    // this.m_driverControllerCustom.leftBumper().onFalse(this.m_climbertakePivot.setVoltageCommand(0));
+    // * Elevator
+    m_driverControllerCustom.povUp().whileTrue(m_elevator.setVoltageCommand(6));
+    m_driverControllerCustom.povUp().onFalse(m_elevator.stopCommand());
+    
+    m_driverControllerCustom.povDown().whileTrue(m_elevator.setVoltageCommand(-6));
+    m_driverControllerCustom.povDown().onFalse(m_elevator.stopCommand());
 
+    // * Climbertake pivot
+    this.m_driverControllerCustom.rightBumper().onTrue(this.m_climbertakePivot.setVoltageCommand(10));
+    this.m_driverControllerCustom.rightBumper().onFalse(this.m_climbertakePivot.setVoltageCommand(0));
+ 
+    this.m_driverControllerCustom.leftBumper().onTrue(this.m_climbertakePivot.setVoltageCommand(-10
+    ));
+    this.m_driverControllerCustom.leftBumper().onFalse(this.m_climbertakePivot.setVoltageCommand(0));
 
-
+    // * Coral Intake
     this.m_driverControllerCustom.leftButton().onTrue(this.m_intakeCoral.setInCommand());
     this.m_driverControllerCustom.leftButton().onFalse(this.m_intakeCoral.stopCommand());
+
     this.m_driverControllerCustom.topButton().onTrue(this.m_intakeCoral.setOutCommand());
     this.m_driverControllerCustom.topButton().onFalse(this.m_intakeCoral.stopCommand());
 
+    // * Algae intake
     this.m_driverControllerCustom.leftButton().onTrue(this.m_intakeAlgea.setInCommand());
     this.m_driverControllerCustom.leftButton().onFalse(this.m_intakeAlgea.stopCommand());
     this.m_driverControllerCustom.topButton().onTrue(this.m_intakeAlgea.setOutCommand());
+    
     this.m_driverControllerCustom.topButton().onFalse(this.m_intakeAlgea.stopCommand());
 
 
@@ -212,6 +241,6 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return m_autonomousChooser.getSelected();
+    return null; // m_autonomousChooser.getSelected();
   }
 }
