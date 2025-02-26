@@ -3,6 +3,8 @@ package frc.robot.subsystems;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Rotations;
+
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -53,6 +55,7 @@ public class AlgaeClimbertakePivot extends SubsystemBase {
 
   // * Encoder
   private final DutyCycleEncoder pivotEncoder;
+  private final RelativeEncoder motorEncodeer;
 
   // * Status
   private Angle setpoint;
@@ -110,8 +113,12 @@ public class AlgaeClimbertakePivot extends SubsystemBase {
 
     SmartDashboard.putData("ClimbertakePivot/PID", ClimbertakeConstants.Pivot.kPivotPIDController);
 
+    motorEncodeer = leftMotor.getEncoder();
+
     // * Setpoint
     setpoint = getAngle();
+
+    
 
     // * Device check
     deviceCheckNotifier.startPeriodic(Constants.deviceCheckPeriod);
@@ -143,11 +150,18 @@ public class AlgaeClimbertakePivot extends SubsystemBase {
   }
 
   /**
+   * Resets the motor encoder using the absolute encoder.
+   * @Warning The absolute has a 3:1 reduction with the arm pivot, only use if stowed
+   */
+  public void resetEncoder() {
+    motorEncodeer.setPosition(pivotEncoder.get());
+  }
+  /**
    * Returns the Angle with the applied offset
    * @return
    */
   public Angle getAngle() {
-    return Rotations.of(pivotEncoder.get()).plus(ClimbertakeConstants.Pivot.kPivotEncoderOffset);
+    return Rotations.of(motorEncodeer.getPosition()).div(3).plus(ClimbertakeConstants.Pivot.kPivotEncoderOffset);
   }
 
   /**
@@ -215,6 +229,7 @@ public class AlgaeClimbertakePivot extends SubsystemBase {
 
     // Calculate voltage
     double pidOutputVolts = ClimbertakeConstants.Pivot.kPivotPIDController.calculate(currentAngleRad, setpointAngleRad);
+    @SuppressWarnings("unused")
     double feedforwardVolts = ClimbertakeConstants.Pivot.kPivotFeedforward.calculate(currentAngleRad, pidOutputVolts);
     double resultVolts = pidOutputVolts;
 
