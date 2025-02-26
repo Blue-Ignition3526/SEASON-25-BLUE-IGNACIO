@@ -89,6 +89,7 @@ public class Constants {
 
             // Voltages and store current
             public static final double kRollersInVoltage = 8;
+            public static final double kRolersHoldVoltage = 4;
             public static final double kRollersOutVoltage = -kRollersInVoltage;
             public static final double kRollersStoreCurrent = 5;
 

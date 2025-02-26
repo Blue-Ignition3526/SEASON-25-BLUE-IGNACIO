@@ -97,6 +97,10 @@ public class AlgaeClimbertakeRollers extends SubsystemBase {
     rollers.setVoltage(0);
   }
 
+  public void setHold() {
+    rollers.setVoltage(ClimbertakeConstants.Rollers.kRolersHoldVoltage);
+  }
+
   /**
    * Gets the color of the piece sensor
    * 
@@ -136,6 +140,10 @@ public class AlgaeClimbertakeRollers extends SubsystemBase {
    */
   public Command setOutCommand() {
     return runOnce(this::setOut);
+  }
+
+  public Command setHoldCommand() {
+    return runOnce(this::setHold);
   }
 
   /**
