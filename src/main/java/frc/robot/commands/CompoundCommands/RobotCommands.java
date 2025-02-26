@@ -1,6 +1,7 @@
 package frc.robot.commands.CompoundCommands;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.CoralIntakeArm;
@@ -20,6 +21,9 @@ public class RobotCommands {
     }
 
     public static Command intakeCoralCommand(CoralIntakeWrist wrist, CoralIntakeArm arm, Elevator elevator) {
-        return new WaitCommand(0);
+        return new ParallelCommandGroup(
+            elevator.setSetpointCommand(ElevatorPosition.SOURCE),
+            arm.setSetpointCommand(ArmPosition.HIGH)
+        );
     }
 }
