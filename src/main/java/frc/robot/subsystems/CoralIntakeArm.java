@@ -33,7 +33,7 @@ public class CoralIntakeArm extends SubsystemBase {
     // 90 corelates to vertical
     // ! BE MINDFUL OF MECHANICAL LIMITS
     HORIZONTAL(Degrees.of(0)),
-    HIGH(Degrees.of(30));
+    HIGH(Degrees.of(45));
 
     private Angle angle;
     private ArmPosition(Angle angle) {
@@ -108,17 +108,17 @@ public class CoralIntakeArm extends SubsystemBase {
     System.out.println("Waiting for " + getName() + " gyro to become available...");
     StatusCode absoluteEncoderStatusCode = this.gVecX.waitForUpdate(20).getStatus();
 
-    // if (absoluteEncoderStatusCode.isOK()) {
-    //     System.out.println(getName() + " gyro is available, resetting position...");
-    //     resetAngle();
-    // } else {
-    //     DriverStation.reportError("Failed to get " + getName() + " gyro position. Status: " + absoluteEncoderStatusCode, false);
-    //     System.out.println("Please check " + getName() + " gyro connection.");
-    //     System.out.println("If problem persists please align the wheels manually and restart the robot.");
-    //     System.out.println("Setting current position as 0.");
-    //     encoder.setPosition(0);
-    //     alert_gyroUnreachable.set(true);
-    // }
+    if (absoluteEncoderStatusCode.isOK()) {
+        System.out.println(getName() + " gyro is available, resetting position...");
+        resetAngle();
+    } else {
+        DriverStation.reportError("Failed to get " + getName() + " gyro position. Status: " + absoluteEncoderStatusCode, false);
+        System.out.println("Please check " + getName() + " gyro connection.");
+        System.out.println("If problem persists please align the wheels manually and restart the robot.");
+        System.out.println("Setting current position as 0.");
+        encoder.setPosition(0);
+        alert_gyroUnreachable.set(true);
+    }
 
     // * Setpoint
     this.setpoint = getAngle();
@@ -155,8 +155,8 @@ public class CoralIntakeArm extends SubsystemBase {
    * Resets the angle
    */
   public void resetAngle() {
-    encoder.setPosition(0);
-    //encoder.setPosition(getGyroAngle().in(Rotations));
+    //encoder.setPosition(Degrees.of(66).in(Rotations));
+    encoder.setPosition(getGyroAngle().in(Rotations));
   }
 
   public Command resetAngleCommand() {
@@ -172,7 +172,7 @@ public class CoralIntakeArm extends SubsystemBase {
     double yVec = gVecY.refresh().getValueAsDouble();
     double zVec = gVecZ.refresh().getValueAsDouble();
 
-    return Radians.of(Math.atan2(xVec, zVec) + Math.PI);
+    return Radians.of(Math.atan2(zVec, xVec) - (Math.PI / 2)).times(-1);
   }
 
   /**
@@ -180,7 +180,7 @@ public class CoralIntakeArm extends SubsystemBase {
    * @return
    */
   public Angle getAngle() {
-    return Rotations.of(encoder.getPosition()).plus(Degrees.of(66));
+    return Rotations.of(encoder.getPosition());
   }
 
   /**

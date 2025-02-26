@@ -154,16 +154,23 @@ public class SwerveDrive extends SubsystemBase {
         this.setModuleStates(m_moduleStates);
     }
 
+    public void enableSpeedAlterator(SpeedAlterator alterator) {
+        alterator.onEnable();
+        this.speedAlterator = alterator;
+    }
+
     /**
      * Enable a speed alterator with a command
      * @param alterator
      * @return
      */
     public Command enableSpeedAlteratorCommand(SpeedAlterator alterator) {
-        return runOnce(() -> {
-            alterator.onEnable();
-            this.speedAlterator = alterator;
-        });
+        return runOnce(() -> this.enableSpeedAlterator(alterator));
+    }
+
+    public void disableSpeedAlterator() {
+        if(this.speedAlterator != null) this.speedAlterator.onDisable();
+        this.speedAlterator = null;
     }
 
     /**
@@ -171,10 +178,7 @@ public class SwerveDrive extends SubsystemBase {
      * @return
      */
     public Command disableSpeedAlteratorCommand() {
-        return runOnce(() -> {
-            if(this.speedAlterator != null) this.speedAlterator.onDisable();
-            this.speedAlterator = null;
-        });
+        return runOnce(() -> this.disableSpeedAlterator());
     }
 
 

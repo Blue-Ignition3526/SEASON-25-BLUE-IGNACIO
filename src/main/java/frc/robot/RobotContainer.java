@@ -45,7 +45,7 @@ import frc.robot.speedAlterators.*;
 public class RobotContainer {
   // * Controllers
   private final int m_driverControllerPort = 0;
-  private final CustomController m_driverControllerCustom = new CustomController(m_driverControllerPort, CustomControllerType.XBOX);
+  private final CustomController m_driverControllerCustom = new CustomController(m_driverControllerPort, CustomControllerType.PS5);
 
   // * Swerve Drive
   // Swerve modules
@@ -117,7 +117,7 @@ public class RobotContainer {
     // * Autonomous
     // Register commands
     NamedCommands.registerCommands(new HashMap<String, Command>(){{
-      put("LeaveCoral-L2", null);
+      
     }});
 
     // Robot config
@@ -199,7 +199,8 @@ public class RobotContainer {
       )
     );
 
-    this.m_driverControllerCustom.rightButton().onTrue(this.m_swerveDrive.zeroHeadingCommand());
+    this.m_driverControllerCustom.rightStickButton().onTrue(this.m_swerveDrive.zeroHeadingCommand());
+    this.m_swerveDrive.enableSpeedAlterator(m_speedAlterator_lookAt);
 
     // * Elevator
     m_driverControllerCustom.povUp().whileTrue(m_elevator.setVoltageCommand(8));
@@ -217,9 +218,9 @@ public class RobotContainer {
 
     // * Climbertake
     this.m_driverControllerCustom.leftButton().onTrue(this.m_intakeAlgea.setInCommand());
-    this.m_driverControllerCustom.topButton().onTrue(this.m_intakeAlgea.setOutCommand());
-
     this.m_driverControllerCustom.leftButton().onFalse(this.m_intakeAlgea.stopCommand());
+    
+    this.m_driverControllerCustom.topButton().onTrue(this.m_intakeAlgea.setOutCommand());
     this.m_driverControllerCustom.topButton().onFalse(this.m_intakeAlgea.stopCommand());
 
     // * Coral Intake
@@ -235,7 +236,7 @@ public class RobotContainer {
 
     // * Arm
     this.m_driverControllerCustom.leftTrigger().onTrue(this.m_armPivot.setSetpointCommand(ArmPosition.HIGH));
-    this.m_driverControllerCustom.leftTrigger().onTrue(this.m_armPivot.setSetpointCommand(ArmPosition.HORIZONTAL));
+    this.m_driverControllerCustom.rightTrigger().onTrue(this.m_armPivot.setSetpointCommand(ArmPosition.HORIZONTAL));
   }
 
   public Command getAutonomousCommand() {

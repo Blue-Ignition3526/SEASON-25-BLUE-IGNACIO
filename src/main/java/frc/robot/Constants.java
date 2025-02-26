@@ -89,7 +89,7 @@ public class Constants {
 
             // Voltages and store current
             public static final double kRollersInVoltage = 8;
-            public static final double kRolersHoldVoltage = 4;
+            public static final double kRolersHoldVoltage = 2;
             public static final double kRollersOutVoltage = -kRollersInVoltage;
             public static final double kRollersStoreCurrent = 5;
 
@@ -164,7 +164,7 @@ public class Constants {
     //* Swerve Drive
     public static final class SwerveDriveConstants {
         public static final class PoseControllers {
-            public static final ProfiledPIDController rotationPID = new ProfiledPIDController(25, 0, 0, new TrapezoidProfile.Constraints(400, 180));
+            public static final ProfiledPIDController rotationPID = new ProfiledPIDController(36, 0, 0, new TrapezoidProfile.Constraints(400, 180));
             public static final ProfiledPIDController translationPID = new ProfiledPIDController(5, 0, 0, new TrapezoidProfile.Constraints(4.5, 3.3526));
 
             public static final double epsilon = 0.08;

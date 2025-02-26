@@ -22,12 +22,12 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Elevator extends SubsystemBase {
   // * Setpoints
   public static enum ElevatorPosition {
-    L1(10.0),
-    L2(0.0),
-    L3(0.0),
-    L4(0.0),
+    L1(118),
+    L2(192),
+    L3(324),
+    L4(600),
     HOME(0.0),
-    SOURCE(0.0);
+    SOURCE(118);
 
     private double position;
     
