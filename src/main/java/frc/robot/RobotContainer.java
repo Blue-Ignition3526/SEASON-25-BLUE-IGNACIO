@@ -199,7 +199,7 @@ public class RobotContainer {
       )
     );
 
-    this.m_driverControllerCustom.rightButton().onTrue(this.m_swerveDrive.zeroHeadingCommand());
+    this.m_driverControllerCustom.rightStickButton().onTrue(this.m_swerveDrive.zeroHeadingCommand());
 
     // * Elevator
     m_driverControllerCustom.povUp().whileTrue(m_elevator.setVoltageCommand(8));
