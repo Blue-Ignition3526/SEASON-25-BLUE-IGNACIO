@@ -16,7 +16,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.ArmPivotConstants;
+import frc.robot.Constants.SwerveDriveConstants;
 import frc.robot.commands.DriveSwerve;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.CoralIntakeRollers;
@@ -27,6 +29,7 @@ import frc.robot.subsystems.SwerveDrive;
 import frc.robot.subsystems.SwerveModule;
 import frc.robot.subsystems.CoralIntakeArm.ArmPosition;
 import frc.robot.subsystems.CoralIntakeWrist.WristPosition;
+import frc.robot.subsystems.Elevator.ElevatorPosition;
 import frc.robot.subsystems.CoralIntakeWrist;
 import frc.robot.subsystems.Gyro.Gyro;
 import frc.robot.subsystems.Gyro.GyroIOPigeon;
@@ -164,9 +167,9 @@ public class RobotContainer {
     SmartDashboard.putData("SwerveDrive/ResetTurningEncoders", new InstantCommand(m_swerveDrive::resetTurningEncoders).ignoringDisable(true));
 
     // Elevator
-    SmartDashboard.putData("Elevator/50", m_elevator.setSetpointCommand(50).ignoringDisable(true));
-    SmartDashboard.putData("Elevator/10", m_elevator.setSetpointCommand(10).ignoringDisable(true));
-    SmartDashboard.putData("Elevator/0", m_elevator.setSetpointCommand(0).ignoringDisable(true));
+    SmartDashboard.putData("Elevator/L1", m_elevator.setSetpointCommand(ElevatorPosition.L1).ignoringDisable(true));
+    SmartDashboard.putData("Elevator/L2", m_elevator.setSetpointCommand(ElevatorPosition.L2).ignoringDisable(true));
+    SmartDashboard.putData("Elevator/L3", m_elevator.setSetpointCommand(ElevatorPosition.L3).ignoringDisable(true));
 
     // Climbertake pivot
     SmartDashboard.putData("Climbertake/Pivot/IntakeAngleCommand", m_climbertakePivot.setSetpointCommand(Constants.ClimbertakeConstants.Pivot.kIntakeAngle).ignoringDisable(true));
@@ -184,6 +187,8 @@ public class RobotContainer {
     SmartDashboard.putData("ArmPivot/MidAngle", m_armPivot.setSetpointCommand(ArmPivotConstants.kMidAngle).ignoringDisable(true));
     SmartDashboard.putData("ArmPivot/HighAngle", m_armPivot.setSetpointCommand(ArmPivotConstants.kHighAngle).ignoringDisable(true));
 
+    SmartDashboard.putData("Elevator/ResetPosition", m_elevator.resetElevatorPositionCommand());
+
     // * Add controller bindings
     configureBindings();
   }
@@ -194,13 +199,21 @@ public class RobotContainer {
         m_swerveDrive,
         () -> -m_driverControllerCustom.getLeftY(),
         () -> -m_driverControllerCustom.getLeftX(),
-        () -> -m_driverControllerCustom.getRightX(),
+        //TODO: Check this meth
+        () ->  m_driverControllerCustom.getRightTrigger() - m_driverControllerCustom.getLeftTrigger(),
         () -> true
       )
     );
 
     this.m_driverControllerCustom.rightStickButton().onTrue(this.m_swerveDrive.zeroHeadingCommand());
-    this.m_swerveDrive.enableSpeedAlterator(m_speedAlterator_lookAt);
+
+    Trigger rightStickTrigger = new Trigger(() -> 
+      Math.abs(this.m_driverControllerCustom.getRightX()) > SwerveDriveConstants.kJoystickDeadband ||
+      Math.abs(this.m_driverControllerCustom.getRightY()) > SwerveDriveConstants.kJoystickDeadband);
+
+    rightStickTrigger.onTrue(m_swerveDrive.enableSpeedAlteratorCommand(m_speedAlterator_lookAt));
+    rightStickTrigger.onFalse(m_swerveDrive.disableSpeedAlteratorCommand());
+
 
     // * Elevator
     m_driverControllerCustom.povUp().whileTrue(m_elevator.setVoltageCommand(8));

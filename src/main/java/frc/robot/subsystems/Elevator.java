@@ -104,6 +104,8 @@ public class Elevator extends SubsystemBase {
     // * Set setpoint to initial postiion
     this.setpoint = getPosition();
 
+    SmartDashboard.putData("Elevator/PID", ElevatorConstants.kElevatorPIDController);
+
     // Start device check
     deviceCheckNotifier.startPeriodic(Constants.deviceCheckPeriod);
   }
@@ -186,6 +188,10 @@ public class Elevator extends SubsystemBase {
     return runOnce(() -> setSetpoint(setpoint));
   }
 
+  public Command resetElevatorPositionCommand() {
+    return runOnce(() -> encoder.setPosition(0));
+  }
+
 
   @Override
   public void periodic() {
@@ -199,20 +205,19 @@ public class Elevator extends SubsystemBase {
     );
 
     // Calculate needed voltage
-    double pidOutputVolts = ElevatorConstants.kElevatorPIDController.calculate(currentPositionInches, setpointPositionInches);
+    double pidOutputVolts = ElevatorConstants.kElevatorPIDController.calculate(currentPositionInches, setpoint);
     double resultVolts = pidOutputVolts;
     
     // Set the voltage to the motor
     // ! CHECK APPLIED VOLTAGE IN THE DASHBOARD FIRST BEFORE POWERING THE MOTOR
-    //if(pidEnabled) m_rightElevatorMotor.setVoltage(resultVolts);
+    if(pidEnabled) rightElevatorMotor.setVoltage(resultVolts);
     
     //telemetry 
     SmartDashboard.putNumber("Elevator/AppliedOutput", rightElevatorMotor.get());
     SmartDashboard.putNumber("Elevator/CurrentPosition", currentPositionInches);
-    SmartDashboard.putNumber("Elevator/SetpointPosition", setpointPositionInches);
+    SmartDashboard.putNumber("Elevator/SetpointPosition", setpoint);
     SmartDashboard.putNumber("Elevator/SetpointVoltage", resultVolts);
     SmartDashboard.putNumber("Elevator/LeftCurrent", leftElevatorMotor.getOutputCurrent());
     SmartDashboard.putNumber("Elevator/RightCurrent", rightElevatorMotor.getOutputCurrent());
- 
   }
 }
