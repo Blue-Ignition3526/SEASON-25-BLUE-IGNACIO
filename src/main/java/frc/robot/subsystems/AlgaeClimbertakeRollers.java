@@ -2,14 +2,11 @@ package frc.robot.subsystems;
 
 import com.reduxrobotics.sensors.canandcolor.Canandcolor;
 import com.revrobotics.spark.SparkFlex;
-import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
-import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Notifier;
@@ -20,7 +17,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ClimbertakeConstants;
 
-public class ClimbertakeRollers extends SubsystemBase {
+public class AlgaeClimbertakeRollers extends SubsystemBase {
   // Motor
   private final SparkFlex rollers;
 
@@ -37,7 +34,7 @@ public class ClimbertakeRollers extends SubsystemBase {
   // Device check notifier
   private final Notifier deviceCheckNotifier = new Notifier(this::deviceCheck);
 
-  public ClimbertakeRollers() {
+  public AlgaeClimbertakeRollers() {
     // Create roller motor
     rollers = new SparkFlex(ClimbertakeConstants.Rollers.kRollersMotorID, MotorType.kBrushless);
 
@@ -100,6 +97,10 @@ public class ClimbertakeRollers extends SubsystemBase {
     rollers.setVoltage(0);
   }
 
+  public void setHold() {
+    rollers.setVoltage(ClimbertakeConstants.Rollers.kRolersHoldVoltage);
+  }
+
   /**
    * Gets the color of the piece sensor
    * 
@@ -139,6 +140,10 @@ public class ClimbertakeRollers extends SubsystemBase {
    */
   public Command setOutCommand() {
     return runOnce(this::setOut);
+  }
+
+  public Command setHoldCommand() {
+    return runOnce(this::setHold);
   }
 
   /**

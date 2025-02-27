@@ -88,8 +88,8 @@ public class Robot extends LoggedRobot {
     Elastic.sendAlert(new ElasticNotification(NotificationLevel.INFO, "Robot ready!", "Wait for subsystem initialization to complete."));
 
     // * Path finding warmup
-    System.out.println("Pathfinding warmup...");
-    PathfindingCommand.warmupCommand().schedule();
+    //System.out.println("Pathfinding warmup...");
+    //PathfindingCommand.warmupCommand().schedule();
   }
 
   /**

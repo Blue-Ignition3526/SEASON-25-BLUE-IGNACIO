@@ -19,12 +19,12 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.Alert.AlertType;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.SwerveDriveConstants.SwerveModuleConstants;
 import lib.BlueShift.constants.SwerveModuleOptions;
 import static edu.wpi.first.units.Units.*;
+import java.util.concurrent.locks.ReentrantLock;
 import org.littletonrobotics.junction.Logger;
 
 public class SwerveModule extends SubsystemBase {
@@ -54,9 +54,13 @@ public class SwerveModule extends SubsystemBase {
     private final Alert alert_driveMotorUnreachable;
     private final Alert alert_turnMotorUnreachable;
     private final Alert alert_turnEncodersOutOfSync;
+    private final Alert alert_locked;
 
     // * Device check notifier
     private final Notifier deviceCheckNotifier = new Notifier(this::deviceCheck);
+
+    // * Readiness lock
+    private final ReentrantLock lock = new ReentrantLock();
 
     /**
      * Create a new swerve module with the provided options
@@ -129,32 +133,40 @@ public class SwerveModule extends SubsystemBase {
         this.alert_driveMotorUnreachable = new Alert(options.name + " Swerve Module DriveMot unreachable", AlertType.kError);
         this.alert_turnMotorUnreachable = new Alert(options.name + " Swerve Module TurnMot unreachable", AlertType.kError);
         this.alert_turnEncodersOutOfSync = new Alert(options.name + " Swerve Module Encoders out of sync", AlertType.kWarning);
+        this.alert_locked = new Alert(options.name + " Swerve module locked", AlertType.kWarning);
 
-        // * Device check
-        deviceCheckNotifier.startPeriodic(10);
-    
         // * Reset encoders
-        // Wait for absolute encoder to become available and return the boot-up position
-        System.out.println("Waiting for " + options.name + " Swerve Module absolute encoder to become available...");
-        StatusCode absoluteEncoderStatusCode = this.absolutePositionSignal.waitForUpdate(20).getStatus();
+        new Thread(() -> {
+            // Lock the subsystem
+            lock.lock();
+            alert_locked.set(true);
 
-        if (absoluteEncoderStatusCode.isOK()) {
-            System.out.println(options.name + " Swerve Module absolute encoder is available, resetting position...");
-            resetTurningEncoder();
-        } else {
-            DriverStation.reportError("Failed to get " + options.name + " Swerve Module absolute encoder position. Status: " + absoluteEncoderStatusCode, false);
-            System.out.println("Please check " + options.name + " Swerve Module absolute encoder connection.");
-            System.out.println("If problem persists please align the wheels manually and restart the robot.");
-            System.out.println("Setting current position as 0.");
-            this.turnMotor.getEncoder().setPosition(0);
-            alert_cancoderUnreachable.set(true);
-        }
+            // Wait for absolute encoder to become available and return the boot-up position
+            System.out.println("Waiting for " + options.name + " Swerve Module absolute encoder to become available...");
+            StatusCode absoluteEncoderStatusCode = this.absolutePositionSignal.waitForUpdate(Constants.startupStatusSignalTimeout).getStatus();
+    
+            if (absoluteEncoderStatusCode.isOK()) {
+                System.out.println(options.name + " Swerve Module absolute encoder is available, resetting position...");
+                resetTurningEncoder();
+            } else {
+                DriverStation.reportError("Failed to get " + options.name + " Swerve Module absolute encoder position. Status: " + absoluteEncoderStatusCode, false);
+                System.out.println("Please check " + options.name + " Swerve Module absolute encoder connection.");
+                System.out.println("If problem persists please align the wheels manually and restart the robot.");
+                System.out.println("Setting current position as 0.");
+                this.turnMotor.getEncoder().setPosition(0);
+                alert_cancoderUnreachable.set(true);
+            }
+
+            // Unlock the subsystem
+            lock.unlock();
+            alert_locked.set(false);
+        }).start();
 
         // * Reset the Drive encoder
         resetDriveEncoder();
 
         // * Start the device check notifier
-        deviceCheckNotifier.startPeriodic(10);
+        deviceCheckNotifier.startPeriodic(Constants.deviceCheckPeriod);
     }
 
     /**
@@ -212,7 +224,11 @@ public class SwerveModule extends SubsystemBase {
      * Reset the turning encoder (set the position to the absolute encoder's position)
      */
     public void resetTurningEncoder() {
+        lock.lock();
+        alert_locked.set(true);
         this.turnMotor.getEncoder().setPosition(getAbsoluteEncoderPosition().in(Rotations));
+        lock.unlock();
+        alert_locked.set(false);
     }
     
     /**
@@ -245,8 +261,6 @@ public class SwerveModule extends SubsystemBase {
      * @param force If true, the module will ignore the current speed and turn to the target angle
      */
     public void setTargetState(SwerveModuleState state, boolean force) {
-        
-
         if (Math.abs(state.speedMetersPerSecond) < Double.MIN_VALUE || force) {
             stop();
             return;
@@ -261,12 +275,11 @@ public class SwerveModule extends SubsystemBase {
         // Set the target state for safekeeping
         this.targetState = state;
 
-        // Set the motor speeds
-        SmartDashboard.putNumber("Debugging/TF3/drive"+this.options.name, state.speedMetersPerSecond);
-        SmartDashboard.putNumber("Debugging/TF3/maxSpeed"+this.options.name, Constants.SwerveDriveConstants.PhysicalModel.kMaxSpeed.in(MetersPerSecond));
-        SmartDashboard.putNumber("Debugging/TF3/rot"+this.options.name, state.angle.getRotations());
+        // If it's locked, don't move
+        // TODO: CHECK IF I SHOULD REMOVE THIS
+        //if (lock.isLocked()) return;
 
-
+        // Set motor speeds
         driveMotor.set(state.speedMetersPerSecond / Constants.SwerveDriveConstants.PhysicalModel.kMaxSpeed.in(MetersPerSecond));
         turnPID.setReference(state.angle.getRotations(), ControlType.kPosition);
     }

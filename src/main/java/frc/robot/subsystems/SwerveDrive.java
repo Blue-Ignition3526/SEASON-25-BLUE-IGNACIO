@@ -3,45 +3,35 @@ package frc.robot.subsystems;
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.subsystems.Gyro.Gyro;
 import lib.BlueShift.control.SpeedAlterator;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import org.littletonrobotics.junction.Logger;
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.config.RobotConfig;
-import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
 public class SwerveDrive extends SubsystemBase {
-    //* Swerve modules
+    // * Swerve modules
     public final SwerveModule frontLeft;
     public final SwerveModule frontRight;
     public final SwerveModule backLeft;
     public final SwerveModule backRight;
 
-    //* Gyroscope
+    // * Gyroscope
     public final Gyro gyro;
 
-    //* Speed stats
+    // * Status
     private boolean drivingRobotRelative = false;
     private ChassisSpeeds speeds = new ChassisSpeeds();
 
     // * Speed alterator
-    SpeedAlterator speedAlterator = null;
+    private SpeedAlterator speedAlterator = null;
 
     /**
      * Create a new Swerve drivetrain with the provided Swerve Modules and gyroscope
@@ -66,23 +56,6 @@ public class SwerveDrive extends SubsystemBase {
 
         //! ENCODERS ARE RESET IN EACH MODULE
         //! DO NOT RESET THEM HERE IN THE CONSTRUCTOR
-
-        // Configure the auto builder
-        this.configureAutoBuilder(this);
-    }
-
-    /**
-     * Configure the PathPlanner auto builder for this swerve drive
-     * @param swerveDrive
-     */
-    public void configureAutoBuilder(Subsystem swerveDrive) {
-        RobotConfig config  = null;
-
-        try {
-            config = RobotConfig.fromGUISettings();
-        } catch (Exception e) {
-            e.printStackTrace();            
-        }
     }
 
     /**
@@ -168,12 +141,11 @@ public class SwerveDrive extends SubsystemBase {
      * @param rotSpeed
      */
     public void drive(ChassisSpeeds speeds) {
-        // Alter the speeds if needed
-        this.speeds = speedAlterator != null ? this.speedAlterator.alterSpeed(speeds, drivingRobotRelative) : speeds;
-        
-        SmartDashboard.putNumber("Debugging/TF2/x", speeds.vxMetersPerSecond);
-        SmartDashboard.putNumber("Debugging/TF2/y", speeds.vyMetersPerSecond);
-        SmartDashboard.putNumber("Debugging/TF2/rot", speeds.omegaRadiansPerSecond);
+        if (speedAlterator != null) {
+            this.speeds = speedAlterator.alterSpeed(speeds, drivingRobotRelative);
+        } else {
+            this.speeds = speeds;
+        }
 
         // Convert speeds to module states
         SwerveModuleState[] m_moduleStates = Constants.SwerveDriveConstants.PhysicalModel.kDriveKinematics.toSwerveModuleStates(this.speeds);
@@ -182,18 +154,31 @@ public class SwerveDrive extends SubsystemBase {
         this.setModuleStates(m_moduleStates);
     }
 
-    public Command enableSpeedAlteratorCommand(SpeedAlterator alterator) {
-        return runOnce(() -> {
-            alterator.onEnable();
-            this.speedAlterator = alterator;
-        });
+    public void enableSpeedAlterator(SpeedAlterator alterator) {
+        alterator.onEnable();
+        this.speedAlterator = alterator;
     }
 
+    /**
+     * Enable a speed alterator with a command
+     * @param alterator
+     * @return
+     */
+    public Command enableSpeedAlteratorCommand(SpeedAlterator alterator) {
+        return runOnce(() -> this.enableSpeedAlterator(alterator));
+    }
+
+    public void disableSpeedAlterator() {
+        if(this.speedAlterator != null) this.speedAlterator.onDisable();
+        this.speedAlterator = null;
+    }
+
+    /**
+     * Disable the speed alterator with a command
+     * @return
+     */
     public Command disableSpeedAlteratorCommand() {
-        return runOnce(() -> {
-            if(this.speedAlterator != null) this.speedAlterator.onDisable();
-            this.speedAlterator = null;
-        });
+        return runOnce(() -> this.disableSpeedAlterator());
     }
 
 
@@ -206,10 +191,6 @@ public class SwerveDrive extends SubsystemBase {
     public void driveFieldRelative(double xSpeed, double ySpeed, double rotSpeed) {
         this.drivingRobotRelative = false;
         ChassisSpeeds Speeds = ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rotSpeed, this.getHeading());
-        SmartDashboard.putNumber("Debugging/TF/x", Speeds.vxMetersPerSecond);
-        SmartDashboard.putNumber("Debugging/TF/y", Speeds.vyMetersPerSecond);
-        SmartDashboard.putNumber("Debugging/TF/rot", Speeds.omegaRadiansPerSecond);
-
         this.drive(Speeds);
     }
 

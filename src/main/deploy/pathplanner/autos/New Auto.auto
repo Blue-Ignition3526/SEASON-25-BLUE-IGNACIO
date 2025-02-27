@@ -1,0 +1,61 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Inner-ReefHG"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "LeaveCoral-L2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "ReefHG-Source"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 2.0
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Source-ReefCD"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "ReefCD-Source"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 2.0
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Source-ReefCD"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}

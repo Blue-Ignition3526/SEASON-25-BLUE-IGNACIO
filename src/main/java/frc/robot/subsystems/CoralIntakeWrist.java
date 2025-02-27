@@ -19,30 +19,46 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.Constants.WristConstants;
 
-public class Wrist extends SubsystemBase {
-  // Motor
-  private final SparkFlex motor;
+public class CoralIntakeWrist extends SubsystemBase {
+  // * Setpoints
+  public static enum WristPosition {
+    PARALLEL(Degrees.of(0)),
+    PERPENDICULAR(Degrees.of(-90));
 
-  // Config
+    private Angle angle;
+    
+    private WristPosition(Angle angle) {
+      this.angle = angle;
+    }
+
+    public Angle getPosition() {
+      return angle;
+    }
+  }
+
+  // * Motor
+  private final SparkFlex motor;
   private final SparkFlexConfig motorConfig;
 
-  // Through bore encoder
+  // * Through bore encoder
   private final DutyCycleEncoder encoder;
 
-  // Setpoint angle
+  // * Status
   private Angle setpoint;
+  private boolean pidEnabled = false;
 
-  // Device check
+  // * Alerts
   private final Alert alert_motorUnreachable = new Alert(getName() + " motor unreachable", AlertType.kError);
   private final Alert alert_encoderUnreachable = new Alert(getName() + " encoder unreachable", AlertType.kError);
+  private final Alert alert_pidDisabled = new Alert(getName() + " PID disabled.", AlertType.kInfo);
 
-  // Device check notifier
+  // * Device check
   private final Notifier deviceCheckNotifier = new Notifier(this::deviceCheck);
 
-  /** Creates a new Wrist. */
-  public Wrist() {
+  public CoralIntakeWrist() {
     // Create motor
     this.motor = new SparkFlex(WristConstants.kWristMotorID, MotorType.kBrushless);
 
@@ -62,13 +78,13 @@ public class Wrist extends SubsystemBase {
     // Create and configure encoder
     this.encoder = new DutyCycleEncoder(WristConstants.kWristEncoderPort);
 
-    // Device check
-    deviceCheckNotifier.startPeriodic(10);
+    // Setpoint angle
+    this.setpoint = getAngle();
     
     SmartDashboard.putData("Wrist/PID", WristConstants.kWristPIDController);
     
-    // Setpoint angle
-    this.setpoint = getAngle();
+    // Device check
+    deviceCheckNotifier.startPeriodic(Constants.deviceCheckPeriod);
   }
 
   private void deviceCheck() {
@@ -114,9 +130,10 @@ public class Wrist extends SubsystemBase {
    * Sets the setpoint of the PID controller
    * @param setpoint
    */
-  public void setSetpoint(Angle setpoint) {
+  public void setSetpoint(WristPosition setpoint) {
+    pidEnabled = true;
     this.setpoint = Radians.of(MathUtil.clamp(
-      setpoint.in(Radians),
+      setpoint.getPosition().in(Radians),
       WristConstants.kMinAngle.in(Radians),
       WristConstants.kMaxAngle.in(Radians)
     ));
@@ -127,7 +144,7 @@ public class Wrist extends SubsystemBase {
    * @param setpoint
    * @return
    */
-  public Command setSetpointCommand(Angle setpoint) {
+  public Command setSetpointCommand(WristPosition setpoint) {
     return runOnce(() -> setSetpoint(setpoint));
   }
 

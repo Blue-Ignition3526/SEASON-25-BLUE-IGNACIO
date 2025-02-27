@@ -16,13 +16,14 @@ import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.util.Color;
+import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.Elevator.ElevatorPosition;
+import frc.robot.subsystems.CoralIntakeArm.ArmPosition;
 import lib.BlueShift.constants.CTRECANDevice;
 import lib.BlueShift.constants.PIDFConstants;
 import lib.BlueShift.constants.SwerveModuleOptions;
 import lib.BlueShift.utils.SwerveChassis;
 import static edu.wpi.first.units.Units.*;
-
-import java.util.HashMap;
 
 import com.pathplanner.lib.config.PIDConstants;
 
@@ -32,6 +33,9 @@ public class Constants {
         public static final boolean kDebug = true;
         public static final boolean kUseURCL = true;
     }
+
+    public static final double deviceCheckPeriod = 5;
+    public static final double startupStatusSignalTimeout = 20;
 
     public static final class Vision {
         public static final class Limelight3G {
@@ -46,9 +50,10 @@ public class Constants {
     public static final class ClimbertakeConstants {
         public static final class Pivot {
             // Motor
-            public static final int kPivotMotorID = 16;
-            public static final int kPivotMotorCurrentLimit = 40;
-            public static final double kPivotMotorRampRate = 0.05;
+            public static final int kLeftPivotMotorID = 16;
+            public static final int kRightPivotMotorID = 17;
+            public static final int kPivotMotorCurrentLimit = 50;
+            public static final double kPivotMotorRampRate = 0.5;
 
             // Encoder
             public static final int kPivotEncoderPort = 0;
@@ -78,17 +83,18 @@ public class Constants {
 
         public static final class Rollers {
             // Motor and current limit
-            public static final int kRollersMotorID = 17;
+            public static final int kRollersMotorID = 18;
             public static final int kRollersMotorCurrentLimit = 30;
             public static final double kRollersMotorRampRate = 0;
 
             // Voltages and store current
             public static final double kRollersInVoltage = 8;
+            public static final double kRolersHoldVoltage = 2;
             public static final double kRollersOutVoltage = -kRollersInVoltage;
             public static final double kRollersStoreCurrent = 5;
 
             // Canandcolor piece sensor
-            public static final int kPieceSensorID = 18;
+            public static final int kPieceSensorID = 19;
             public static final double kPieceSensorLedBrightness = 0.25;
             public static final Color kAlgaeColor = new Color(0.3, 1, 0.65);
             public static final double kAlgaeColorThreshold = 0.3;
@@ -107,12 +113,12 @@ public class Constants {
         public static final Angle kWristEncoderOffset = Degrees.of(-33);
 
         // Limits
-        public static final Angle kMinAngle = Degrees.of(-94);
-        public static final Angle kMaxAngle = Degrees.of(4);
+        public static final Angle kMinAngle = Degrees.of(-90);
+        public static final Angle kMaxAngle = Degrees.of(0);
 
         // Angles
-        public static final Angle kParallel = Degrees.of(4);
-        public static final Angle kPerpendicular = Degrees.of(-94);
+        public static final Angle kParallel = Degrees.of(0);
+        public static final Angle kPerpendicular = Degrees.of(-90);
 
         // PID Controller
         // TODO: Tune
@@ -126,7 +132,7 @@ public class Constants {
     public static final class ArmPivotConstants {
         // Motor
         public static final int kArmPivotMotorID = 50;
-        public static final int kArmPivotMotorCurrentLimit = 30;
+        public static final int kArmPivotMotorCurrentLimit = 25;
         public static final double kArmPivotMotorRampRate = 0.15;
 
         // Encoder
@@ -142,6 +148,8 @@ public class Constants {
         public static final Angle kMidAngle = Degrees.of(30);
         public static final Angle kLowAngle = Degrees.of(0);
 
+        // Gyro 
+        public static final int kGyroID = 35;
 
         // PID Controller
         // TODO: Tune
@@ -156,7 +164,7 @@ public class Constants {
     //* Swerve Drive
     public static final class SwerveDriveConstants {
         public static final class PoseControllers {
-            public static final ProfiledPIDController rotationPID = new ProfiledPIDController(25, 0, 0, new TrapezoidProfile.Constraints(400, 180));
+            public static final ProfiledPIDController rotationPID = new ProfiledPIDController(36, 0, 0, new TrapezoidProfile.Constraints(400, 180));
             public static final ProfiledPIDController translationPID = new ProfiledPIDController(5, 0, 0, new TrapezoidProfile.Constraints(4.5, 3.3526));
 
             public static final double epsilon = 0.08;
@@ -262,22 +270,33 @@ public class Constants {
             public Pose2d getPose() { return pose; }
         }
 
-        /**
-         * Levels of the reef
-         */
-        public static enum ReefLevel {
-            L1,
-            L2,
-            L3,
-            L4;
-        }
-
         //* AUTONOMOUS
         public static final class AutonomousConstants {
             public static final PIDConstants kTranslatePIDConstants = new PIDConstants(5.0, 0.0, 0.0);
             public static final PIDConstants kRotatePIDConstants = new PIDConstants(5.0, 0.0, 0.0);
             public static final Measure<LinearVelocityUnit> kMaxSpeedMetersPerSecond = MetersPerSecond.of(1);
         }
+    }
+
+    public static final class FieldConstants {
+        /**
+         * Levels of the reef
+         */
+        public static enum ReefLevel {
+            L1(ElevatorPosition.L1, ArmPosition.HORIZONTAL),
+            L3(ElevatorPosition.L2, ArmPosition.HIGH),
+            L2(ElevatorPosition.L3, ArmPosition.HIGH),
+            L4(ElevatorPosition.L4, ArmPosition.HIGH);
+
+            private final ElevatorPosition elevatorPos;
+            private final ArmPosition armPosition;
+            private ReefLevel(ElevatorPosition elevatorPosition, ArmPosition armPosition) {
+                this.elevatorPos = elevatorPosition;
+                this.armPosition = armPosition;
+            }
+            public ElevatorPosition getElevatorPosition() {return elevatorPos; }
+            public ArmPosition getArmPosition() { return armPosition; }
+        }   
     }
 
     public static final class ElevatorConstants {
@@ -290,8 +309,8 @@ public class Constants {
         public static final int kElevatorMotorRampRate = 0;
 
         // Limits
-        public static final Distance kElevatorMaxHeight = Inches.of(60);
-        public static final Distance kElevatorMinHeight = Inches.of(0);
+        public static final double kElevatorMaxHeight = 60.0;
+        public static final double kElevatorMinHeight = 0.0;
 
         // Controller
         public static final ElevatorFeedforward kElevatorFeedforward = new ElevatorFeedforward(0.0, 0.0, 0.0);
@@ -300,10 +319,6 @@ public class Constants {
             new TrapezoidProfile.Constraints(110, 90)
         );
         public static final double kElevatorTolerance = 1.0;
-        // Conversions
-        public static final double kElevatorReduction = 1. / 20.;
-        public static final Distance kElevatorPulleyDiameter = Inches.of(0.5752);
-        public static final double kRotationsToInches = kElevatorReduction * kElevatorPulleyDiameter.in(Inches) * Math.PI; // TODO: Es tamal
     }
 
     public static final class IntakeCoralConstants {
