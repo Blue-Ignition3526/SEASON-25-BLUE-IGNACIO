@@ -22,6 +22,7 @@ public class RobotCommands {
 
     public static Command intakeCoralCommand(CoralIntakeWrist wrist, CoralIntakeArm arm, Elevator elevator) {
         return new ParallelCommandGroup(
+            wrist.setSetpointCommand(WristPosition.PARALLEL),
             elevator.setSetpointCommand(ElevatorPosition.SOURCE),
             arm.setSetpointCommand(ArmPosition.HIGH)
         );
