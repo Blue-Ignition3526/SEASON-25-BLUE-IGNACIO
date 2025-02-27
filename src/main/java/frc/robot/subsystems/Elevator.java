@@ -18,7 +18,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-// TODO: Check logic and switch over to just a double
+// TODO: Check unused stuff
 public class Elevator extends SubsystemBase {
   // * Setpoints
   public static enum ElevatorPosition {
@@ -104,6 +104,7 @@ public class Elevator extends SubsystemBase {
     // * Set setpoint to initial postiion
     this.setpoint = getPosition();
 
+    // * Elevator PID for tuning
     SmartDashboard.putData("Elevator/PID", ElevatorConstants.kElevatorPIDController);
 
     // Start device check
@@ -164,16 +165,21 @@ public class Elevator extends SubsystemBase {
     this.pidEnabled = true;
   }
 
-
   /**
    * Stop the elevator
    */
   public void stop() {
+    this.pidEnabled = false;
     this.rightElevatorMotor.setVoltage(0);
   }
 
+  public void setVoltage(double voltage) { 
+    this.pidEnabled = false;
+    rightElevatorMotor.setVoltage(voltage);
+  }
+
   public Command setVoltageCommand(double voltage) {
-    return runOnce(() -> {rightElevatorMotor.setVoltage(voltage); this.pidEnabled = false; });
+    return runOnce(() -> setVoltage(voltage));
   }
 
   public Command stopCommand() {
@@ -196,25 +202,19 @@ public class Elevator extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    double currentPositionInches = getPosition();
-    // ! SETPOINT CLAMPED HERE
-    double setpointPositionInches = MathUtil.clamp(
-      setpoint,
-      ElevatorConstants.kElevatorMinHeight,
-      ElevatorConstants.kElevatorMaxHeight
-    );
+    double currentPosition = getPosition();
 
     // Calculate needed voltage
-    double pidOutputVolts = ElevatorConstants.kElevatorPIDController.calculate(currentPositionInches, setpoint);
+    double pidOutputVolts = ElevatorConstants.kElevatorPIDController.calculate(currentPosition, setpoint);
     double resultVolts = pidOutputVolts;
     
     // Set the voltage to the motor
     // ! CHECK APPLIED VOLTAGE IN THE DASHBOARD FIRST BEFORE POWERING THE MOTOR
     if(pidEnabled) rightElevatorMotor.setVoltage(resultVolts);
     
-    //telemetry 
+    // Telemetry 
     SmartDashboard.putNumber("Elevator/AppliedOutput", rightElevatorMotor.get());
-    SmartDashboard.putNumber("Elevator/CurrentPosition", currentPositionInches);
+    SmartDashboard.putNumber("Elevator/CurrentPosition", currentPosition);
     SmartDashboard.putNumber("Elevator/SetpointPosition", setpoint);
     SmartDashboard.putNumber("Elevator/SetpointVoltage", resultVolts);
     SmartDashboard.putNumber("Elevator/LeftCurrent", leftElevatorMotor.getOutputCurrent());
