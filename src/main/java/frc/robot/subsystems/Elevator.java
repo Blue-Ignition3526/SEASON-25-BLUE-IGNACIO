@@ -150,6 +150,7 @@ public class Elevator extends SubsystemBase {
    * @param setpoint
    */
   public void setSetpoint(double setpoint) {
+    resetPID();
     this.setpoint = setpoint;
     this.setpointEnum = null;
     this.pidEnabled = true;
@@ -160,6 +161,7 @@ public class Elevator extends SubsystemBase {
    * @param setpoint
    */
   public void setSetpoint(ElevatorPosition setpoint) {
+    resetPID();
     this.setpoint = setpoint.getPosition();
     this.setpointEnum = setpoint;
     this.pidEnabled = true;
@@ -198,6 +200,13 @@ public class Elevator extends SubsystemBase {
     return runOnce(() -> encoder.setPosition(0));
   }
 
+  public void resetPID() {
+    ElevatorConstants.kElevatorPIDController.reset(getPosition());
+  }
+
+  public Command resetPIDCommand() {
+    return runOnce(this::resetPID);
+  }
 
   @Override
   public void periodic() {

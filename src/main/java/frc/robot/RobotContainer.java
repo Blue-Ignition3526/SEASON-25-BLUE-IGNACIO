@@ -51,8 +51,8 @@ import frc.robot.speedAlterators.*;
 // TODO: PID DISABLED BEHAVIORS IN SUBSYSTEMS ( setvoltage disabled PID, setpoint enables pid if it has an encoder )
 public class RobotContainer {
   // * Controllers
-  private final CustomController m_driverControllerCustom = new CustomController(0, CustomControllerType.XBOX);
-  private final CustomController m_operatorController = new CustomController(1, CustomControllerType.PS5);
+  private final CustomController DRIVER = new CustomController(0, CustomControllerType.XBOX);
+  private final CustomController OPERATOR = new CustomController(1, CustomControllerType.PS5);
 
   // * Swerve Drive
   // Swerve modules
@@ -132,7 +132,7 @@ public class RobotContainer {
 
     // * Speed alterators
     this.m_speedAlterator_turn180 = new Turn180(m_odometry::getEstimatedPosition);
-    this.m_speedAlterator_lookAt = new LookController(this.m_gyro::getYaw, this.m_driverControllerCustom::getRightX, this.m_driverControllerCustom::getRightY, 0.1);
+    this.m_speedAlterator_lookAt = new LookController(this.m_gyro::getYaw, this.DRIVER::getRightX, this.DRIVER::getRightY, 0.1);
     this.m_speedAlterator_goTo0 = new GoToPose(m_odometry::getEstimatedPosition, new Pose2d(0, 0, new Rotation2d()));
     this.m_speedAlterator_gotTo1 = new GoToPose(m_odometry::getEstimatedPosition, new Pose2d(0, 3, Rotation2d.fromDegrees(180)));
     this.m_speedAlterator_backUp = new BackUp(-0.1, m_gyro::getHeading);
@@ -140,17 +140,17 @@ public class RobotContainer {
     // * Autonomous
     // Register commands
     NamedCommands.registerCommands(new HashMap<String, Command>(){{
-      put("Score-L1", new SequentialCommandGroup(
-        new ParallelCommandGroup(
-          m_elevator.setSetpointCommand(ElevatorPosition.L1),
-          m_armPivot.setSetpointCommand(ArmPosition.HIGH),
-          m_wrist.setSetpointCommand(WristPosition.PARALLEL)
-        ),
-        new WaitCommand(0.5),
-        m_intakeCoral.setOutCommand(),
-        new WaitCommand(1),
-        m_intakeCoral.stopCommand()
-      ));
+      // put("Score-L1", new SequentialCommandGroup(
+      //   new ParallelCommandGroup(
+      //     m_elevator.setSetpointCommand(ElevatorPosition.L1),
+      //     m_armPivot.setSetpointCommand(ArmPosition.HIGH),
+      //     m_wrist.setSetpointCommand(WristPosition.PARALLEL)
+      //   ),
+      //   new WaitCommand(0.5),
+      //   m_intakeCoral.setOutCommand(),
+      //   new WaitCommand(1),
+      //   m_intakeCoral.stopCommand()
+      // ));
     }});
 
     // Robot config
@@ -172,7 +172,7 @@ public class RobotContainer {
         new PIDConstants(0.5)
       ),
       ppRobotConfig,
-      () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
+      () -> false,
       m_swerveDrive
     );
 
@@ -185,9 +185,11 @@ public class RobotContainer {
     SmartDashboard.putData("SwerveDrive/ResetTurningEncoders", new InstantCommand(m_swerveDrive::resetTurningEncoders).ignoringDisable(true));
 
     // Elevator
+    SmartDashboard.putData("Elevator/HOME", m_elevator.setSetpointCommand(ElevatorPosition.HOME).ignoringDisable(true));
     SmartDashboard.putData("Elevator/L1", m_elevator.setSetpointCommand(ElevatorPosition.L1).ignoringDisable(true));
     SmartDashboard.putData("Elevator/L2", m_elevator.setSetpointCommand(ElevatorPosition.L2).ignoringDisable(true));
     SmartDashboard.putData("Elevator/L3", m_elevator.setSetpointCommand(ElevatorPosition.L3).ignoringDisable(true));
+    SmartDashboard.putData("Elevator/L4", m_elevator.setSetpointCommand(ElevatorPosition.L4).ignoringDisable(true));
 
     // Climbertake pivot
     SmartDashboard.putData("Climbertake/Pivot/IntakeAngleCommand", m_climbertakePivot.setSetpointCommand(Constants.ClimbertakeConstants.Pivot.kIntakeAngle).ignoringDisable(true));
@@ -207,6 +209,12 @@ public class RobotContainer {
 
     SmartDashboard.putData("Elevator/ResetPosition", m_elevator.resetElevatorPositionCommand());
 
+    // ! BIND PID RESETS
+    Trigger enabledTrigger = new Trigger(DriverStation::isEnabled);
+    enabledTrigger.onTrue(new SequentialCommandGroup(
+      m_elevator.resetPIDCommand()
+    ));
+
     // * Add controller bindings
     configureBindings();
   }
@@ -215,17 +223,17 @@ public class RobotContainer {
     // ! DRIVER BINDINGS
     this.m_swerveDrive.setDefaultCommand(new DriveSwerve(
         m_swerveDrive,
-        () -> -m_driverControllerCustom.getLeftY(),
-        () -> -m_driverControllerCustom.getLeftX(),
-        () ->  m_driverControllerCustom.getLeftTrigger() - m_driverControllerCustom.getRightTrigger(),
+        () -> -DRIVER.getLeftY(),
+        () -> -DRIVER.getLeftX(),
+        () ->  DRIVER.getLeftTrigger() - DRIVER.getRightTrigger(),
         () -> true
       )
     );
 
     // Look at speed alterator
     Trigger lookAtTrigger = new Trigger(() -> 
-      Math.abs(m_driverControllerCustom.getRightX()) > SwerveDriveConstants.kJoystickDeadband ||
-      Math.abs(m_driverControllerCustom.getRightY()) > SwerveDriveConstants.kJoystickDeadband
+      Math.abs(DRIVER.getRightX()) > SwerveDriveConstants.kJoystickDeadband ||
+      Math.abs(DRIVER.getRightY()) > SwerveDriveConstants.kJoystickDeadband
     );
 
     // Bind look at 
@@ -233,72 +241,53 @@ public class RobotContainer {
     lookAtTrigger.onFalse(m_swerveDrive.disableSpeedAlteratorCommand());
 
     // Zero heading with right stick but
-    this.m_driverControllerCustom.rightStickButton().onTrue(this.m_swerveDrive.zeroHeadingCommand());
+    this.DRIVER.rightStickButton().onTrue(this.m_swerveDrive.zeroHeadingCommand());
 
     // ! OPERATOR BINDINGS
     // * Elevator
-    this.m_operatorController.povUp().whileTrue(m_elevator.setVoltageCommand(10));
-    this.m_operatorController.povUp().onFalse(m_elevator.stopCommand());
-    
-    this.m_operatorController.povDown().whileTrue(m_elevator.setVoltageCommand(-10));
-    this.m_operatorController.povDown().onFalse(m_elevator.stopCommand());
+    // Options
+    this.OPERATOR.startButton().whileTrue(m_elevator.setVoltageCommand(10));
+    this.OPERATOR.startButton().onFalse(m_elevator.stopCommand());
+
+    // Share
+    this.OPERATOR.backButton().whileTrue(m_elevator.setVoltageCommand(-10));
+    this.OPERATOR.backButton().onFalse(m_elevator.stopCommand());
 
     // * Climbertake pivot
-    this.m_operatorController.rightBumper().onTrue(this.m_climbertakePivot.setVoltageCommand(-8));
-    this.m_operatorController.rightBumper().onFalse(this.m_climbertakePivot.setVoltageCommand(0));
+    this.OPERATOR.rightBumper().onTrue(this.m_climbertakePivot.setVoltageCommand(-8));
+    this.OPERATOR.rightBumper().onFalse(this.m_climbertakePivot.setVoltageCommand(0));
  
-    this.m_operatorController.leftBumper().onTrue(this.m_climbertakePivot.setVoltageCommand(8));
-    this.m_operatorController.leftBumper().onFalse(this.m_climbertakePivot.setVoltageCommand(0));
+    this.OPERATOR.leftBumper().onTrue(this.m_climbertakePivot.setVoltageCommand(8));
+    this.OPERATOR.leftBumper().onFalse(this.m_climbertakePivot.setVoltageCommand(0));
 
     // * Climbertake
-    this.m_operatorController.leftButton().onTrue(this.m_intakeAlgea.setInCommand());
-    this.m_operatorController.leftButton().onFalse(this.m_intakeAlgea.stopCommand());
+    this.OPERATOR.leftButton().onTrue(this.m_intakeAlgea.setInCommand());
+    this.OPERATOR.leftButton().onFalse(this.m_intakeAlgea.stopCommand());
     
-    this.m_operatorController.topButton().onTrue(this.m_intakeAlgea.setOutCommand());
-    this.m_operatorController.topButton().onFalse(this.m_intakeAlgea.stopCommand());
+    this.OPERATOR.topButton().onTrue(this.m_intakeAlgea.setOutCommand());
+    this.OPERATOR.topButton().onFalse(this.m_intakeAlgea.stopCommand());
 
     // * Coral Intake
-    this.m_operatorController.leftButton().onTrue(this.m_intakeCoral.setInCommand());
-    this.m_operatorController.leftButton().onFalse(this.m_intakeCoral.stopCommand());
+    this.OPERATOR.leftButton().onTrue(this.m_intakeCoral.setInCommand());
+    this.OPERATOR.leftButton().onFalse(this.m_intakeCoral.stopCommand());
 
-    this.m_operatorController.topButton().onTrue(this.m_intakeCoral.setOutCommand());
-    this.m_operatorController.topButton().onFalse(this.m_intakeCoral.stopCommand());
+    this.OPERATOR.topButton().onTrue(this.m_intakeCoral.setOutCommand());
+    this.OPERATOR.topButton().onFalse(this.m_intakeCoral.stopCommand());
 
     // * Wrist
-    this.m_operatorController.povLeft().onTrue(this.m_wrist.setSetpointCommand(WristPosition.PARALLEL));
-    this.m_operatorController.povRight().onTrue(this.m_wrist.setSetpointCommand(WristPosition.PERPENDICULAR));
+    this.OPERATOR.bottomButton().onTrue(this.m_wrist.setSetpointCommand(WristPosition.PARALLEL));
+    this.OPERATOR.rightButton().onTrue(this.m_wrist.setSetpointCommand(WristPosition.PERPENDICULAR));
 
     // * Arm
-    this.m_operatorController.leftTrigger().onTrue(this.m_armPivot.setSetpointCommand(ArmPosition.HORIZONTAL));
-    this.m_operatorController.rightTrigger().onTrue(this.m_armPivot.setSetpointCommand(ArmPosition.HIGH));
+    this.OPERATOR.leftTrigger().onTrue(this.m_armPivot.setSetpointCommand(ArmPosition.HORIZONTAL));
+    this.OPERATOR.rightTrigger().onTrue(this.m_armPivot.setSetpointCommand(ArmPosition.HIGH));
 
     // * Selected level bindings
-    this.m_operatorController.rightButton().onTrue(new InstantCommand(() -> selectedLevel = ReefLevel.SOURCE));
-    this.m_operatorController.bottomButton().onTrue(new InstantCommand(() -> selectedLevel = ReefLevel.HOME));
-    this.m_operatorController.povDown().onTrue(new InstantCommand(() -> selectedLevel = ReefLevel.L1));
-    this.m_operatorController.povLeft().onTrue(new InstantCommand(() -> selectedLevel = ReefLevel.L2));
-    this.m_operatorController.povRight().onTrue(new InstantCommand(() -> selectedLevel = ReefLevel.L3));
-    this.m_operatorController.povUp().onTrue(new InstantCommand(() -> selectedLevel = ReefLevel.L4));
+    this.OPERATOR.povDown().onTrue(m_elevator.setSetpointCommand(ReefLevel.L1.getElevatorPosition()));
+    this.OPERATOR.povLeft().onTrue(m_elevator.setSetpointCommand(ReefLevel.L2.getElevatorPosition()));
+    this.OPERATOR.povRight().onTrue(m_elevator.setSetpointCommand(ReefLevel.L3.getElevatorPosition()));
+    this.OPERATOR.povUp().onTrue(m_elevator.setSetpointCommand(ReefLevel.L4.getElevatorPosition()));
 
-    // * Automated bindings
-    /*
-     * Returns true for the loop on which a change was detected
-     */
-    Trigger reefLevelTrigger = new Trigger(() -> {
-      if (selectedLevel != lastSelectedLevel) {
-        lastSelectedLevel = selectedLevel;
-        return true;
-      }
-      return false;
-    });
-
-
-  }
-
-  public void periodic() {
-    SmartDashboard.putNumber("DriverController/LeftTrig", m_driverControllerCustom.getLeftTrigger());
-    SmartDashboard.putNumber("DriverController/RightTrigger", m_driverControllerCustom.getRightTrigger());
-    SmartDashboard.putNumber("DriverController/Twist", m_driverControllerCustom.getLeftTrigger()-m_driverControllerCustom.getRightTrigger());
 
   }
 

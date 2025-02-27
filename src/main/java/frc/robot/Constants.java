@@ -321,8 +321,8 @@ public class Constants {
         // Controller
         public static final ElevatorFeedforward kElevatorFeedforward = new ElevatorFeedforward(0.0, 0.0, 0.0);
         public static final ProfiledPIDController kElevatorPIDController = new ProfiledPIDController(
-            0.7, 0, 0,
-            new TrapezoidProfile.Constraints(110, 90)
+            2.2, 0, 0,
+            new TrapezoidProfile.Constraints(110, 130)
         );
         public static final double kElevatorTolerance = 1.0;
     }
