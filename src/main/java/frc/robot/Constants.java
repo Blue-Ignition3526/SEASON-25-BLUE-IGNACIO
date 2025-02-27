@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.util.Color;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Elevator.ElevatorPosition;
 import frc.robot.subsystems.CoralIntakeArm.ArmPosition;
+import frc.robot.subsystems.CoralIntakeWrist.WristPosition;
 import lib.BlueShift.constants.CTRECANDevice;
 import lib.BlueShift.constants.PIDFConstants;
 import lib.BlueShift.constants.SwerveModuleOptions;
@@ -283,19 +284,24 @@ public class Constants {
          * Levels of the reef
          */
         public static enum ReefLevel {
-            L1(ElevatorPosition.L1, ArmPosition.HORIZONTAL),
-            L3(ElevatorPosition.L2, ArmPosition.HIGH),
-            L2(ElevatorPosition.L3, ArmPosition.HIGH),
-            L4(ElevatorPosition.L4, ArmPosition.HIGH);
+            HOME(ElevatorPosition.HOME, ArmPosition.HORIZONTAL, WristPosition.PARALLEL),
+            SOURCE(ElevatorPosition.SOURCE, ArmPosition.HIGH, WristPosition.PARALLEL),
+            L1(ElevatorPosition.L1, ArmPosition.HORIZONTAL, WristPosition.PARALLEL),
+            L3(ElevatorPosition.L2, ArmPosition.HIGH, WristPosition.PERPENDICULAR),
+            L2(ElevatorPosition.L3, ArmPosition.HIGH, WristPosition.PERPENDICULAR),
+            L4(ElevatorPosition.L4, ArmPosition.HIGH, WristPosition.PERPENDICULAR);
 
             private final ElevatorPosition elevatorPos;
             private final ArmPosition armPosition;
-            private ReefLevel(ElevatorPosition elevatorPosition, ArmPosition armPosition) {
+            private final WristPosition wristPosition;
+            private ReefLevel(ElevatorPosition elevatorPosition, ArmPosition armPosition, WristPosition wristPosition) {
                 this.elevatorPos = elevatorPosition;
                 this.armPosition = armPosition;
+                this.wristPosition = wristPosition;
             }
             public ElevatorPosition getElevatorPosition() {return elevatorPos; }
             public ArmPosition getArmPosition() { return armPosition; }
+            public WristPosition getWristPosition() { return wristPosition; }
         }   
     }
 

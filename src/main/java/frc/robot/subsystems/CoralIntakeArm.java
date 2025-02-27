@@ -40,7 +40,7 @@ public class CoralIntakeArm extends SubsystemBase {
       this.angle = angle;
     }
 
-    public Angle getAngle() {
+    public Angle getPosition() {
       return angle;
     }
   }
@@ -61,8 +61,7 @@ public class CoralIntakeArm extends SubsystemBase {
   private final StatusSignal<Double> gVecZ;
 
   // State
-  private Angle setpoint;
-  private ArmPosition setpointEnum;
+  private Angle setpoint = ArmPosition.HIGH.getPosition();
   private boolean pidEnabled = false;
 
   // Alerts
@@ -121,7 +120,8 @@ public class CoralIntakeArm extends SubsystemBase {
     }
 
     // * Setpoint
-    this.setpoint = getAngle();
+    //! SETPOINT SET ABOVE
+    // this.setpoint = getAngle();
 
     // * Log PID
     SmartDashboard.putData("ArmPivot/PID", ArmPivotConstants.kArmPivotPIDController);
@@ -209,17 +209,15 @@ public class CoralIntakeArm extends SubsystemBase {
       ArmPivotConstants.kMinAngle.in(Radians),
       ArmPivotConstants.kMaxAngle.in(Radians)
     ));
-    setpointEnum = null;
   }
 
   public void setSetpoint(ArmPosition setpoint) {
     pidEnabled = true;
     this.setpoint = Radians.of(MathUtil.clamp(
-      setpoint.getAngle().in(Radians),
+      setpoint.getPosition().in(Radians),
       ArmPivotConstants.kMinAngle.in(Radians),
       ArmPivotConstants.kMaxAngle.in(Radians)
     ));
-    setpointEnum = setpoint;
   }
 
   /**

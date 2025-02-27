@@ -47,7 +47,7 @@ public class CoralIntakeWrist extends SubsystemBase {
   private final DutyCycleEncoder encoder;
 
   // * Status
-  private Angle setpoint;
+  private Angle setpoint = WristPosition.PARALLEL.getPosition();
   private boolean pidEnabled = false;
 
   // * Alerts
@@ -78,8 +78,9 @@ public class CoralIntakeWrist extends SubsystemBase {
     // Create and configure encoder
     this.encoder = new DutyCycleEncoder(WristConstants.kWristEncoderPort);
 
-    // Setpoint angle
-    this.setpoint = getAngle();
+    // * Setpoint angle
+    //! SETPOINT SET ABOVE
+    // this.setpoint = getAngle();
     
     SmartDashboard.putData("Wrist/PID", WristConstants.kWristPIDController);
     
