@@ -24,6 +24,7 @@ import frc.robot.Constants.ArmPivotConstants;
 import frc.robot.Constants.SwerveDriveConstants;
 import frc.robot.Constants.FieldConstants.ReefLevel;
 import frc.robot.commands.DriveSwerve;
+import frc.robot.commands.CompoundCommands.ScoringCommands;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.CoralIntakeRollers;
 import frc.robot.subsystems.CoralIntakeArm;
@@ -283,10 +284,15 @@ public class RobotContainer {
     this.OPERATOR.rightTrigger().onTrue(this.m_armPivot.setSetpointCommand(ArmPosition.HIGH));
 
     // * Selected level bindings
-    this.OPERATOR.povDown().onTrue(m_elevator.setSetpointCommand(ReefLevel.L1.getElevatorPosition()));
-    this.OPERATOR.povLeft().onTrue(m_elevator.setSetpointCommand(ReefLevel.L2.getElevatorPosition()));
-    this.OPERATOR.povRight().onTrue(m_elevator.setSetpointCommand(ReefLevel.L3.getElevatorPosition()));
-    this.OPERATOR.povUp().onTrue(m_elevator.setSetpointCommand(ReefLevel.L4.getElevatorPosition()));
+    // this.OPERATOR.povDown().onTrue(m_elevator.setSetpointCommand(ReefLevel.L1.getElevatorPosition()));
+    // this.OPERATOR.povLeft().onTrue(m_elevator.setSetpointCommand(ReefLevel.L2.getElevatorPosition()));
+    // this.OPERATOR.povRight().onTrue(m_elevator.setSetpointCommand(ReefLevel.L3.getElevatorPosition()));
+    // this.OPERATOR.povUp().onTrue(m_elevator.setSetpointCommand(ReefLevel.L4.getElevatorPosition()));
+
+    this.OPERATOR.povDown().onTrue(ScoringCommands.scorePositionCommand(ReefLevel.L1, m_elevator, m_armPivot, m_wrist));
+    this.OPERATOR.povLeft().onTrue(ScoringCommands.scorePositionCommand(ReefLevel.L2, m_elevator, m_armPivot, m_wrist));
+    this.OPERATOR.povRight().onTrue(ScoringCommands.scorePositionCommand(ReefLevel.L3, m_elevator, m_armPivot, m_wrist));
+    this.OPERATOR.povUp().onTrue(ScoringCommands.scorePositionCommand(ReefLevel.L4, m_elevator, m_armPivot, m_wrist));
 
 
   }

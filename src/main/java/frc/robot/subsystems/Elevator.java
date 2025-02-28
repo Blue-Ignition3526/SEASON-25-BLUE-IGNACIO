@@ -23,7 +23,7 @@ public class Elevator extends SubsystemBase {
   // * Setpoints
   public static enum ElevatorPosition {
     L1(118),
-    L2(192),
+    L2(182),
     L3(324),
     L4(600),
     HOME(0.0),
