@@ -13,7 +13,7 @@
         {
           "type": "named",
           "data": {
-            "name": "Intake-Coral"
+            "name": "Score-L1"
           }
         },
         {
@@ -23,21 +23,9 @@
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "Source-ReefCD"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "ReefCD-Source"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Source-ReefCD"
+            "name": "Intake-Coral"
           }
         }
       ]

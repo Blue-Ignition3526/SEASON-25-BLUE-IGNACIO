@@ -14,9 +14,7 @@ import edu.wpi.first.units.LinearAccelerationUnit;
 import edu.wpi.first.units.LinearVelocityUnit;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.util.Color;
-import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Elevator.ElevatorPosition;
 import frc.robot.subsystems.CoralIntakeArm.ArmPosition;
 import frc.robot.subsystems.CoralIntakeWrist.WristPosition;
@@ -156,8 +154,8 @@ public class Constants {
         // TODO: Tune
         public static final Angle epsilon = Degrees.of(1);
         public static final ProfiledPIDController kArmPivotPIDController = new ProfiledPIDController(
-            22.0, 0, 0,
-            new TrapezoidProfile.Constraints(20, 35)
+            28.0, 0, 0,
+            new TrapezoidProfile.Constraints(25, 40)
         );
         public static final ArmFeedforward kArmPivotFeedforward = new ArmFeedforward(0.0, 0.0, 0.0);
     }
@@ -279,31 +277,26 @@ public class Constants {
         }
     }
 
-    public static final class FieldConstants {
-        /**
-         * Levels of the reef
-         */
-        public static enum ReefLevel {
-            HOME(ElevatorPosition.HOME, ArmPosition.HORIZONTAL, WristPosition.PARALLEL),
-            SOURCE(ElevatorPosition.SOURCE, ArmPosition.HIGH, WristPosition.PARALLEL),
-            L1(ElevatorPosition.L1, ArmPosition.HORIZONTAL, WristPosition.PARALLEL),
-            L3(ElevatorPosition.L2, ArmPosition.HIGH, WristPosition.PERPENDICULAR),
-            L2(ElevatorPosition.L3, ArmPosition.HIGH, WristPosition.PERPENDICULAR),
-            L4(ElevatorPosition.L4, ArmPosition.HIGH, WristPosition.PERPENDICULAR);
+    public static enum RobotState {
+        HOME(ElevatorPosition.HOME, ArmPosition.HORIZONTAL, WristPosition.PARALLEL),
+        SOURCE(ElevatorPosition.SOURCE, ArmPosition.INTAKE, WristPosition.PARALLEL),
+        L1(ElevatorPosition.L1, ArmPosition.HORIZONTAL, WristPosition.PARALLEL),
+        L2(ElevatorPosition.L2, ArmPosition.HIGH, WristPosition.PERPENDICULAR),
+        L3(ElevatorPosition.L3, ArmPosition.HIGH, WristPosition.PERPENDICULAR),
+        L4(ElevatorPosition.L4, ArmPosition.HIGH, WristPosition.PERPENDICULAR);
 
-            private final ElevatorPosition elevatorPos;
-            private final ArmPosition armPosition;
-            private final WristPosition wristPosition;
-            private ReefLevel(ElevatorPosition elevatorPosition, ArmPosition armPosition, WristPosition wristPosition) {
-                this.elevatorPos = elevatorPosition;
-                this.armPosition = armPosition;
-                this.wristPosition = wristPosition;
-            }
-            public ElevatorPosition getElevatorPosition() {return elevatorPos; }
-            public ArmPosition getArmPosition() { return armPosition; }
-            public WristPosition getWristPosition() { return wristPosition; }
-        }   
-    }
+        private final ElevatorPosition elevatorPos;
+        private final ArmPosition armPosition;
+        private final WristPosition wristPosition;
+        private RobotState(ElevatorPosition elevatorPosition, ArmPosition armPosition, WristPosition wristPosition) {
+            this.elevatorPos = elevatorPosition;
+            this.armPosition = armPosition;
+            this.wristPosition = wristPosition;
+        }
+        public ElevatorPosition getElevatorPosition() {return elevatorPos; }
+        public ArmPosition getArmPosition() { return armPosition; }
+        public WristPosition getWristPosition() { return wristPosition; }
+    }   
 
     public static final class ElevatorConstants {
         // Motor IDs
@@ -334,18 +327,11 @@ public class Constants {
 
         // Motor limits
         public static final int kMotorCurrentLimit = 25;
-        public static final double kMotorRampRate = 0.15;
+        public static final double kMotorRampRate = 0.05;
 
-        // Alternate piece detection
+        // Piece detection
         public static final double kPieceDetectionDebounceTime = 0.3;
         public static final int kPieceDetectionCurrent = 20;
-
-        // Sensor
-        public static final int kSensorId = 42;
-        public static final double kPieceSensorLedBrightness = 0.5;
-        public static final Color kCoralColor = new Color(1, 1, 1);
-        public static final double kCoralColorThreshold = 0.15;
-        public static final double kCoralProximityThreshold = 0.75;
 
         // Parameters
         public static final double kRollersInVoltage = 6;

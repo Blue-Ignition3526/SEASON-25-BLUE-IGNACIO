@@ -11,7 +11,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -22,7 +21,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.ArmPivotConstants;
 import frc.robot.Constants.SwerveDriveConstants;
-import frc.robot.Constants.FieldConstants.ReefLevel;
+import frc.robot.Constants.RobotState;
 import frc.robot.commands.DriveSwerve;
 import frc.robot.commands.CompoundCommands.ScoringCommands;
 import frc.robot.subsystems.Elevator;
@@ -49,7 +48,13 @@ import lib.BlueShift.odometry.vision.camera.VisionOdometryFilters;
 import lib.BlueShift.control.SpeedAlterator;
 import frc.robot.speedAlterators.*;
 
-// TODO: PID DISABLED BEHAVIORS IN SUBSYSTEMS ( setvoltage disabled PID, setpoint enables pid if it has an encoder )
+// TODO: Check ALL POSITIONS
+// TODO: add grab position
+// TODO: Add intake and outtake to paths
+// TODO: Check operator bindings
+//TODO: Automate leaving game pieces
+
+//TODO: QUE NO BAJE EL ELEVADOR DEL 0
 public class RobotContainer {
   // * Controllers
   private final CustomController DRIVER = new CustomController(0, CustomControllerType.XBOX);
@@ -71,21 +76,19 @@ public class RobotContainer {
   // Speed alterators
   private final SpeedAlterator m_speedAlterator_turn180;
   private final SpeedAlterator m_speedAlterator_lookAt;
-  private final SpeedAlterator m_speedAlterator_goTo0;
-  private final SpeedAlterator m_speedAlterator_gotTo1;
   private final SpeedAlterator m_speedAlterator_backUp;
 
   // * Elevator
   private final Elevator m_elevator;
 
   // * Climbertake
-  private final AlgaeClimbertakePivot m_climbertakePivot;
-  private final AlgaeClimbertakeRollers m_intakeAlgea;
+  private final AlgaeClimbertakePivot m_algaeClimbertakePivot;
+  private final AlgaeClimbertakeRollers m_algaeClimbertakeRollers;
 
   // * Coral intake
-  private final CoralIntakeWrist m_wrist;
-  private final CoralIntakeArm m_armPivot;
-  private final CoralIntakeRollers m_intakeCoral;
+  private final CoralIntakeWrist m_coralIntakeWrist;
+  private final CoralIntakeArm m_coralIntakeArm;
+  private final CoralIntakeRollers m_coralIntakeRollers;
   
   // * Odometry and Vision
   private final LimelightOdometryCamera m_limelight3G;
@@ -94,10 +97,6 @@ public class RobotContainer {
 
   // * Autonomous
   private final SendableChooser<Command> m_autonomousChooser;
-
-  // * Reef level state machine
-  ReefLevel selectedLevel = ReefLevel.HOME;
-  ReefLevel lastSelectedLevel = selectedLevel;
 
   public RobotContainer() {
     // * Gyro
@@ -110,13 +109,13 @@ public class RobotContainer {
     this.m_elevator = new Elevator();
     
     // * Climbertake
-    m_climbertakePivot = new AlgaeClimbertakePivot();
-    m_intakeAlgea = new AlgaeClimbertakeRollers();
+    m_algaeClimbertakePivot = new AlgaeClimbertakePivot();
+    m_algaeClimbertakeRollers = new AlgaeClimbertakeRollers();
     
     // * Coral intake
-    m_wrist = new CoralIntakeWrist();
-    m_armPivot = new CoralIntakeArm();
-    m_intakeCoral = new CoralIntakeRollers();
+    m_coralIntakeWrist = new CoralIntakeWrist();
+    m_coralIntakeArm = new CoralIntakeArm();
+    m_coralIntakeRollers = new CoralIntakeRollers();
 
     // * Odometry and Vision
     this.m_limelight3G = new LimelightOdometryCamera(Constants.Vision.Limelight3G.kName, false, VisionOdometryFilters::visionFilter);
@@ -134,24 +133,24 @@ public class RobotContainer {
     // * Speed alterators
     this.m_speedAlterator_turn180 = new Turn180(m_odometry::getEstimatedPosition);
     this.m_speedAlterator_lookAt = new LookController(this.m_gyro::getYaw, this.DRIVER::getRightX, this.DRIVER::getRightY, 0.1);
-    this.m_speedAlterator_goTo0 = new GoToPose(m_odometry::getEstimatedPosition, new Pose2d(0, 0, new Rotation2d()));
-    this.m_speedAlterator_gotTo1 = new GoToPose(m_odometry::getEstimatedPosition, new Pose2d(0, 3, Rotation2d.fromDegrees(180)));
     this.m_speedAlterator_backUp = new BackUp(-0.1, m_gyro::getHeading);
     
     // * Autonomous
     // Register commands
     NamedCommands.registerCommands(new HashMap<String, Command>(){{
-      // put("Score-L1", new SequentialCommandGroup(
-      //   new ParallelCommandGroup(
-      //     m_elevator.setSetpointCommand(ElevatorPosition.L1),
-      //     m_armPivot.setSetpointCommand(ArmPosition.HIGH),
-      //     m_wrist.setSetpointCommand(WristPosition.PARALLEL)
-      //   ),
-      //   new WaitCommand(0.5),
-      //   m_intakeCoral.setOutCommand(),
-      //   new WaitCommand(1),
-      //   m_intakeCoral.stopCommand()
-      // ));
+       put("Score-L1", new SequentialCommandGroup(
+        ScoringCommands.scorePositionCommand(RobotState.L1, m_elevator, m_coralIntakeArm, m_coralIntakeWrist),
+        new WaitCommand(0.5),
+        m_coralIntakeRollers.setOutCommand(),
+        new WaitCommand(0.5)
+       ));
+
+       put("Intake-Coral", new SequentialCommandGroup(
+        ScoringCommands.scorePositionCommand(RobotState.SOURCE, m_elevator, m_coralIntakeArm, m_coralIntakeWrist),
+        m_coralIntakeRollers.setInCommand(),
+        new WaitCommand(2),
+        m_coralIntakeRollers.stopCommand()
+       ));
     }});
 
     // Robot config
@@ -193,27 +192,29 @@ public class RobotContainer {
     SmartDashboard.putData("Elevator/L4", m_elevator.setSetpointCommand(ElevatorPosition.L4).ignoringDisable(true));
 
     // Climbertake pivot
-    SmartDashboard.putData("Climbertake/Pivot/IntakeAngleCommand", m_climbertakePivot.setSetpointCommand(Constants.ClimbertakeConstants.Pivot.kIntakeAngle).ignoringDisable(true));
-    SmartDashboard.putData("Climbertake/Pivot/StoreAngleCommand", m_climbertakePivot.setSetpointCommand(Constants.ClimbertakeConstants.Pivot.kStoreAngle).ignoringDisable(true));
-    SmartDashboard.putData("Climbertake/Pivot/ClimbHighAngleCommand", m_climbertakePivot.setSetpointCommand(Constants.ClimbertakeConstants.Pivot.kClimbHighAngle).ignoringDisable(true));
-    SmartDashboard.putData("Climbertake/Pivot/ClimbLowAngleCommand", m_climbertakePivot.setSetpointCommand(Constants.ClimbertakeConstants.Pivot.kClimbLowAngle).ignoringDisable(true));
+    SmartDashboard.putData("Climbertake/Pivot/IntakeAngleCommand", m_algaeClimbertakePivot.setSetpointCommand(Constants.ClimbertakeConstants.Pivot.kIntakeAngle).ignoringDisable(true));
+    SmartDashboard.putData("Climbertake/Pivot/StoreAngleCommand", m_algaeClimbertakePivot.setSetpointCommand(Constants.ClimbertakeConstants.Pivot.kStoreAngle).ignoringDisable(true));
+    SmartDashboard.putData("Climbertake/Pivot/ClimbHighAngleCommand", m_algaeClimbertakePivot.setSetpointCommand(Constants.ClimbertakeConstants.Pivot.kClimbHighAngle).ignoringDisable(true));
+    SmartDashboard.putData("Climbertake/Pivot/ClimbLowAngleCommand", m_algaeClimbertakePivot.setSetpointCommand(Constants.ClimbertakeConstants.Pivot.kClimbLowAngle).ignoringDisable(true));
 
     // Wrist
-    SmartDashboard.putData("Wrist/Perpendicular", m_wrist.setSetpointCommand(WristPosition.PERPENDICULAR).ignoringDisable(true));
-    SmartDashboard.putData("Wrist/Parallel", m_wrist.setSetpointCommand(WristPosition.PARALLEL).ignoringDisable(true));
+    SmartDashboard.putData("Wrist/Perpendicular", m_coralIntakeWrist.setSetpointCommand(WristPosition.PERPENDICULAR).ignoringDisable(true));
+    SmartDashboard.putData("Wrist/Parallel", m_coralIntakeWrist.setSetpointCommand(WristPosition.PARALLEL).ignoringDisable(true));
 
     // Arm pivot
-    SmartDashboard.putData("ArmPivot/ResetAngle", m_armPivot.resetAngleCommand().ignoringDisable(true));
-    SmartDashboard.putData("ArmPivot/LowAngle", m_armPivot.setSetpointCommand(ArmPivotConstants.kLowAngle).ignoringDisable(true));
-    SmartDashboard.putData("ArmPivot/MidAngle", m_armPivot.setSetpointCommand(ArmPivotConstants.kMidAngle).ignoringDisable(true));
-    SmartDashboard.putData("ArmPivot/HighAngle", m_armPivot.setSetpointCommand(ArmPivotConstants.kHighAngle).ignoringDisable(true));
+    SmartDashboard.putData("ArmPivot/ResetAngle", m_coralIntakeArm.resetAngleCommand().ignoringDisable(true));
+    SmartDashboard.putData("ArmPivot/LowAngle", m_coralIntakeArm.setSetpointCommand(ArmPivotConstants.kLowAngle).ignoringDisable(true));
+    SmartDashboard.putData("ArmPivot/MidAngle", m_coralIntakeArm.setSetpointCommand(ArmPivotConstants.kMidAngle).ignoringDisable(true));
+    SmartDashboard.putData("ArmPivot/HighAngle", m_coralIntakeArm.setSetpointCommand(ArmPivotConstants.kHighAngle).ignoringDisable(true));
 
-    SmartDashboard.putData("Elevator/ResetPosition", m_elevator.resetElevatorPositionCommand());
+    SmartDashboard.putData("Elevator/ResetPosition", m_elevator.resetElevatorPositionCommand().ignoringDisable(true));
 
     // ! BIND PID RESETS
     Trigger enabledTrigger = new Trigger(DriverStation::isEnabled);
     enabledTrigger.onTrue(new SequentialCommandGroup(
-      m_elevator.resetPIDCommand()
+      m_elevator.resetPIDCommand(),
+      m_coralIntakeWrist.resetPIDCommand(),
+      m_coralIntakeArm.resetPIDCommand()
     ));
 
     // * Add controller bindings
@@ -222,30 +223,45 @@ public class RobotContainer {
 
   private void configureBindings() {
     // ! DRIVER BINDINGS
+    // * Swerve drive binding
     this.m_swerveDrive.setDefaultCommand(new DriveSwerve(
         m_swerveDrive,
         () -> -DRIVER.getLeftY(),
         () -> -DRIVER.getLeftX(),
         () ->  DRIVER.getLeftTrigger() - DRIVER.getRightTrigger(),
-        () -> true
+        () -> !DRIVER.bottomButton().getAsBoolean()
       )
     );
 
-    // Look at speed alterator
+    // * Look at speed alterator
     Trigger lookAtTrigger = new Trigger(() -> 
       Math.abs(DRIVER.getRightX()) > SwerveDriveConstants.kJoystickDeadband ||
       Math.abs(DRIVER.getRightY()) > SwerveDriveConstants.kJoystickDeadband
     );
 
-    // Bind look at 
+    // Binding
     lookAtTrigger.onTrue(m_swerveDrive.enableSpeedAlteratorCommand(m_speedAlterator_lookAt));
     lookAtTrigger.onFalse(m_swerveDrive.disableSpeedAlteratorCommand());
 
-    // Zero heading with right stick but
+    // * Turn 180
+    this.DRIVER.leftBumper().onTrue(m_swerveDrive.enableSpeedAlteratorCommand(m_speedAlterator_turn180));
+    this.DRIVER.leftBumper().onFalse(m_swerveDrive.disableSpeedAlteratorCommand());
+
+    // * Reset heading with right stick button
     this.DRIVER.rightStickButton().onTrue(this.m_swerveDrive.zeroHeadingCommand());
 
+    // * Driver Coral intake
+    this.DRIVER.leftButton().onTrue(new ParallelCommandGroup(
+      ScoringCommands.scorePositionCommand(RobotState.SOURCE, m_elevator, m_coralIntakeArm, m_coralIntakeWrist),
+      m_coralIntakeRollers.setInCommand()
+    ));
+    this.DRIVER.leftButton().onFalse(new ParallelCommandGroup(
+      ScoringCommands.scorePositionCommand(RobotState.L1, m_elevator, m_coralIntakeArm, m_coralIntakeWrist),
+      m_coralIntakeRollers.stopCommand()
+    ));
+
     // ! OPERATOR BINDINGS
-    // * Elevator
+    // * Manuel Elevator
     // Options
     this.OPERATOR.startButton().whileTrue(m_elevator.setVoltageCommand(10));
     this.OPERATOR.startButton().onFalse(m_elevator.stopCommand());
@@ -254,34 +270,39 @@ public class RobotContainer {
     this.OPERATOR.backButton().whileTrue(m_elevator.setVoltageCommand(-10));
     this.OPERATOR.backButton().onFalse(m_elevator.stopCommand());
 
-    // * Climbertake pivot
-    this.OPERATOR.rightBumper().onTrue(this.m_climbertakePivot.setVoltageCommand(-8));
-    this.OPERATOR.rightBumper().onFalse(this.m_climbertakePivot.setVoltageCommand(0));
+    // * Manuel Climbertake pivot
+    // Ready
+    this.OPERATOR.rightBumper().onTrue(this.m_algaeClimbertakePivot.setVoltageCommand(-8));
+    this.OPERATOR.rightBumper().onFalse(this.m_algaeClimbertakePivot.setVoltageCommand(0));
  
-    this.OPERATOR.leftBumper().onTrue(this.m_climbertakePivot.setVoltageCommand(8));
-    this.OPERATOR.leftBumper().onFalse(this.m_climbertakePivot.setVoltageCommand(0));
+    this.OPERATOR.leftBumper().onTrue(this.m_algaeClimbertakePivot.setVoltageCommand(8));
+    this.OPERATOR.leftBumper().onFalse(this.m_algaeClimbertakePivot.setVoltageCommand(0));
 
-    // * Climbertake
-    this.OPERATOR.leftButton().onTrue(this.m_intakeAlgea.setInCommand());
-    this.OPERATOR.leftButton().onFalse(this.m_intakeAlgea.stopCommand());
+    // * Manuel Climbertake
+    // Ready
+    this.OPERATOR.leftButton().onTrue(this.m_algaeClimbertakeRollers.setInCommand());
+    this.OPERATOR.leftButton().onFalse(this.m_algaeClimbertakeRollers.stopCommand());
     
-    this.OPERATOR.topButton().onTrue(this.m_intakeAlgea.setOutCommand());
-    this.OPERATOR.topButton().onFalse(this.m_intakeAlgea.stopCommand());
+    this.OPERATOR.topButton().onTrue(this.m_algaeClimbertakeRollers.setOutCommand());
+    this.OPERATOR.topButton().onFalse(this.m_algaeClimbertakeRollers.stopCommand());
 
     // * Coral Intake
-    this.OPERATOR.leftButton().onTrue(this.m_intakeCoral.setInCommand());
-    this.OPERATOR.leftButton().onFalse(this.m_intakeCoral.stopCommand());
+    // Ready
+    this.OPERATOR.leftButton().onTrue(this.m_coralIntakeRollers.setInCommand());
+    this.OPERATOR.leftButton().onFalse(this.m_coralIntakeRollers.stopCommand());
 
-    this.OPERATOR.topButton().onTrue(this.m_intakeCoral.setOutCommand());
-    this.OPERATOR.topButton().onFalse(this.m_intakeCoral.stopCommand());
+    this.OPERATOR.topButton().onTrue(this.m_coralIntakeRollers.setOutCommand());
+    this.OPERATOR.topButton().onFalse(this.m_coralIntakeRollers.stopCommand());
 
     // * Wrist
-    this.OPERATOR.bottomButton().onTrue(this.m_wrist.setSetpointCommand(WristPosition.PARALLEL));
-    this.OPERATOR.rightButton().onTrue(this.m_wrist.setSetpointCommand(WristPosition.PERPENDICULAR));
+    // Ready
+    this.OPERATOR.bottomButton().onTrue(this.m_coralIntakeWrist.setSetpointCommand(WristPosition.PERPENDICULAR));
+    this.OPERATOR.rightButton().onTrue(this.m_coralIntakeWrist.setSetpointCommand(WristPosition.PARALLEL));
 
     // * Arm
-    this.OPERATOR.leftTrigger().onTrue(this.m_armPivot.setSetpointCommand(ArmPosition.HORIZONTAL));
-    this.OPERATOR.rightTrigger().onTrue(this.m_armPivot.setSetpointCommand(ArmPosition.HIGH));
+    // Ready
+    this.OPERATOR.leftTrigger().onTrue(this.m_coralIntakeArm.setSetpointCommand(ArmPosition.HORIZONTAL));
+    this.OPERATOR.rightTrigger().onTrue(this.m_coralIntakeArm.setSetpointCommand(ArmPosition.HIGH));
 
     // * Selected level bindings
     // this.OPERATOR.povDown().onTrue(m_elevator.setSetpointCommand(ReefLevel.L1.getElevatorPosition()));
@@ -289,12 +310,10 @@ public class RobotContainer {
     // this.OPERATOR.povRight().onTrue(m_elevator.setSetpointCommand(ReefLevel.L3.getElevatorPosition()));
     // this.OPERATOR.povUp().onTrue(m_elevator.setSetpointCommand(ReefLevel.L4.getElevatorPosition()));
 
-    this.OPERATOR.povDown().onTrue(ScoringCommands.scorePositionCommand(ReefLevel.L1, m_elevator, m_armPivot, m_wrist));
-    this.OPERATOR.povLeft().onTrue(ScoringCommands.scorePositionCommand(ReefLevel.L2, m_elevator, m_armPivot, m_wrist));
-    this.OPERATOR.povRight().onTrue(ScoringCommands.scorePositionCommand(ReefLevel.L3, m_elevator, m_armPivot, m_wrist));
-    this.OPERATOR.povUp().onTrue(ScoringCommands.scorePositionCommand(ReefLevel.L4, m_elevator, m_armPivot, m_wrist));
-
-
+    this.OPERATOR.povDown().onTrue(ScoringCommands.scorePositionCommand(RobotState.L1, m_elevator, m_coralIntakeArm, m_coralIntakeWrist));
+    this.OPERATOR.povLeft().onTrue(ScoringCommands.scorePositionCommand(RobotState.L2, m_elevator, m_coralIntakeArm, m_coralIntakeWrist));
+    this.OPERATOR.povRight().onTrue(ScoringCommands.scorePositionCommand(RobotState.L3, m_elevator, m_coralIntakeArm, m_coralIntakeWrist));
+    this.OPERATOR.povUp().onTrue(ScoringCommands.scorePositionCommand(RobotState.L4, m_elevator, m_coralIntakeArm, m_coralIntakeWrist));
   }
 
   public Command getAutonomousCommand() {

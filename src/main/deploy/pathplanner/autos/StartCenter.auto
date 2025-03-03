@@ -13,7 +13,13 @@
         {
           "type": "named",
           "data": {
-            "name": "LeaveCoral-L2"
+            "name": "Score-L1"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.5
           }
         },
         {
@@ -23,15 +29,33 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "Intake-Coral"
+          }
+        },
+        {
           "type": "wait",
           "data": {
-            "waitTime": 2.0
+            "waitTime": 0.5
           }
         },
         {
           "type": "path",
           "data": {
             "pathName": "Source-ReefCD"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Score-L1"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.5
           }
         },
         {
@@ -41,15 +65,27 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "Intake-Coral"
+          }
+        },
+        {
           "type": "wait",
           "data": {
-            "waitTime": 2.0
+            "waitTime": 0.5
           }
         },
         {
           "type": "path",
           "data": {
             "pathName": "Source-ReefCD"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Score-L1"
           }
         }
       ]

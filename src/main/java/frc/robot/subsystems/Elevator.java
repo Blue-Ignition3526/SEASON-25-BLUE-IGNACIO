@@ -9,7 +9,6 @@ import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import frc.robot.Constants;
 import frc.robot.Constants.ElevatorConstants;
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Notifier;
@@ -23,11 +22,11 @@ public class Elevator extends SubsystemBase {
   // * Setpoints
   public static enum ElevatorPosition {
     L1(118),
-    L2(182),
+    L2(178),
     L3(324),
     L4(600),
     HOME(0.0),
-    SOURCE(118);
+    SOURCE(128);
 
     private double position;
     

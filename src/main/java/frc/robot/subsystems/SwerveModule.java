@@ -196,6 +196,7 @@ public class SwerveModule extends SubsystemBase {
             DriverStation.reportError(options.name +  " absolute encoder is unreachable", false);
         }
 
+        // TODO: Reset turn encoders when out of sync
         double turnEncErr = getAngle().minus(getAbsoluteEncoderPosition()).in(Degree);
         if (Math.abs(turnEncErr) > 5) {
             alert_turnEncodersOutOfSync.set(true);
