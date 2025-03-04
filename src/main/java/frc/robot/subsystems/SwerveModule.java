@@ -2,7 +2,16 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.AudioConfigs;
+import com.ctre.phoenix6.configs.ClosedLoopRampsConfigs;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.MotorOutputConfigs;
+import com.ctre.phoenix6.configs.OpenLoopRampsConfigs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.configs.VoltageConfigs;
 import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.ControlType;
@@ -27,16 +36,18 @@ import static edu.wpi.first.units.Units.*;
 import java.util.concurrent.locks.ReentrantLock;
 import org.littletonrobotics.junction.Logger;
 
+// TODO: It's probably better to store the status signals and refresh when needed
+// but for now this will do
 public class SwerveModule extends SubsystemBase {
     // * Options for the module
     public final SwerveModuleOptions options;
 
     // * Motors
-    private final SparkMax driveMotor;
+    private final TalonFX driveMotor;
     private final SparkMax turnMotor;
 
     // * Configs
-    private final SparkMaxConfig driveConfig;
+    private final TalonFXConfiguration driveConfig;
     private final SparkMaxConfig turnConfig;
 
     // * PID Controller for turning
@@ -71,25 +82,42 @@ public class SwerveModule extends SubsystemBase {
         this.options = options;
 
         // * Create Drive motor and configure it
-        this.driveMotor = new SparkMax(options.driveMotorID, MotorType.kBrushless);
-        this.driveConfig = new SparkMaxConfig();
+        this.driveMotor = new TalonFX(options.driveMotorID, "*");
+        this.driveConfig = new TalonFXConfiguration();
         this.driveConfig
-            .idleMode(IdleMode.kBrake)
-            .openLoopRampRate(SwerveModuleConstants.kDriveMotorRampRate)
-            .closedLoopRampRate(SwerveModuleConstants.kDriveMotorRampRate)
-            .smartCurrentLimit(SwerveModuleConstants.kDriveMotorCurrentLimit)
-            .voltageCompensation(12);
+            .withCurrentLimits(
+                new CurrentLimitsConfigs()
+                    .withStatorCurrentLimit(SwerveModuleConstants.kDriveMotorCurrentLimit)
+            )
+            .withOpenLoopRamps(
+                new OpenLoopRampsConfigs()
+                    .withDutyCycleOpenLoopRampPeriod(SwerveModuleConstants.kDriveMotorRampRate)
+                    .withVoltageOpenLoopRampPeriod(SwerveModuleConstants.kDriveMotorRampRate)
+            )
+            .withClosedLoopRamps(
+                new ClosedLoopRampsConfigs()
+                    .withDutyCycleClosedLoopRampPeriod(SwerveModuleConstants.kDriveMotorRampRate)
+                    .withVoltageClosedLoopRampPeriod(SwerveModuleConstants.kDriveMotorRampRate)
+            )
+            .withVoltage(
+                new VoltageConfigs()
+                    .withPeakForwardVoltage(12)
+            )
+            .withMotorOutput(
+                new MotorOutputConfigs()
+                    .withNeutralMode(NeutralModeValue.Brake)
+            )
+            .withAudio(
+                new AudioConfigs()
+                    .withAllowMusicDurDisable(true)
+                    .withBeepOnBoot(true)
+                    .withBeepOnConfig(true)
+            );
 
-        // Configure the drive encoder
-        this.driveConfig.encoder
-            .positionConversionFactor(Constants.SwerveDriveConstants.PhysicalModel.kDriveEncoder_RotationToMeter)
-            .velocityConversionFactor(Constants.SwerveDriveConstants.PhysicalModel.kDriveEncoder_RPMToMeterPerSecond)
-            // TODO: Verify these options
-            .uvwMeasurementPeriod(10)
-            .uvwAverageDepth(2);
+        // * Encoder should not be configured within the TalonFX, instead the value should be calculated afterwards
 
         // Apply config to drive motor
-        this.driveMotor.configure(driveConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+        this.driveMotor.getConfigurator().apply(driveConfig);
 
         // * Create Turn motor and configure it
         this.turnMotor = new SparkMax(options.turningMotorID, MotorType.kBrushless);
@@ -173,10 +201,9 @@ public class SwerveModule extends SubsystemBase {
      * Check if the devices are reachable
      */
     private final void deviceCheck() {
-        try {
-            driveMotor.getFirmwareVersion();
+        if (driveMotor.isConnected()) {
             alert_driveMotorUnreachable.set(false);
-        } catch (Exception e) {
+        } else {
             alert_driveMotorUnreachable.set(true);
             DriverStation.reportError(options.name +  " drive motor is unreachable", false);
         }
@@ -218,7 +245,7 @@ public class SwerveModule extends SubsystemBase {
      * Reset the drive encoder (set the position to 0)
      */
     public void resetDriveEncoder() {
-        this.driveMotor.getEncoder().setPosition(0);
+        this.driveMotor.setPosition(0);
     }
 
     /**
@@ -281,7 +308,7 @@ public class SwerveModule extends SubsystemBase {
         //if (lock.isLocked()) return;
 
         // Set motor speeds
-        driveMotor.set(state.speedMetersPerSecond / Constants.SwerveDriveConstants.PhysicalModel.kMaxSpeed.in(MetersPerSecond));
+        driveMotor.setVoltage(state.speedMetersPerSecond / Constants.SwerveDriveConstants.PhysicalModel.kMaxSpeed.in(MetersPerSecond) * 12);
         turnPID.setReference(state.angle.getRotations(), ControlType.kPosition);
     }
 
@@ -307,7 +334,7 @@ public class SwerveModule extends SubsystemBase {
      */
     public SwerveModuleState getRealState() {
         return new SwerveModuleState(
-            this.driveMotor.getEncoder().getVelocity() * Math.PI,
+            this.driveMotor.getVelocity().getValueAsDouble() * 60 * Constants.SwerveDriveConstants.PhysicalModel.kDriveEncoder_RPMToMeterPerSecond,
             Rotation2d.fromRotations(this.getAngle().in(Rotations))
         );
     }
@@ -318,7 +345,7 @@ public class SwerveModule extends SubsystemBase {
      */
     public SwerveModulePosition getPosition() {
         return new SwerveModulePosition(
-            this.driveMotor.getEncoder().getPosition() * Math.PI,
+            this.driveMotor.getPosition().getValueAsDouble() * Constants.SwerveDriveConstants.PhysicalModel.kDriveEncoder_RotationToMeter,
             Rotation2d.fromRotations(this.getAngle().in(Rotations))
         );
     }
