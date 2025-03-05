@@ -1,7 +1,9 @@
 package frc.robot.commands.CompoundCommands;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants.RobotState;
@@ -18,6 +20,16 @@ public class ScoringCommands {
             new WaitCommand(0.5),
             // * If it is for trough, make the wrist parallel
             wrist.setSetpointCommand(level.getWristPosition())
+        );
+    }
+
+    public static Command scorePositionAutoCommand(RobotState level, Elevator elevator, CoralIntakeArm arm, CoralIntakeWrist wrist) {
+        return new SequentialCommandGroup(
+            new InstantCommand(() -> arm.setSetpoint(level.getArmPosition())),
+            new InstantCommand(() -> elevator.setSetpoint(level.getElevatorPosition())),
+            new WaitCommand(0.5),
+            // * If it is for trough, make the wrist parallel
+            new InstantCommand(() -> wrist.setSetpoint(level.getWristPosition()))
         );
     }
     

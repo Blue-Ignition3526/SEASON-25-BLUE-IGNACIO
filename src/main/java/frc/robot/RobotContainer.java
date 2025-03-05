@@ -93,7 +93,7 @@ public class RobotContainer {
   // * Odometry and Vision
   private final LimelightOdometryCamera m_limelight3G;
   private final BlueShiftOdometry m_odometry;
-  private final double m_visionPeriod = 0.1;
+  private final double m_visionPeriod = 0.02;
 
   // * Autonomous
   private final SendableChooser<Command> m_autonomousChooser;
@@ -130,6 +130,8 @@ public class RobotContainer {
     this.m_limelight3G.enable();
     this.m_odometry.startVision();
 
+    SmartDashboard.putData("Odometry/ResetWithVision", new InstantCommand(m_odometry::setVisionPose));
+
     // * Speed alterators
     this.m_speedAlterator_turn180 = new Turn180(m_odometry::getEstimatedPosition);
     this.m_speedAlterator_lookAt = new LookController(this.m_gyro::getYaw, this.DRIVER::getRightX, this.DRIVER::getRightY, 0.1);
@@ -139,10 +141,11 @@ public class RobotContainer {
     // Register commands
     NamedCommands.registerCommands(new HashMap<String, Command>(){{
        put("Score-L1", new SequentialCommandGroup(
-        ScoringCommands.scorePositionCommand(RobotState.L1, m_elevator, m_coralIntakeArm, m_coralIntakeWrist),
+        ScoringCommands.scorePositionAutoCommand(RobotState.L1, m_elevator, m_coralIntakeArm, m_coralIntakeWrist),
         new WaitCommand(0.5),
         m_coralIntakeRollers.setOutCommand(),
-        new WaitCommand(0.5)
+        new WaitCommand(0.5),
+        m_coralIntakeRollers.stopCommand()
        ));
 
        put("Intake-Coral", new SequentialCommandGroup(

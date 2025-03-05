@@ -54,8 +54,15 @@ public class DriveSwerve extends Command {
     double rot = rotSpeed.get();
 
     // Apply deadzone to the joystick values
-    x = Math.abs(x) < Constants.SwerveDriveConstants.kJoystickDeadband ? 0 : x;
-    y = Math.abs(y) < Constants.SwerveDriveConstants.kJoystickDeadband ? 0 : y;
+    if(Math.hypot(x, y) > Constants.SwerveDriveConstants.kJoystickDeadband ) {
+      x = (x+((x>0 ? -1 : 1) * Constants.SwerveDriveConstants.kJoystickDeadband))*1/(1-Constants.SwerveDriveConstants.kJoystickDeadband);
+      y = (y+((y>0 ? -1 : 1) * Constants.SwerveDriveConstants.kJoystickDeadband))*1/(1-Constants.SwerveDriveConstants.kJoystickDeadband);
+    } else {
+      x = 0;
+      y = 0;
+    }
+    //x = Math.abs(x) < Constants.SwerveDriveConstants.kJoystickDeadband ? 0 : x;
+    //y = Math.abs(y) < Constants.SwerveDriveConstants.kJoystickDeadband ? 0 : y;
     rot = Math.abs(rot) < Constants.SwerveDriveConstants.kJoystickDeadband ? 0 : rot;
     
     // Scale the joystick values to the max speed
