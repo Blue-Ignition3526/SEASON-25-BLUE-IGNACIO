@@ -148,6 +148,31 @@ public class RobotContainer {
         m_coralIntakeRollers.stopCommand()
        ));
 
+       // TODO: Checar bien el wait que llegue
+       put("Score-L2", new SequentialCommandGroup(
+        ScoringCommands.scorePositionAutoCommand(RobotState.L2, m_elevator, m_coralIntakeArm, m_coralIntakeWrist),
+        new WaitCommand(0.5),
+        m_coralIntakeRollers.setOutCommand(),
+        new WaitCommand(0.5),
+        m_coralIntakeRollers.stopCommand()
+       ));
+
+       put("Score-L3", new SequentialCommandGroup(
+        ScoringCommands.scorePositionAutoCommand(RobotState.L3, m_elevator, m_coralIntakeArm, m_coralIntakeWrist),
+        new WaitCommand(0.5),
+        m_coralIntakeRollers.setOutCommand(),
+        new WaitCommand(0.5),
+        m_coralIntakeRollers.stopCommand()
+       ));
+
+       put("Score-L4", new SequentialCommandGroup(
+        ScoringCommands.scorePositionAutoCommand(RobotState.L4, m_elevator, m_coralIntakeArm, m_coralIntakeWrist),
+        new WaitCommand(0.5),
+        m_coralIntakeRollers.setOutCommand(),
+        new WaitCommand(0.5),
+        m_coralIntakeRollers.stopCommand()
+       ));
+
        put("Intake-Coral", new SequentialCommandGroup(
         ScoringCommands.scorePositionCommand(RobotState.SOURCE, m_elevator, m_coralIntakeArm, m_coralIntakeWrist),
         m_coralIntakeRollers.setInCommand(),
