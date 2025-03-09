@@ -324,7 +324,7 @@ public class SwerveModule extends SubsystemBase {
      */
     public SwerveModuleState getRealState() {
         return new SwerveModuleState(
-            this.driveMotor.getVelocity().getValueAsDouble() * 60 * Constants.SwerveDriveConstants.PhysicalModel.kDriveEncoder_RPMToMeterPerSecond,
+            this.driveMotor.getVelocity().getValueAsDouble() * 180 * Constants.SwerveDriveConstants.PhysicalModel.kDriveEncoder_RPMToMeterPerSecond,
             Rotation2d.fromRotations(this.getAngle().in(Rotations))
         );
     }
@@ -335,7 +335,7 @@ public class SwerveModule extends SubsystemBase {
      */
     public SwerveModulePosition getPosition() {
         return new SwerveModulePosition(
-            this.driveMotor.getPosition().getValueAsDouble() * Constants.SwerveDriveConstants.PhysicalModel.kDriveEncoder_RotationToMeter,
+            this.driveMotor.getPosition().getValueAsDouble() * 3 * Constants.SwerveDriveConstants.PhysicalModel.kDriveEncoder_RotationToMeter,
             Rotation2d.fromRotations(this.getAngle().in(Rotations))
         );
     }

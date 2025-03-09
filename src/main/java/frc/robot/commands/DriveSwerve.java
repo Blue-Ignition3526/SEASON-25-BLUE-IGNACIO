@@ -21,9 +21,9 @@ public class DriveSwerve extends Command {
   private final SwerveDrive swerveDrive;
 
   //* Slew rate limiters
-  SlewRateLimiter xLimiter = new SlewRateLimiter(Constants.SwerveDriveConstants.PhysicalModel.kMaxAcceleration.in(MetersPerSecondPerSecond));
-  SlewRateLimiter yLimiter = new SlewRateLimiter(Constants.SwerveDriveConstants.PhysicalModel.kMaxAcceleration.in(MetersPerSecondPerSecond));
-  SlewRateLimiter rotLimiter = new SlewRateLimiter(Constants.SwerveDriveConstants.PhysicalModel.kMaxAngularAcceleration.in(RadiansPerSecond.per(Second)));
+  SlewRateLimiter xLimiter = new SlewRateLimiter(Constants.SwerveDriveConstants.PhysicalModel.kMaxAcceleration.in(MetersPerSecondPerSecond), Constants.SwerveDriveConstants.PhysicalModel.kMaxDeacceleration.in(MetersPerSecondPerSecond), 0);
+  SlewRateLimiter yLimiter = new SlewRateLimiter(Constants.SwerveDriveConstants.PhysicalModel.kMaxAcceleration.in(MetersPerSecondPerSecond), Constants.SwerveDriveConstants.PhysicalModel.kMaxDeacceleration.in(MetersPerSecondPerSecond), 0);
+  SlewRateLimiter rotLimiter = new SlewRateLimiter(Constants.SwerveDriveConstants.PhysicalModel.kMaxAngularAcceleration.in(RadiansPerSecond.per(Second)), Constants.SwerveDriveConstants.PhysicalModel.kMaxAngularDeacceleration.in(RadiansPerSecond.per(Second)), 0);
 
   //* The suppliers for the joystick values
   private final Supplier<Double> xSpeed;

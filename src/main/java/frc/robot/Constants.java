@@ -163,8 +163,9 @@ public class Constants {
     //* Swerve Drive
     public static final class SwerveDriveConstants {
         public static final class PoseControllers {
-            public static final ProfiledPIDController rotationPID = new ProfiledPIDController(36, 0, 0, new TrapezoidProfile.Constraints(400, 180));
-            public static final ProfiledPIDController translationPID = new ProfiledPIDController(5, 0, 0, new TrapezoidProfile.Constraints(4.5, 3.3526));
+            public static final ProfiledPIDController rotationPID = new ProfiledPIDController(10, 0, 0, new TrapezoidProfile.Constraints(400, 180));
+            public static final ProfiledPIDController translationXPID = new ProfiledPIDController(1, 0, 0, new TrapezoidProfile.Constraints(4.5, 3.3526));
+            public static final ProfiledPIDController translationYPID = new ProfiledPIDController(1, 0, 0, new TrapezoidProfile.Constraints(4.5, 3.3526));
 
             public static final double epsilon = 0.08;
             public static final double rotEpsilon = 0.5;
@@ -178,11 +179,13 @@ public class Constants {
         public static final class PhysicalModel {
             //* MAX DISPLACEMENT SPEED (and acceleration)
             public static final Measure<LinearVelocityUnit> kMaxSpeed = MetersPerSecond.of(4.6);
-            public static final Measure<LinearAccelerationUnit> kMaxAcceleration = MetersPerSecond.per(Second).of(20);
+            public static final Measure<LinearAccelerationUnit> kMaxAcceleration = MetersPerSecond.per(Second).of(10);
+            public static final Measure<LinearAccelerationUnit> kMaxDeacceleration = MetersPerSecond.per(Second).of(-15);
 
             //* MAX ROTATIONAL SPEED (and acceleration)
             public static final Measure<AngularVelocityUnit> kMaxAngularSpeed = DegreesPerSecond.of(360);
-            public static final Measure<AngularAccelerationUnit> kMaxAngularAcceleration = DegreesPerSecond.per(Second).of(Math.pow(360, 2));
+            public static final Measure<AngularAccelerationUnit> kMaxAngularAcceleration = DegreesPerSecond.per(Second).of(360);
+            public static final Measure<AngularAccelerationUnit> kMaxAngularDeacceleration = DegreesPerSecond.per(Second).of(-1080);
 
             // Drive wheel diameter
             public static final Measure<DistanceUnit> kWheelDiameter = Inches.of(4);

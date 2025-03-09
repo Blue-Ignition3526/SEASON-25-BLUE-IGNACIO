@@ -9,6 +9,7 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.util.DriveFeedforwards;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -77,6 +78,7 @@ public class RobotContainer {
   private final SpeedAlterator m_speedAlterator_turn180;
   private final SpeedAlterator m_speedAlterator_lookAt;
   private final SpeedAlterator m_speedAlterator_backUp;
+  private final SpeedAlterator m_speedAlterator_goToPose;
 
   // * Elevator
   private final Elevator m_elevator;
@@ -134,6 +136,8 @@ public class RobotContainer {
     this.m_speedAlterator_turn180 = new Turn180(m_odometry::getEstimatedPosition);
     this.m_speedAlterator_lookAt = new LookController(this.m_gyro::getYaw, this.DRIVER::getRightX, this.DRIVER::getRightY, 0.1);
     this.m_speedAlterator_backUp = new BackUp(-0.1, m_gyro::getHeading);
+    this.m_speedAlterator_goToPose = new GoToPose(m_odometry::getEstimatedPosition, new Pose2d(new Translation2d(3.2, 4), Rotation2d.fromDegrees(180)));
+
     
     // * Autonomous
     // Register commands
@@ -237,12 +241,14 @@ public class RobotContainer {
     Trigger lookAtTrigger = new Trigger(() -> 
       Math.abs(DRIVER.getRightX()) > SwerveDriveConstants.kJoystickDeadband ||
       Math.abs(DRIVER.getRightY()) > SwerveDriveConstants.kJoystickDeadband
-    );
-
-    // Binding
-    lookAtTrigger.onTrue(m_swerveDrive.enableSpeedAlteratorCommand(m_speedAlterator_lookAt));
-    lookAtTrigger.onFalse(m_swerveDrive.disableSpeedAlteratorCommand());
-
+      );
+      
+      // Binding
+      lookAtTrigger.onTrue(m_swerveDrive.enableSpeedAlteratorCommand(m_speedAlterator_lookAt));
+      lookAtTrigger.onFalse(m_swerveDrive.disableSpeedAlteratorCommand());
+      this.DRIVER.rightBumper().onTrue(m_swerveDrive.enableSpeedAlteratorCommand(m_speedAlterator_goToPose));
+      this.DRIVER.rightBumper().onFalse(m_swerveDrive.disableSpeedAlteratorCommand());
+      
     // * Turn 180
     this.DRIVER.leftBumper().onTrue(m_swerveDrive.enableSpeedAlteratorCommand(m_speedAlterator_turn180));
     this.DRIVER.leftBumper().onFalse(m_swerveDrive.disableSpeedAlteratorCommand());
@@ -259,6 +265,7 @@ public class RobotContainer {
       ScoringCommands.scorePositionCommand(RobotState.L1, m_elevator, m_coralIntakeArm, m_coralIntakeWrist),
       m_coralIntakeRollers.stopCommand()
     ));
+
 
     // ! OPERATOR BINDINGS
     // * Manuel Elevator
