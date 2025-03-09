@@ -87,17 +87,13 @@ public class SwerveModule extends SubsystemBase {
         this.driveConfig
             .withCurrentLimits(
                 new CurrentLimitsConfigs()
-                    .withStatorCurrentLimit(SwerveModuleConstants.kDriveMotorCurrentLimit)
+                    .withSupplyCurrentLimit(SwerveModuleConstants.kDriveMotorCurrentLimit)
+                    .withSupplyCurrentLowerLimit(SwerveModuleConstants.kDriveMotorLowerCurrentLimit)
+                    .withSupplyCurrentLowerTime(0.5)
             )
             .withOpenLoopRamps(
                 new OpenLoopRampsConfigs()
-                    .withDutyCycleOpenLoopRampPeriod(SwerveModuleConstants.kDriveMotorRampRate)
                     .withVoltageOpenLoopRampPeriod(SwerveModuleConstants.kDriveMotorRampRate)
-            )
-            .withClosedLoopRamps(
-                new ClosedLoopRampsConfigs()
-                    .withDutyCycleClosedLoopRampPeriod(SwerveModuleConstants.kDriveMotorRampRate)
-                    .withVoltageClosedLoopRampPeriod(SwerveModuleConstants.kDriveMotorRampRate)
             )
             .withVoltage(
                 new VoltageConfigs()
@@ -106,12 +102,6 @@ public class SwerveModule extends SubsystemBase {
             .withMotorOutput(
                 new MotorOutputConfigs()
                     .withNeutralMode(NeutralModeValue.Brake)
-            )
-            .withAudio(
-                new AudioConfigs()
-                    .withAllowMusicDurDisable(true)
-                    .withBeepOnBoot(true)
-                    .withBeepOnConfig(true)
             );
 
         // * Encoder should not be configured within the TalonFX, instead the value should be calculated afterwards

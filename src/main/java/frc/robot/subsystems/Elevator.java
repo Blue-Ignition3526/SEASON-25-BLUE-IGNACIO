@@ -91,17 +91,13 @@ public class Elevator extends SubsystemBase {
     this.rightElevatorMotorConfig
       .withCurrentLimits(
           new CurrentLimitsConfigs()
-              .withStatorCurrentLimit(ElevatorConstants.kElevatorMotorCurrentLimit)
+              .withSupplyCurrentLimit(ElevatorConstants.kElevatorMotorCurrentLimit)
+              .withSupplyCurrentLowerLimit(ElevatorConstants.kElevatorMotorLowerCurrentLimit)
+              .withSupplyCurrentLowerTime(0.5)
       )
       .withOpenLoopRamps(
           new OpenLoopRampsConfigs()
-              .withDutyCycleOpenLoopRampPeriod(ElevatorConstants.kElevatorMotorRampRate)
               .withVoltageOpenLoopRampPeriod(ElevatorConstants.kElevatorMotorRampRate)
-      )
-      .withClosedLoopRamps(
-          new ClosedLoopRampsConfigs()
-              .withDutyCycleClosedLoopRampPeriod(ElevatorConstants.kElevatorMotorRampRate)
-              .withVoltageClosedLoopRampPeriod(ElevatorConstants.kElevatorMotorRampRate)
       )
       .withVoltage(
           new VoltageConfigs()
@@ -111,12 +107,6 @@ public class Elevator extends SubsystemBase {
           new MotorOutputConfigs()
               .withNeutralMode(NeutralModeValue.Brake)
 			  .withInverted(InvertedValue.Clockwise_Positive)
-      )
-      .withAudio(
-          new AudioConfigs()
-              .withAllowMusicDurDisable(true)
-              .withBeepOnBoot(true)
-              .withBeepOnConfig(true)
       );
 
     // Apply right motor configuration
@@ -130,17 +120,13 @@ public class Elevator extends SubsystemBase {
     this.leftElevatorMotorConfig
 		.withCurrentLimits(
 			new CurrentLimitsConfigs()
-				.withStatorCurrentLimit(ElevatorConstants.kElevatorMotorCurrentLimit)
+				.withSupplyCurrentLimit(ElevatorConstants.kElevatorMotorCurrentLimit)
+        .withSupplyCurrentLowerLimit(ElevatorConstants.kElevatorMotorLowerCurrentLimit)
+        .withSupplyCurrentLowerTime(0.5)
 		)
 		.withOpenLoopRamps(
 			new OpenLoopRampsConfigs()
-				.withDutyCycleOpenLoopRampPeriod(ElevatorConstants.kElevatorMotorRampRate)
 				.withVoltageOpenLoopRampPeriod(ElevatorConstants.kElevatorMotorRampRate)
-		)
-		.withClosedLoopRamps(
-			new ClosedLoopRampsConfigs()
-				.withDutyCycleClosedLoopRampPeriod(ElevatorConstants.kElevatorMotorRampRate)
-				.withVoltageClosedLoopRampPeriod(ElevatorConstants.kElevatorMotorRampRate)
 		)
 		.withVoltage(
 			new VoltageConfigs()
@@ -150,12 +136,6 @@ public class Elevator extends SubsystemBase {
 			new MotorOutputConfigs()
 				.withNeutralMode(NeutralModeValue.Brake)
 				.withInverted(InvertedValue.Clockwise_Positive)
-		)
-		.withAudio(
-			new AudioConfigs()
-				.withAllowMusicDurDisable(true)
-				.withBeepOnBoot(true)
-				.withBeepOnConfig(true)
 		);
 	
 	// Make left motor follow right motor

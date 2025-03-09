@@ -57,7 +57,7 @@ import frc.robot.speedAlterators.*;
 //TODO: QUE NO BAJE EL ELEVADOR DEL 0
 public class RobotContainer {
   // * Controllers
-  private final CustomController DRIVER = new CustomController(0, CustomControllerType.XBOX);
+  private final CustomController DRIVER = new CustomController(0, CustomControllerType.PS5);
   private final CustomController OPERATOR = new CustomController(1, CustomControllerType.PS5);
 
   // * Swerve Drive

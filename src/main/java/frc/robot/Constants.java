@@ -215,7 +215,8 @@ public class Constants {
             public static final double kTurningMotorRampRate = 0;
 
             // Current limits
-            public static final int kDriveMotorCurrentLimit = 40;
+            public static final int kDriveMotorCurrentLimit = 60;
+            public static final int kDriveMotorLowerCurrentLimit = 40;
             public static final int kTurningMotorCurrentLimit = 30;
 
             //* PID
@@ -304,7 +305,8 @@ public class Constants {
         public static final int kLeftMotorID = 31;
 
         // Motor configs
-        public static final int kElevatorMotorCurrentLimit = 40;
+        public static final int kElevatorMotorCurrentLimit = 60;
+        public static final int kElevatorMotorLowerCurrentLimit = 40;
         public static final int kElevatorMotorRampRate = 0;
 
         // Limits
