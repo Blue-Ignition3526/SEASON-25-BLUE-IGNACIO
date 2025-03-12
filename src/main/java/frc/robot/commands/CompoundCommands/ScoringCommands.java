@@ -18,7 +18,6 @@ public class ScoringCommands {
             elevator.setSetpointCommand(level.getElevatorPosition()),
             arm.setSetpointCommand(level.getArmPosition()),
             Commands.waitSeconds(0.5),
-            // * If it is for trough, make the wrist parallel
             wrist.setSetpointCommand(level.getWristPosition())
         );
     }
@@ -28,22 +27,12 @@ public class ScoringCommands {
             new InstantCommand(() -> arm.setSetpoint(level.getArmPosition())),
             new InstantCommand(() -> elevator.setSetpoint(level.getElevatorPosition())),
             new WaitCommand(0.5),
-            // * If it is for trough, make the wrist parallel
             new InstantCommand(() -> wrist.setSetpoint(level.getWristPosition()))
         );
     }
     
+    // TODO: Add score sequences (really not that hard 😭)
     public static final Command scoreCommand(RobotState level, Elevator elevator, CoralIntakeArm arm, CoralIntakeWrist wrist, CoralIntakeRollers coralRollers) {
-        if (level == RobotState.L1) {
-            return new SequentialCommandGroup(
-                coralRollers.setOutCommand(),
-                new WaitCommand(0.5),
-                RobotCommands.stowCommand(wrist, arm, elevator)
-            );
-        } else {
-            return new SequentialCommandGroup(
-                
-            );
-        }
+        return null;
     }
 }
