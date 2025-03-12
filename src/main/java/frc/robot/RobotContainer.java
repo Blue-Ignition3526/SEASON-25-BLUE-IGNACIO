@@ -213,6 +213,11 @@ public class RobotContainer {
 
     SmartDashboard.putData("Elevator/ResetPosition", m_elevator.resetElevatorPositionCommand().ignoringDisable(true));
 
+    SmartDashboard.putData("Dev/ResetOdo", new InstantCommand(() -> m_odometry.resetPosition(new Pose2d(new Translation2d(4, 4), new Rotation2d()))));
+    SmartDashboard.putData("Dev/TransñationXPID", Constants.SwerveDriveConstants.PoseControllers.translationXPID);
+    SmartDashboard.putData("Dev/TransñationYPID", Constants.SwerveDriveConstants.PoseControllers.translationYPID);
+    SmartDashboard.putData("Dev/TransñationRotPID", Constants.SwerveDriveConstants.PoseControllers.rotationPID);
+
     // ! BIND PID RESETS
     Trigger enabledTrigger = new Trigger(DriverStation::isEnabled);
     enabledTrigger.onTrue(new SequentialCommandGroup(

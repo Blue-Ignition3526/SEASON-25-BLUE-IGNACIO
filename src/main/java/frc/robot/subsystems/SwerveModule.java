@@ -89,7 +89,8 @@ public class SwerveModule extends SubsystemBase {
                 new CurrentLimitsConfigs()
                     .withSupplyCurrentLimit(SwerveModuleConstants.kDriveMotorCurrentLimit)
                     .withSupplyCurrentLowerLimit(SwerveModuleConstants.kDriveMotorLowerCurrentLimit)
-                    .withSupplyCurrentLowerTime(0.5)
+                    .withSupplyCurrentLimitEnable(true)
+                    .withSupplyCurrentLowerTime(0.2)
             )
             .withOpenLoopRamps(
                 new OpenLoopRampsConfigs()

@@ -3,6 +3,7 @@ package frc.robot;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -167,9 +168,15 @@ public class Constants {
             public static final ProfiledPIDController translationXPID = new ProfiledPIDController(1, 0, 0, new TrapezoidProfile.Constraints(4.5, 3.3526));
             public static final ProfiledPIDController translationYPID = new ProfiledPIDController(1, 0, 0, new TrapezoidProfile.Constraints(4.5, 3.3526));
 
-            public static final double epsilon = 0.08;
-            public static final double rotEpsilon = 0.5;
+            public static final double epsilon = 0.05;
+            public static final double rotEpsilon = 1.;
         }
+
+        //* Slew rate limiters
+        public static final SlewRateLimiter yLimiter = new SlewRateLimiter(Constants.SwerveDriveConstants.PhysicalModel.kMaxAcceleration.in(MetersPerSecondPerSecond), Constants.SwerveDriveConstants.PhysicalModel.kMaxDeceleration.in(MetersPerSecondPerSecond), 0);
+        public static final SlewRateLimiter xLimiter = new SlewRateLimiter(Constants.SwerveDriveConstants.PhysicalModel.kMaxAcceleration.in(MetersPerSecondPerSecond), Constants.SwerveDriveConstants.PhysicalModel.kMaxDeceleration.in(MetersPerSecondPerSecond), 0);
+        public static final SlewRateLimiter rotLimiter = new SlewRateLimiter(Constants.SwerveDriveConstants.PhysicalModel.kMaxAngularAcceleration.in(RadiansPerSecond.per(Second)), Constants.SwerveDriveConstants.PhysicalModel.kMaxAngularDeceleration.in(RadiansPerSecond.per(Second)), 0);
+
 
         //* Gyroscope (Pigeon 2.0)
         public static final CTRECANDevice kGyroDevice = new CTRECANDevice(34, "*");
@@ -178,17 +185,17 @@ public class Constants {
         //* Physical model of the robot
         public static final class PhysicalModel {
             //* MAX DISPLACEMENT SPEED (and acceleration)
-            public static final Measure<LinearVelocityUnit> kMaxSpeed = MetersPerSecond.of(4.6);
-            public static final Measure<LinearAccelerationUnit> kMaxAcceleration = MetersPerSecond.per(Second).of(10);
-            public static final Measure<LinearAccelerationUnit> kMaxDeacceleration = MetersPerSecond.per(Second).of(-15);
+            public static final Measure<LinearVelocityUnit> kMaxSpeed = MetersPerSecond.of(4.0);
+            public static final Measure<LinearAccelerationUnit> kMaxAcceleration = MetersPerSecond.per(Second).of(8.0);
+            public static final Measure<LinearAccelerationUnit> kMaxDeceleration = MetersPerSecond.per(Second).of(-8.0);
 
             //* MAX ROTATIONAL SPEED (and acceleration)
-            public static final Measure<AngularVelocityUnit> kMaxAngularSpeed = DegreesPerSecond.of(360);
-            public static final Measure<AngularAccelerationUnit> kMaxAngularAcceleration = DegreesPerSecond.per(Second).of(360);
-            public static final Measure<AngularAccelerationUnit> kMaxAngularDeacceleration = DegreesPerSecond.per(Second).of(-1080);
+            public static final Measure<AngularVelocityUnit> kMaxAngularSpeed = DegreesPerSecond.of(180.0);
+            public static final Measure<AngularAccelerationUnit> kMaxAngularAcceleration = DegreesPerSecond.per(Second).of(360.0);
+            public static final Measure<AngularAccelerationUnit> kMaxAngularDeceleration = DegreesPerSecond.per(Second).of(-360.0);
 
             // Drive wheel diameter
-            public static final Measure<DistanceUnit> kWheelDiameter = Inches.of(4);
+            public static final Measure<DistanceUnit> kWheelDiameter = Inches.of(3.3526);
 
             // Gear ratios
             public static final double kDriveMotorGearRatio = 1.0 / 6.75; // 6.12:1 Drive
@@ -218,8 +225,8 @@ public class Constants {
             public static final double kTurningMotorRampRate = 0;
 
             // Current limits
-            public static final int kDriveMotorCurrentLimit = 60;
-            public static final int kDriveMotorLowerCurrentLimit = 40;
+            public static final int kDriveMotorCurrentLimit = 40;
+            public static final int kDriveMotorLowerCurrentLimit = 30;
             public static final int kTurningMotorCurrentLimit = 30;
 
             //* PID
