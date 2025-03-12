@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.ArmPivotConstants;
 import frc.robot.Constants.SwerveDriveConstants;
+import frc.robot.Constants.SwerveDriveConstants.ReefBranch;
 import frc.robot.Constants.RobotState;
 import frc.robot.commands.DriveSwerve;
 import frc.robot.commands.CompoundCommands.ScoringCommands;
@@ -236,6 +237,9 @@ public class RobotContainer {
     SmartDashboard.putData("ArmPivot/HighAngle", m_coralIntakeArm.setSetpointCommand(ArmPivotConstants.kHighAngle).ignoringDisable(true));
 
     SmartDashboard.putData("Elevator/ResetPosition", m_elevator.resetElevatorPositionCommand().ignoringDisable(true));
+
+    SmartDashboard.putData("PathFindToReefBranchA", AutoBuilder.pathfindToPose(ReefBranch.A.getPose(), SwerveDriveConstants.PhysicalModel.kPathConstraints));
+    SmartDashboard.putData("PathFindToReefBranchB", AutoBuilder.pathfindToPose(ReefBranch.B.getPose(), SwerveDriveConstants.PhysicalModel.kPathConstraints));
 
     // ! BIND PID RESETS
     Trigger enabledTrigger = new Trigger(DriverStation::isEnabled);

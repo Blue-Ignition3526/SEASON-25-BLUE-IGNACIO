@@ -7,13 +7,14 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.units.AngularAccelerationUnit;
-import edu.wpi.first.units.AngularVelocityUnit;
-import edu.wpi.first.units.DistanceUnit;
-import edu.wpi.first.units.LinearAccelerationUnit;
 import edu.wpi.first.units.LinearVelocityUnit;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularAcceleration;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.LinearAcceleration;
+import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.util.Color;
 import frc.robot.subsystems.Elevator.ElevatorPosition;
 import frc.robot.subsystems.CoralIntakeArm.ArmPosition;
@@ -25,6 +26,7 @@ import lib.BlueShift.utils.SwerveChassis;
 import static edu.wpi.first.units.Units.*;
 
 import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.path.PathConstraints;
 
 public class Constants {
     //* Logging options
@@ -177,15 +179,15 @@ public class Constants {
         //* Physical model of the robot
         public static final class PhysicalModel {
             //* MAX DISPLACEMENT SPEED (and acceleration)
-            public static final Measure<LinearVelocityUnit> kMaxSpeed = MetersPerSecond.of(4.6);
-            public static final Measure<LinearAccelerationUnit> kMaxAcceleration = MetersPerSecond.per(Second).of(20);
+            public static final LinearVelocity kMaxSpeed = MetersPerSecond.of(4.6);
+            public static final LinearAcceleration kMaxAcceleration = MetersPerSecond.per(Second).of(20);
 
             //* MAX ROTATIONAL SPEED (and acceleration)
-            public static final Measure<AngularVelocityUnit> kMaxAngularSpeed = DegreesPerSecond.of(360);
-            public static final Measure<AngularAccelerationUnit> kMaxAngularAcceleration = DegreesPerSecond.per(Second).of(Math.pow(360, 2));
+            public static final AngularVelocity kMaxAngularSpeed = DegreesPerSecond.of(360);
+            public static final AngularAcceleration kMaxAngularAcceleration = DegreesPerSecondPerSecond.of(360);
 
             // Drive wheel diameter
-            public static final Measure<DistanceUnit> kWheelDiameter = Inches.of(4);
+            public static final Distance kWheelDiameter = Inches.of(4);
 
             // Gear ratios
             public static final double kDriveMotorGearRatio = 1.0 / 6.75; // 6.12:1 Drive
@@ -200,11 +202,14 @@ public class Constants {
             public static final double kTurningEncoder_RPS = kTurningEncoder_Rotation / 60.0;
 
             // Robot Without bumpers measures
-            public static final Measure<DistanceUnit> kTrackWidth = Inches.of(26);
-            public static final Measure<DistanceUnit> kWheelBase = Inches.of(26);
+            public static final Distance kTrackWidth = Inches.of(26);
+            public static final Distance kWheelBase = Inches.of(26);
     
             // Create a kinematics instance with the positions of the swerve modules
             public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(SwerveChassis.sizeToModulePositions(kTrackWidth.in(Meters), kWheelBase.in(Meters)));
+
+            // Path constraints
+            public static final PathConstraints kPathConstraints = new PathConstraints(kMaxSpeed, kMaxAcceleration, kMaxAngularSpeed, kMaxAngularAcceleration);
         }
 
         //* Swerve modules configuration
@@ -251,18 +256,18 @@ public class Constants {
          * Poses for each reef branch
          */
         public static enum ReefBranch {
-            A(new Pose2d(0, 0, new Rotation2d())),
-            B(new Pose2d(0, 0, new Rotation2d())),
-            C(new Pose2d(0, 0, new Rotation2d())),
-            D(new Pose2d(0, 0, new Rotation2d())),
-            E(new Pose2d(0, 0, new Rotation2d())),
-            F(new Pose2d(0, 0, new Rotation2d())),
-            G(new Pose2d(0, 0, new Rotation2d())),
-            H(new Pose2d(0, 0, new Rotation2d())),
-            I(new Pose2d(0, 0, new Rotation2d())),
-            J(new Pose2d(0, 0, new Rotation2d())),
-            K(new Pose2d(0, 0, new Rotation2d())),
-            L(new Pose2d(0, 0, new Rotation2d()));
+            A(new Pose2d(3.194, 4.189, Rotation2d.fromDegrees(180))),
+            B(new Pose2d(3.194, 4.189, Rotation2d.fromDegrees(180))),
+            C(new Pose2d(0, 0, Rotation2d.fromDegrees(0))),
+            D(new Pose2d(0, 0, Rotation2d.fromDegrees(0))),
+            E(new Pose2d(0, 0, Rotation2d.fromDegrees(0))),
+            F(new Pose2d(0, 0, Rotation2d.fromDegrees(0))),
+            G(new Pose2d(0, 0, Rotation2d.fromDegrees(0))),
+            H(new Pose2d(0, 0, Rotation2d.fromDegrees(0))),
+            I(new Pose2d(0, 0, Rotation2d.fromDegrees(0))),
+            J(new Pose2d(0, 0, Rotation2d.fromDegrees(0))),
+            K(new Pose2d(0, 0, Rotation2d.fromDegrees(0))),
+            L(new Pose2d(0, 0, Rotation2d.fromDegrees(0)));
 
             private final Pose2d pose;
             private ReefBranch(Pose2d pose) { this.pose = pose; }
