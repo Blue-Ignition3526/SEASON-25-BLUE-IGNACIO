@@ -124,8 +124,8 @@ public class Constants {
         // TODO: Tune
         public static final Angle epsilon = Degrees.of(1);
         public static final ProfiledPIDController kWristPIDController = new ProfiledPIDController(
-            1.6, 0, 0.2, 
-            new TrapezoidProfile.Constraints(30, 45)
+            4.5, 0, 0.25, 
+            new TrapezoidProfile.Constraints(50, 42)
         );
     }
 
@@ -155,8 +155,8 @@ public class Constants {
         // TODO: Tune
         public static final Angle epsilon = Degrees.of(1);
         public static final ProfiledPIDController kArmPivotPIDController = new ProfiledPIDController(
-            28.0, 0, 0,
-            new TrapezoidProfile.Constraints(25, 40)
+            34.0, 0, 0,
+            new TrapezoidProfile.Constraints(30, 40)
         );
         public static final ArmFeedforward kArmPivotFeedforward = new ArmFeedforward(0.0, 0.0, 0.0);
     }
