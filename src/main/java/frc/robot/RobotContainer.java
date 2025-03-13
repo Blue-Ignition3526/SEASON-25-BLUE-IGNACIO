@@ -99,6 +99,9 @@ public class RobotContainer {
   // * Autonomous
   private final SendableChooser<Command> m_autonomousChooser;
 
+  // * Robot state
+  public RobotState m_robotState = RobotState.HOME;
+
   public RobotContainer() {
     // * Gyro
     m_gyro = new Gyro(new GyroIOPigeon(Constants.SwerveDriveConstants.kGyroDevice));
@@ -292,6 +295,9 @@ public class RobotContainer {
       m_coralIntakeRollers.stopCommand()
     ));
 
+    // * Driver score
+    this.DRIVER.topButton().onTrue(ScoringCommands.scoreCommand(m_robotState, m_coralIntakeArm, m_coralIntakeRollers));
+
     // ! OPERATOR BINDINGS
     // * Manuel Elevator
     // Options
@@ -337,10 +343,10 @@ public class RobotContainer {
     this.OPERATOR.rightTrigger().onTrue(this.m_coralIntakeArm.setSetpointCommand(ArmPosition.HIGH));
 
     // * Selected level bindings
-    // this.OPERATOR.povDown().onTrue(m_elevator.setSetpointCommand(ReefLevel.L1.getElevatorPosition()));
-    // this.OPERATOR.povLeft().onTrue(m_elevator.setSetpointCommand(ReefLevel.L2.getElevatorPosition()));
-    // this.OPERATOR.povRight().onTrue(m_elevator.setSetpointCommand(ReefLevel.L3.getElevatorPosition()));
-    // this.OPERATOR.povUp().onTrue(m_elevator.setSetpointCommand(ReefLevel.L4.getElevatorPosition()));
+    this.OPERATOR.povDown().onTrue(new InstantCommand(() -> m_robotState = RobotState.L1));
+    this.OPERATOR.povLeft().onTrue(new InstantCommand(() -> m_robotState = RobotState.L2));
+    this.OPERATOR.povRight().onTrue(new InstantCommand(() -> m_robotState = RobotState.L3));
+    this.OPERATOR.povUp().onTrue(new InstantCommand(() -> m_robotState = RobotState.L4));
 
     this.OPERATOR.povDown().onTrue(ScoringCommands.scorePositionCommand(RobotState.L1, m_elevator, m_coralIntakeArm, m_coralIntakeWrist));
     this.OPERATOR.povLeft().onTrue(ScoringCommands.scorePositionCommand(RobotState.L2, m_elevator, m_coralIntakeArm, m_coralIntakeWrist));

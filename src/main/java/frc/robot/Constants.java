@@ -283,7 +283,7 @@ public class Constants {
     }
 
     public static enum RobotState {
-        HOME(ElevatorPosition.HOME, ArmPosition.HORIZONTAL, WristPosition.PARALLEL),
+        HOME(ElevatorPosition.HOME, ArmPosition.HIGH, WristPosition.PARALLEL),
         SOURCE(ElevatorPosition.SOURCE, ArmPosition.INTAKE, WristPosition.PARALLEL),
         L1(ElevatorPosition.L1, ArmPosition.HORIZONTAL, WristPosition.PARALLEL),
         L2(ElevatorPosition.L2, ArmPosition.HIGH, WristPosition.PERPENDICULAR),

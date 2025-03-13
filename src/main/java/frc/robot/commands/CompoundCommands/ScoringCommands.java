@@ -32,8 +32,7 @@ public class ScoringCommands {
         );
     }
     
-    // TODO: Add score sequences (really not that hard 😭)
-    public static final Command scoreCommand(RobotState level, Elevator elevator, CoralIntakeArm arm, CoralIntakeWrist wrist, CoralIntakeRollers coralRollers) {
+    public static final Command scoreCommand(RobotState level, CoralIntakeArm arm, CoralIntakeRollers coralRollers) {
         if (level == RobotState.L1) {
             return new SequentialCommandGroup(
                 coralRollers.setOutCommand(),
