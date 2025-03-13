@@ -12,6 +12,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -22,6 +23,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.ArmPivotConstants;
 import frc.robot.Constants.SwerveDriveConstants;
+import frc.robot.Constants.SwerveDriveConstants.ReefBranch;
 import frc.robot.Constants.RobotState;
 import frc.robot.commands.DriveSwerve;
 import frc.robot.commands.CompoundCommands.ScoringCommands;
@@ -95,10 +97,13 @@ public class RobotContainer {
   // * Odometry and Vision
   private final LimelightOdometryCamera m_limelight3G;
   private final BlueShiftOdometry m_odometry;
-  private final double m_visionPeriod = 0.1;
+  private final double m_visionPeriod = 0.02;
 
   // * Autonomous
   private final SendableChooser<Command> m_autonomousChooser;
+
+  // * Robot state
+  public RobotState m_robotState = RobotState.HOME;
 
   public RobotContainer() {
     // * Gyro
@@ -132,6 +137,8 @@ public class RobotContainer {
     this.m_limelight3G.enable();
     this.m_odometry.startVision();
 
+    SmartDashboard.putData("Odometry/ResetWithVision", new InstantCommand(m_odometry::setVisionPose));
+
     // * Speed alterators
     this.m_speedAlterator_turn180 = new Turn180(m_odometry::getEstimatedPosition);
     this.m_speedAlterator_lookAt = new LookController(this.m_gyro::getYaw, this.DRIVER::getRightX, this.DRIVER::getRightY, 0.1);
@@ -143,10 +150,36 @@ public class RobotContainer {
     // Register commands
     NamedCommands.registerCommands(new HashMap<String, Command>(){{
        put("Score-L1", new SequentialCommandGroup(
-        ScoringCommands.scorePositionCommand(RobotState.L1, m_elevator, m_coralIntakeArm, m_coralIntakeWrist),
+        ScoringCommands.scorePositionAutoCommand(RobotState.L1, m_elevator, m_coralIntakeArm, m_coralIntakeWrist),
         new WaitCommand(0.5),
         m_coralIntakeRollers.setOutCommand(),
-        new WaitCommand(0.5)
+        new WaitCommand(0.5),
+        m_coralIntakeRollers.stopCommand()
+       ));
+
+       // TODO: Checar bien el wait que llegue
+       put("Score-L2", new SequentialCommandGroup(
+        ScoringCommands.scorePositionAutoCommand(RobotState.L2, m_elevator, m_coralIntakeArm, m_coralIntakeWrist),
+        new WaitCommand(0.5),
+        m_coralIntakeRollers.setOutCommand(),
+        new WaitCommand(0.5),
+        m_coralIntakeRollers.stopCommand()
+       ));
+
+       put("Score-L3", new SequentialCommandGroup(
+        ScoringCommands.scorePositionAutoCommand(RobotState.L3, m_elevator, m_coralIntakeArm, m_coralIntakeWrist),
+        new WaitCommand(0.5),
+        m_coralIntakeRollers.setOutCommand(),
+        new WaitCommand(0.5),
+        m_coralIntakeRollers.stopCommand()
+       ));
+
+       put("Score-L4", new SequentialCommandGroup(
+        ScoringCommands.scorePositionAutoCommand(RobotState.L4, m_elevator, m_coralIntakeArm, m_coralIntakeWrist),
+        new WaitCommand(0.5),
+        m_coralIntakeRollers.setOutCommand(),
+        new WaitCommand(0.5),
+        m_coralIntakeRollers.stopCommand()
        ));
 
        put("Intake-Coral", new SequentialCommandGroup(
@@ -176,7 +209,7 @@ public class RobotContainer {
         new PIDConstants(0.5)
       ),
       ppRobotConfig,
-      () -> false,
+      () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue,
       m_swerveDrive
     );
 
@@ -214,9 +247,12 @@ public class RobotContainer {
     SmartDashboard.putData("Elevator/ResetPosition", m_elevator.resetElevatorPositionCommand().ignoringDisable(true));
 
     SmartDashboard.putData("Dev/ResetOdo", new InstantCommand(() -> m_odometry.resetPosition(new Pose2d(new Translation2d(4, 4), new Rotation2d()))));
-    SmartDashboard.putData("Dev/TransñationXPID", Constants.SwerveDriveConstants.PoseControllers.translationXPID);
-    SmartDashboard.putData("Dev/TransñationYPID", Constants.SwerveDriveConstants.PoseControllers.translationYPID);
-    SmartDashboard.putData("Dev/TransñationRotPID", Constants.SwerveDriveConstants.PoseControllers.rotationPID);
+    SmartDashboard.putData("Dev/TranslationXPID", Constants.SwerveDriveConstants.PoseControllers.translationXPID);
+    SmartDashboard.putData("Dev/TranslationYPID", Constants.SwerveDriveConstants.PoseControllers.translationYPID);
+    SmartDashboard.putData("Dev/TranslationRotPID", Constants.SwerveDriveConstants.PoseControllers.rotationPID);
+
+    SmartDashboard.putData("PathFindToReefBranchA", AutoBuilder.pathfindToPose(ReefBranch.A.getPose(), SwerveDriveConstants.PhysicalModel.kPathConstraints));
+    SmartDashboard.putData("PathFindToReefBranchB", AutoBuilder.pathfindToPose(ReefBranch.B.getPose(), SwerveDriveConstants.PhysicalModel.kPathConstraints));
 
     // ! BIND PID RESETS
     Trigger enabledTrigger = new Trigger(DriverStation::isEnabled);
@@ -271,6 +307,8 @@ public class RobotContainer {
       m_coralIntakeRollers.stopCommand()
     ));
 
+    // * Driver score
+    this.DRIVER.topButton().onTrue(ScoringCommands.scoreCommand(m_robotState, m_coralIntakeArm, m_coralIntakeRollers));
 
     // ! OPERATOR BINDINGS
     // * Manuel Elevator
@@ -317,10 +355,10 @@ public class RobotContainer {
     this.OPERATOR.rightTrigger().onTrue(this.m_coralIntakeArm.setSetpointCommand(ArmPosition.HIGH));
 
     // * Selected level bindings
-    // this.OPERATOR.povDown().onTrue(m_elevator.setSetpointCommand(ReefLevel.L1.getElevatorPosition()));
-    // this.OPERATOR.povLeft().onTrue(m_elevator.setSetpointCommand(ReefLevel.L2.getElevatorPosition()));
-    // this.OPERATOR.povRight().onTrue(m_elevator.setSetpointCommand(ReefLevel.L3.getElevatorPosition()));
-    // this.OPERATOR.povUp().onTrue(m_elevator.setSetpointCommand(ReefLevel.L4.getElevatorPosition()));
+    this.OPERATOR.povDown().onTrue(new InstantCommand(() -> m_robotState = RobotState.L1));
+    this.OPERATOR.povLeft().onTrue(new InstantCommand(() -> m_robotState = RobotState.L2));
+    this.OPERATOR.povRight().onTrue(new InstantCommand(() -> m_robotState = RobotState.L3));
+    this.OPERATOR.povUp().onTrue(new InstantCommand(() -> m_robotState = RobotState.L4));
 
     this.OPERATOR.povDown().onTrue(ScoringCommands.scorePositionCommand(RobotState.L1, m_elevator, m_coralIntakeArm, m_coralIntakeWrist));
     this.OPERATOR.povLeft().onTrue(ScoringCommands.scorePositionCommand(RobotState.L2, m_elevator, m_coralIntakeArm, m_coralIntakeWrist));

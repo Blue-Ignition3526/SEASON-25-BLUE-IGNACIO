@@ -36,7 +36,7 @@ public class DriveSwerve extends Command {
     input = Math.abs(input);
     
     // Apply deadband
-    input = input < Constants.SwerveDriveConstants.kJoystickDeadband ? 0 : input;
+    input = input > Constants.SwerveDriveConstants.kJoystickDeadband ? input : 0;
 
     // Scale input
     input *= scaleFactor;
@@ -70,13 +70,21 @@ public class DriveSwerve extends Command {
   @Override
   public void execute() {
     // Get the joystick values
+    // TODO: Fix in VS Code
     double x = modifyAxis(xSpeed.get(), Constants.SwerveDriveConstants.PhysicalModel.kMaxSpeed.in(MetersPerSecond), xLimiter);
     double y = modifyAxis(ySpeed.get(), Constants.SwerveDriveConstants.PhysicalModel.kMaxSpeed.in(MetersPerSecond), yLimiter);
     double rot = modifyAxis(rotSpeed.get(), Constants.SwerveDriveConstants.PhysicalModel.kMaxAngularSpeed.in(RadiansPerSecond), rotLimiter);
 
-    SmartDashboard.putNumber(getName() + "/X", x);
-    SmartDashboard.putNumber(getName() + "/Y", y);
-    SmartDashboard.putNumber(getName() + "/Rot", rot);
+    // Apply deadzone to the joystick values
+    if(Math.hypot(x, y) > Constants.SwerveDriveConstants.kJoystickDeadband ) {
+      x = (x+((x>0 ? -1 : 1) * Constants.SwerveDriveConstants.kJoystickDeadband))*1/(1-Constants.SwerveDriveConstants.kJoystickDeadband);
+      y = (y+((y>0 ? -1 : 1) * Constants.SwerveDriveConstants.kJoystickDeadband))*1/(1-Constants.SwerveDriveConstants.kJoystickDeadband);
+    } else {
+      x = 0;
+      y = 0;
+    }
+    
+    rot = Math.abs(rot) < Constants.SwerveDriveConstants.kJoystickDeadband ? 0 : rot;
     
     // Drive the swerve drive
     if (this.fieldRelative.get()) {
