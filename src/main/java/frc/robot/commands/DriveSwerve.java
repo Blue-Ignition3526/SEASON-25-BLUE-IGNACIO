@@ -12,24 +12,45 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Second;
 import frc.robot.Constants;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.SwerveDrive;
+import static frc.robot.Constants.SwerveDriveConstants.*;
 
 public class DriveSwerve extends Command {
 
   //* The swerve drive subsystem
   private final SwerveDrive swerveDrive;
 
-  //* Slew rate limiters
-  SlewRateLimiter xLimiter = new SlewRateLimiter(Constants.SwerveDriveConstants.PhysicalModel.kMaxAcceleration.in(MetersPerSecondPerSecond));
-  SlewRateLimiter yLimiter = new SlewRateLimiter(Constants.SwerveDriveConstants.PhysicalModel.kMaxAcceleration.in(MetersPerSecondPerSecond));
-  SlewRateLimiter rotLimiter = new SlewRateLimiter(Constants.SwerveDriveConstants.PhysicalModel.kMaxAngularAcceleration.in(RadiansPerSecond.per(Second)));
-
   //* The suppliers for the joystick values
   private final Supplier<Double> xSpeed;
   private final Supplier<Double> ySpeed;
   private final Supplier<Double> rotSpeed;
   private final Supplier<Boolean> fieldRelative;
+  
+  public double modifyAxis(double input, double scaleFactor, SlewRateLimiter slew) {
+    // Get sign
+    double sign = Math.signum(input);
+
+    // Use absolute value for calculations (needed so slew rate limiter acts correctly against negative acceleration)
+    input = Math.abs(input);
+    
+    // Apply deadband
+    input = input > Constants.SwerveDriveConstants.kJoystickDeadband ? input : 0;
+
+    // Scale input
+    input *= scaleFactor;
+
+    // Apply rate limit
+    slew.reset(input); // TODO: Check this
+    input = slew.calculate(input);
+
+    // Reapply the sign
+    input *= sign;
+
+    // Return the result
+    return input;
+  }
 
   public DriveSwerve(SwerveDrive swerveDrive, Supplier<Double> x, Supplier<Double> y, Supplier<Double> rot, Supplier<Boolean> fieldRelative) {
     this.swerveDrive = swerveDrive;
@@ -49,9 +70,10 @@ public class DriveSwerve extends Command {
   @Override
   public void execute() {
     // Get the joystick values
-    double x = xSpeed.get();
-    double y = ySpeed.get();
-    double rot = rotSpeed.get();
+    // TODO: Fix in VS Code
+    double x = modifyAxis(xSpeed.get(), Constants.SwerveDriveConstants.PhysicalModel.kMaxSpeed.in(MetersPerSecond), xLimiter);
+    double y = modifyAxis(ySpeed.get(), Constants.SwerveDriveConstants.PhysicalModel.kMaxSpeed.in(MetersPerSecond), yLimiter);
+    double rot = modifyAxis(rotSpeed.get(), Constants.SwerveDriveConstants.PhysicalModel.kMaxAngularSpeed.in(RadiansPerSecond), rotLimiter);
 
     // Apply deadzone to the joystick values
     if(Math.hypot(x, y) > Constants.SwerveDriveConstants.kJoystickDeadband ) {
@@ -61,20 +83,8 @@ public class DriveSwerve extends Command {
       x = 0;
       y = 0;
     }
-    //x = Math.abs(x) < Constants.SwerveDriveConstants.kJoystickDeadband ? 0 : x;
-    //y = Math.abs(y) < Constants.SwerveDriveConstants.kJoystickDeadband ? 0 : y;
-    rot = Math.abs(rot) < Constants.SwerveDriveConstants.kJoystickDeadband ? 0 : rot;
     
-    // Scale the joystick values to the max speed
-    x *= Constants.SwerveDriveConstants.PhysicalModel.kMaxSpeed.in(MetersPerSecond);
-    y *= Constants.SwerveDriveConstants.PhysicalModel.kMaxSpeed.in(MetersPerSecond);
-    rot *= Constants.SwerveDriveConstants.PhysicalModel.kMaxAngularSpeed.in(RadiansPerSecond);
-
-    //! Rate limiters use real units, they need to be applied after scaling
-    // Apply the slew rate limiters
-    x = xLimiter.calculate(x);
-    y = yLimiter.calculate(y);
-    rot = rotLimiter.calculate(rot);
+    rot = Math.abs(rot) < Constants.SwerveDriveConstants.kJoystickDeadband ? 0 : rot;
     
     // Drive the swerve drive
     if (this.fieldRelative.get()) {

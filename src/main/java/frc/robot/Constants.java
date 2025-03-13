@@ -3,6 +3,7 @@ package frc.robot;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -125,8 +126,8 @@ public class Constants {
         // TODO: Tune
         public static final Angle epsilon = Degrees.of(1);
         public static final ProfiledPIDController kWristPIDController = new ProfiledPIDController(
-            1.6, 0, 0.2, 
-            new TrapezoidProfile.Constraints(30, 45)
+            4.5, 0, 0.25, 
+            new TrapezoidProfile.Constraints(50, 42)
         );
     }
 
@@ -156,8 +157,8 @@ public class Constants {
         // TODO: Tune
         public static final Angle epsilon = Degrees.of(1);
         public static final ProfiledPIDController kArmPivotPIDController = new ProfiledPIDController(
-            28.0, 0, 0,
-            new TrapezoidProfile.Constraints(25, 40)
+            34.0, 0, 0,
+            new TrapezoidProfile.Constraints(30, 40)
         );
         public static final ArmFeedforward kArmPivotFeedforward = new ArmFeedforward(0.0, 0.0, 0.0);
     }
@@ -165,12 +166,19 @@ public class Constants {
     //* Swerve Drive
     public static final class SwerveDriveConstants {
         public static final class PoseControllers {
-            public static final ProfiledPIDController rotationPID = new ProfiledPIDController(36, 0, 0, new TrapezoidProfile.Constraints(400, 180));
-            public static final ProfiledPIDController translationPID = new ProfiledPIDController(5, 0, 0, new TrapezoidProfile.Constraints(4.5, 3.3526));
+            public static final ProfiledPIDController rotationPID = new ProfiledPIDController(10, 0, 0, new TrapezoidProfile.Constraints(400, 180));
+            public static final ProfiledPIDController translationXPID = new ProfiledPIDController(1, 0, 0, new TrapezoidProfile.Constraints(4.5, 3.3526));
+            public static final ProfiledPIDController translationYPID = new ProfiledPIDController(1, 0, 0, new TrapezoidProfile.Constraints(4.5, 3.3526));
 
-            public static final double epsilon = 0.08;
-            public static final double rotEpsilon = 0.5;
+            public static final double epsilon = 0.05;
+            public static final double rotEpsilon = 1.;
         }
+
+        //* Slew rate limiters
+        public static final SlewRateLimiter yLimiter = new SlewRateLimiter(Constants.SwerveDriveConstants.PhysicalModel.kMaxAcceleration.in(MetersPerSecondPerSecond), Constants.SwerveDriveConstants.PhysicalModel.kMaxDeceleration.in(MetersPerSecondPerSecond), 0);
+        public static final SlewRateLimiter xLimiter = new SlewRateLimiter(Constants.SwerveDriveConstants.PhysicalModel.kMaxAcceleration.in(MetersPerSecondPerSecond), Constants.SwerveDriveConstants.PhysicalModel.kMaxDeceleration.in(MetersPerSecondPerSecond), 0);
+        public static final SlewRateLimiter rotLimiter = new SlewRateLimiter(Constants.SwerveDriveConstants.PhysicalModel.kMaxAngularAcceleration.in(RadiansPerSecond.per(Second)), Constants.SwerveDriveConstants.PhysicalModel.kMaxAngularDeceleration.in(RadiansPerSecond.per(Second)), 0);
+
 
         //* Gyroscope (Pigeon 2.0)
         public static final CTRECANDevice kGyroDevice = new CTRECANDevice(34, "*");
@@ -221,6 +229,7 @@ public class Constants {
 
             // Current limits
             public static final int kDriveMotorCurrentLimit = 40;
+            public static final int kDriveMotorLowerCurrentLimit = 30;
             public static final int kTurningMotorCurrentLimit = 30;
 
             //* PID
@@ -310,6 +319,7 @@ public class Constants {
 
         // Motor configs
         public static final int kElevatorMotorCurrentLimit = 40;
+        public static final int kElevatorMotorLowerCurrentLimit = 30;
         public static final int kElevatorMotorRampRate = 0;
 
         // Limits

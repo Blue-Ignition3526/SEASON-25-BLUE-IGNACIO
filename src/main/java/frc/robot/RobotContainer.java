@@ -8,6 +8,8 @@ import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.util.DriveFeedforwards;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -78,6 +80,7 @@ public class RobotContainer {
   private final SpeedAlterator m_speedAlterator_turn180;
   private final SpeedAlterator m_speedAlterator_lookAt;
   private final SpeedAlterator m_speedAlterator_backUp;
+  private final SpeedAlterator m_speedAlterator_goToPose;
 
   // * Elevator
   private final Elevator m_elevator;
@@ -140,6 +143,8 @@ public class RobotContainer {
     this.m_speedAlterator_turn180 = new Turn180(m_odometry::getEstimatedPosition);
     this.m_speedAlterator_lookAt = new LookController(this.m_gyro::getYaw, this.DRIVER::getRightX, this.DRIVER::getRightY, 0.1);
     this.m_speedAlterator_backUp = new BackUp(-0.1, m_gyro::getHeading);
+    this.m_speedAlterator_goToPose = new GoToPose(m_odometry::getEstimatedPosition, new Pose2d(new Translation2d(3.2, 4), Rotation2d.fromDegrees(180)));
+
     
     // * Autonomous
     // Register commands
@@ -241,6 +246,11 @@ public class RobotContainer {
 
     SmartDashboard.putData("Elevator/ResetPosition", m_elevator.resetElevatorPositionCommand().ignoringDisable(true));
 
+    SmartDashboard.putData("Dev/ResetOdo", new InstantCommand(() -> m_odometry.resetPosition(new Pose2d(new Translation2d(4, 4), new Rotation2d()))));
+    SmartDashboard.putData("Dev/TranslationXPID", Constants.SwerveDriveConstants.PoseControllers.translationXPID);
+    SmartDashboard.putData("Dev/TranslationYPID", Constants.SwerveDriveConstants.PoseControllers.translationYPID);
+    SmartDashboard.putData("Dev/TranslationRotPID", Constants.SwerveDriveConstants.PoseControllers.rotationPID);
+
     SmartDashboard.putData("PathFindToReefBranchA", AutoBuilder.pathfindToPose(ReefBranch.A.getPose(), SwerveDriveConstants.PhysicalModel.kPathConstraints));
     SmartDashboard.putData("PathFindToReefBranchB", AutoBuilder.pathfindToPose(ReefBranch.B.getPose(), SwerveDriveConstants.PhysicalModel.kPathConstraints));
 
@@ -263,7 +273,7 @@ public class RobotContainer {
         m_swerveDrive,
         () -> -DRIVER.getLeftY(),
         () -> -DRIVER.getLeftX(),
-        () ->  DRIVER.getLeftTrigger() - DRIVER.getRightTrigger(),
+        () -> DRIVER.getLeftTrigger() - DRIVER.getRightTrigger(),
         () -> !DRIVER.bottomButton().getAsBoolean()
       )
     );
@@ -272,12 +282,14 @@ public class RobotContainer {
     Trigger lookAtTrigger = new Trigger(() -> 
       Math.abs(DRIVER.getRightX()) > SwerveDriveConstants.kJoystickDeadband ||
       Math.abs(DRIVER.getRightY()) > SwerveDriveConstants.kJoystickDeadband
-    );
-
-    // Binding
-    lookAtTrigger.onTrue(m_swerveDrive.enableSpeedAlteratorCommand(m_speedAlterator_lookAt));
-    lookAtTrigger.onFalse(m_swerveDrive.disableSpeedAlteratorCommand());
-
+      );
+      
+      // Binding
+      lookAtTrigger.onTrue(m_swerveDrive.enableSpeedAlteratorCommand(m_speedAlterator_lookAt));
+      lookAtTrigger.onFalse(m_swerveDrive.disableSpeedAlteratorCommand());
+      this.DRIVER.rightBumper().onTrue(m_swerveDrive.enableSpeedAlteratorCommand(m_speedAlterator_goToPose));
+      this.DRIVER.rightBumper().onFalse(m_swerveDrive.disableSpeedAlteratorCommand());
+      
     // * Turn 180
     this.DRIVER.leftBumper().onTrue(m_swerveDrive.enableSpeedAlteratorCommand(m_speedAlterator_turn180));
     this.DRIVER.leftBumper().onFalse(m_swerveDrive.disableSpeedAlteratorCommand());
@@ -301,11 +313,11 @@ public class RobotContainer {
     // ! OPERATOR BINDINGS
     // * Manuel Elevator
     // Options
-    this.OPERATOR.startButton().whileTrue(m_elevator.setVoltageCommand(10));
+    this.OPERATOR.startButton().whileTrue(m_elevator.setVoltageCommand(2));
     this.OPERATOR.startButton().onFalse(m_elevator.stopCommand());
 
     // Share
-    this.OPERATOR.backButton().whileTrue(m_elevator.setVoltageCommand(-10));
+    this.OPERATOR.backButton().whileTrue(m_elevator.setVoltageCommand(-2));
     this.OPERATOR.backButton().onFalse(m_elevator.stopCommand());
 
     // * Manuel Climbertake pivot

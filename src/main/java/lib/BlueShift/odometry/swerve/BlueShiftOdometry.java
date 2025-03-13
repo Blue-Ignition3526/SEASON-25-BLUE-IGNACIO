@@ -12,6 +12,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import lib.BlueShift.odometry.vision.OdometryCamera;
 import lib.BlueShift.odometry.vision.VisionOdometryPoseEstimate;
@@ -61,6 +62,9 @@ public class BlueShiftOdometry extends SubsystemBase {
         // Notifiers
         this.m_visionNotifier = new Notifier(this::updateVision);
         this.m_visionPeriod = visionPeriod;
+
+        // Commands
+        SmartDashboard.putData("BlueShiftOdometry/SetVisionPose", new InstantCommand(this::setVisionPose).ignoringDisable(true));
     }
 
     /**

@@ -9,7 +9,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import lib.BlueShift.control.SpeedAlterator;
 import frc.robot.Constants;
-import static frc.robot.Constants.SwerveDriveConstants.PoseControllers.epsilon;
 
 public class GoToPose extends SpeedAlterator{
     private final Supplier<Pose2d> poseSupplier;
@@ -33,10 +32,10 @@ public class GoToPose extends SpeedAlterator{
         Pose2d pose = poseSupplier.get();
 
         double xSpeed, ySpeed, rotSpeed;
-        if(Math.abs(pose.getX() - targetPose.getX()) > epsilon) xSpeed = Constants.SwerveDriveConstants.PoseControllers.translationPID.calculate(pose.getX(), targetPose.getX());
-        else xSpeed = speeds.vxMetersPerSecond;
-        if(Math.abs(pose.getY() - targetPose.getY()) > epsilon)ySpeed = Constants.SwerveDriveConstants.PoseControllers.translationPID.calculate(pose.getY(), targetPose.getY());
-        else ySpeed = speeds.vyMetersPerSecond;
+        /*if(Math.abs(pose.getX() - targetPose.getX()) > epsilon)*/ xSpeed = Constants.SwerveDriveConstants.PoseControllers.translationXPID.calculate(pose.getX(), targetPose.getX());
+        //else xSpeed = 0;//speeds.vxMetersPerSecond;
+        /*if(Math.abs(pose.getY() - targetPose.getY()) > epsilon)*/ ySpeed = Constants.SwerveDriveConstants.PoseControllers.translationYPID.calculate(pose.getY(), targetPose.getY());
+        //else ySpeed = 0;//speeds.vyMetersPerSecond;
 
         /*if(Math.abs(pose.getRotation().getRotations() - targetPose.getRotation().getRotations()) < rotEpsilon)*/ rotSpeed = Constants.SwerveDriveConstants.PoseControllers.rotationPID.calculate(pose.getRotation().getRotations(), targetPose.getRotation().getRotations());
         // else rotSpeed = speeds.omegaRadiansPerSecond;
