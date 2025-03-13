@@ -10,6 +10,7 @@ import frc.robot.subsystems.CoralIntakeArm;
 import frc.robot.subsystems.CoralIntakeRollers;
 import frc.robot.subsystems.CoralIntakeWrist;
 import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.CoralIntakeArm.ArmPosition;
 
 public class ScoringCommands {
     public static Command scorePositionCommand(RobotState level, Elevator elevator, CoralIntakeArm arm, CoralIntakeWrist wrist) {
@@ -33,6 +34,21 @@ public class ScoringCommands {
     
     // TODO: Add score sequences (really not that hard 😭)
     public static final Command scoreCommand(RobotState level, Elevator elevator, CoralIntakeArm arm, CoralIntakeWrist wrist, CoralIntakeRollers coralRollers) {
-        return null;
+        if (level == RobotState.L1) {
+            return new SequentialCommandGroup(
+                coralRollers.setOutCommand(),
+                new WaitCommand(0.25),
+                arm.setSetpointCommand(ArmPosition.HIGH),
+                coralRollers.stopCommand()
+            );
+        } else {
+            return new SequentialCommandGroup(
+                coralRollers.setOutCommand(),
+                new WaitCommand(0.5),
+                arm.setSetpointCommand(ArmPosition.HORIZONTAL)
+                // new WaitCommand(0.25),
+                // coralRollers.stopCommand()
+            );
+        }
     }
 }
