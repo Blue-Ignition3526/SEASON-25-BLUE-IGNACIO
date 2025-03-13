@@ -8,6 +8,9 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.units.AngularAccelerationUnit;
+import edu.wpi.first.units.AngularVelocityUnit;
+import edu.wpi.first.units.LinearAccelerationUnit;
 import edu.wpi.first.units.LinearVelocityUnit;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.measure.Angle;
@@ -187,12 +190,14 @@ public class Constants {
         //* Physical model of the robot
         public static final class PhysicalModel {
             //* MAX DISPLACEMENT SPEED (and acceleration)
-            public static final LinearVelocity kMaxSpeed = MetersPerSecond.of(4.6);
-            public static final LinearAcceleration kMaxAcceleration = MetersPerSecond.per(Second).of(20);
+            public static final LinearVelocity kMaxSpeed = MetersPerSecond.of(4.0);
+            public static final LinearAcceleration kMaxAcceleration = MetersPerSecond.per(Second).of(8.0);
+            public static final LinearAcceleration kMaxDeceleration = MetersPerSecond.per(Second).of(-8.0);
 
             //* MAX ROTATIONAL SPEED (and acceleration)
-            public static final AngularVelocity kMaxAngularSpeed = DegreesPerSecond.of(360);
-            public static final AngularAcceleration kMaxAngularAcceleration = DegreesPerSecondPerSecond.of(360);
+            public static final AngularVelocity kMaxAngularSpeed = DegreesPerSecond.of(180.0);
+            public static final AngularAcceleration kMaxAngularAcceleration = DegreesPerSecond.per(Second).of(360.0);
+            public static final AngularAcceleration kMaxAngularDeceleration = DegreesPerSecond.per(Second).of(-360.0);
 
             // Drive wheel diameter
             public static final Distance kWheelDiameter = Inches.of(4);
