@@ -66,14 +66,14 @@ public class Robot extends LoggedRobot {
     for (int port = 5800; port <= 5807; port++) PortForwarder.add(port, "photonvision.local", port);
 
     // * DataLogManager
-    try {
-      DataLogManager.start();
-      DataLogManager.logNetworkTables(true);
-      DriverStation.startDataLog(DataLogManager.getLog(), true);
-      Elastic.sendAlert(new ElasticNotification(NotificationLevel.INFO, "DataLogManager started", "DataLogManager started successfully."));
-    } catch (Exception e) {
-      Elastic.sendAlert(new ElasticNotification(NotificationLevel.ERROR, "DataLogManager failed to start", "DataLogManager failed to start."));
-    }
+    //try {
+    //  DataLogManager.start();
+    //  DataLogManager.logNetworkTables(true);
+    //  DriverStation.startDataLog(DataLogManager.getLog(), true);
+    //  Elastic.sendAlert(new ElasticNotification(NotificationLevel.INFO, "DataLogManager started", "DataLogManager started successfully."));
+    //} catch (Exception e) {
+    //  Elastic.sendAlert(new ElasticNotification(NotificationLevel.ERROR, "DataLogManager failed to start", "DataLogManager failed to start."));
+    //}
 
     // Start Reduxlib server
     CanandEventLoop.getInstance();

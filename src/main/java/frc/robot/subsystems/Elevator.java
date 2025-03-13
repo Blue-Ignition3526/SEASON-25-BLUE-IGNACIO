@@ -2,30 +2,18 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Rotations;
-
 import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.configs.AudioConfigs;
-import com.ctre.phoenix6.configs.ClosedLoopRampsConfigs;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.OpenLoopRampsConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.configs.VoltageConfigs;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.revrobotics.RelativeEncoder;
-import com.revrobotics.spark.SparkFlex;
-import com.revrobotics.spark.SparkBase.PersistMode;
-import com.revrobotics.spark.SparkBase.ResetMode;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.config.SparkFlexConfig;
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import frc.robot.Constants;
 import frc.robot.Constants.ElevatorConstants;
-import frc.robot.Constants.SwerveDriveConstants.SwerveModuleConstants;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -121,8 +109,8 @@ public class Elevator extends SubsystemBase {
 		.withCurrentLimits(
 			new CurrentLimitsConfigs()
 				.withSupplyCurrentLimit(ElevatorConstants.kElevatorMotorCurrentLimit)
-        .withSupplyCurrentLowerLimit(ElevatorConstants.kElevatorMotorLowerCurrentLimit)
-        .withSupplyCurrentLowerTime(0.5)
+				.withSupplyCurrentLowerLimit(ElevatorConstants.kElevatorMotorLowerCurrentLimit)
+				.withSupplyCurrentLowerTime(0.5)
 		)
 		.withOpenLoopRamps(
 			new OpenLoopRampsConfigs()
@@ -135,7 +123,6 @@ public class Elevator extends SubsystemBase {
 		.withMotorOutput(
 			new MotorOutputConfigs()
 				.withNeutralMode(NeutralModeValue.Brake)
-				.withInverted(InvertedValue.Clockwise_Positive)
 		);
 	
 	// Make left motor follow right motor

@@ -58,7 +58,7 @@ import frc.robot.speedAlterators.*;
 //TODO: QUE NO BAJE EL ELEVADOR DEL 0
 public class RobotContainer {
   // * Controllers
-  private final CustomController DRIVER = new CustomController(0, CustomControllerType.PS5);
+  private final CustomController DRIVER = new CustomController(0, CustomControllerType.XBOX);
   private final CustomController OPERATOR = new CustomController(1, CustomControllerType.PS5);
 
   // * Swerve Drive
@@ -237,7 +237,7 @@ public class RobotContainer {
         m_swerveDrive,
         () -> -DRIVER.getLeftY(),
         () -> -DRIVER.getLeftX(),
-        () ->  DRIVER.getLeftTrigger() - DRIVER.getRightTrigger(),
+        () -> DRIVER.getLeftTrigger() - DRIVER.getRightTrigger(),
         () -> !DRIVER.bottomButton().getAsBoolean()
       )
     );
@@ -275,11 +275,11 @@ public class RobotContainer {
     // ! OPERATOR BINDINGS
     // * Manuel Elevator
     // Options
-    this.OPERATOR.startButton().whileTrue(m_elevator.setVoltageCommand(10));
+    this.OPERATOR.startButton().whileTrue(m_elevator.setVoltageCommand(2));
     this.OPERATOR.startButton().onFalse(m_elevator.stopCommand());
 
     // Share
-    this.OPERATOR.backButton().whileTrue(m_elevator.setVoltageCommand(-10));
+    this.OPERATOR.backButton().whileTrue(m_elevator.setVoltageCommand(-2));
     this.OPERATOR.backButton().onFalse(m_elevator.stopCommand());
 
     // * Manuel Climbertake pivot

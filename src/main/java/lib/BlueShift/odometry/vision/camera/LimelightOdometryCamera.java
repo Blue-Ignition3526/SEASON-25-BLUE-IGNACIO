@@ -84,7 +84,9 @@ public class LimelightOdometryCamera extends SubsystemBase implements OdometryCa
 
     @Override
     public void periodic() {
-        LimelightHelpers.PoseEstimate poseEstimate = LimelightHelpers.getBotPoseEstimate_wpiBlue(m_cameraName);
-        Logger.recordOutput("BlueShiftOdometry/" + getCameraName() + "/Pose", poseEstimate.pose);
+        try {
+            LimelightHelpers.PoseEstimate poseEstimate = LimelightHelpers.getBotPoseEstimate_wpiBlue(m_cameraName);
+            Logger.recordOutput("BlueShiftOdometry/" + getCameraName() + "/Pose", poseEstimate.pose);
+        } catch (Exception e) {};
     }
 }

@@ -315,8 +315,8 @@ public class Constants {
         public static final int kLeftMotorID = 31;
 
         // Motor configs
-        public static final int kElevatorMotorCurrentLimit = 60;
-        public static final int kElevatorMotorLowerCurrentLimit = 40;
+        public static final int kElevatorMotorCurrentLimit = 40;
+        public static final int kElevatorMotorLowerCurrentLimit = 30;
         public static final int kElevatorMotorRampRate = 0;
 
         // Limits
