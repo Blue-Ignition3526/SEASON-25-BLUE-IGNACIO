@@ -51,13 +51,8 @@ import lib.BlueShift.odometry.vision.camera.VisionOdometryFilters;
 import lib.BlueShift.control.SpeedAlterator;
 import frc.robot.speedAlterators.*;
 
-// TODO: Check ALL POSITIONS
-// TODO: add grab position
-// TODO: Add intake and outtake to paths
-// TODO: Check operator bindings
-//TODO: Automate leaving game pieces
-
-//TODO: QUE NO BAJE EL ELEVADOR DEL 0
+// TODO: que cuando el pigeon sienta tilt, que se retaiga en elevador
+// TODO: QUE NO BAJE EL ELEVADOR DEL 0
 public class RobotContainer {
   // * Controllers
   private final CustomController DRIVER = new CustomController(0, CustomControllerType.XBOX);
@@ -205,8 +200,8 @@ public class RobotContainer {
       m_swerveDrive::getRobotRelativeChassisSpeeds,
       (ChassisSpeeds speeds, DriveFeedforwards ff) -> m_swerveDrive.drive(speeds),
       new PPHolonomicDriveController(
-        new PIDConstants(0.5),
-        new PIDConstants(0.5)
+        SwerveDriveConstants.AutonomousConstants.kTranslatePIDConstants,
+        SwerveDriveConstants.AutonomousConstants.kRotatePIDConstants
       ),
       ppRobotConfig,
       () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue,
@@ -250,9 +245,6 @@ public class RobotContainer {
     SmartDashboard.putData("Dev/TranslationXPID", Constants.SwerveDriveConstants.PoseControllers.translationXPID);
     SmartDashboard.putData("Dev/TranslationYPID", Constants.SwerveDriveConstants.PoseControllers.translationYPID);
     SmartDashboard.putData("Dev/TranslationRotPID", Constants.SwerveDriveConstants.PoseControllers.rotationPID);
-
-    SmartDashboard.putData("PathFindToReefBranchA", AutoBuilder.pathfindToPose(ReefBranch.A.getPose(), SwerveDriveConstants.PhysicalModel.kPathConstraints));
-    SmartDashboard.putData("PathFindToReefBranchB", AutoBuilder.pathfindToPose(ReefBranch.B.getPose(), SwerveDriveConstants.PhysicalModel.kPathConstraints));
 
     // ! BIND PID RESETS
     Trigger enabledTrigger = new Trigger(DriverStation::isEnabled);
