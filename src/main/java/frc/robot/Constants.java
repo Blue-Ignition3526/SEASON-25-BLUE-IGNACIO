@@ -177,12 +177,6 @@ public class Constants {
             public static final double rotEpsilon = 1.;
         }
 
-        //* Slew rate limiters
-        public static final SlewRateLimiter yLimiter = new SlewRateLimiter(Constants.SwerveDriveConstants.PhysicalModel.kMaxAcceleration.in(MetersPerSecondPerSecond), Constants.SwerveDriveConstants.PhysicalModel.kMaxDeceleration.in(MetersPerSecondPerSecond), 0);
-        public static final SlewRateLimiter xLimiter = new SlewRateLimiter(Constants.SwerveDriveConstants.PhysicalModel.kMaxAcceleration.in(MetersPerSecondPerSecond), Constants.SwerveDriveConstants.PhysicalModel.kMaxDeceleration.in(MetersPerSecondPerSecond), 0);
-        public static final SlewRateLimiter rotLimiter = new SlewRateLimiter(Constants.SwerveDriveConstants.PhysicalModel.kMaxAngularAcceleration.in(RadiansPerSecond.per(Second)), Constants.SwerveDriveConstants.PhysicalModel.kMaxAngularDeceleration.in(RadiansPerSecond.per(Second)), 0);
-
-
         //* Gyroscope (Pigeon 2.0)
         public static final CTRECANDevice kGyroDevice = new CTRECANDevice(34, "*");
 
@@ -198,6 +192,11 @@ public class Constants {
             public static final AngularVelocity kMaxAngularSpeed = DegreesPerSecond.of(180.0);
             public static final AngularAcceleration kMaxAngularAcceleration = DegreesPerSecond.per(Second).of(360.0);
             public static final AngularAcceleration kMaxAngularDeceleration = DegreesPerSecond.per(Second).of(-360.0);
+
+            //* Slew rate limiters
+            public static final SlewRateLimiter yLimiter = new SlewRateLimiter(Constants.SwerveDriveConstants.PhysicalModel.kMaxAcceleration.in(MetersPerSecondPerSecond), Constants.SwerveDriveConstants.PhysicalModel.kMaxDeceleration.in(MetersPerSecondPerSecond), 0);
+            public static final SlewRateLimiter xLimiter = new SlewRateLimiter(Constants.SwerveDriveConstants.PhysicalModel.kMaxAcceleration.in(MetersPerSecondPerSecond), Constants.SwerveDriveConstants.PhysicalModel.kMaxDeceleration.in(MetersPerSecondPerSecond), 0);
+            public static final SlewRateLimiter rotLimiter = new SlewRateLimiter(Constants.SwerveDriveConstants.PhysicalModel.kMaxAngularAcceleration.in(RadiansPerSecond.per(Second)), Constants.SwerveDriveConstants.PhysicalModel.kMaxAngularDeceleration.in(RadiansPerSecond.per(Second)), 0);
 
             // Drive wheel diameter
             public static final Distance kWheelDiameter = Inches.of(4);
@@ -331,13 +330,14 @@ public class Constants {
         public static final double kElevatorMaxHeight = 60.0;
         public static final double kElevatorMinHeight = 0.0;
 
-        // Controller
-        public static final ElevatorFeedforward kElevatorFeedforward = new ElevatorFeedforward(0.0, 0.0, 0.0);
-        public static final ProfiledPIDController kElevatorPIDController = new ProfiledPIDController(
-            2.2, 0, 0,
-            new TrapezoidProfile.Constraints(110, 130)
-        );
-        public static final double kElevatorTolerance = 1.0;
+        // Motion magic
+        public static final double kMotionMagicKP = 40;
+        public static final double kMotionMagicKV = 2;
+        public static final double kMotionMagicKG = 0.5;
+        public static final double kMotionMagicVelocity = 20;
+        public static final double kMotionMagicAcceleration = 15;
+        public static final double kSensorToMechanism = 4;
+        public static final double kElevatorTolerance = 0.1;
     }
 
     public static final class IntakeCoralConstants {

@@ -3,13 +3,18 @@ package frc.robot.subsystems;
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Rotations;
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.ClosedLoopRampsConfigs;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.FeedbackConfigs;
+import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
-import com.ctre.phoenix6.configs.OpenLoopRampsConfigs;
+import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.VoltageConfigs;
 import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import frc.robot.Constants;
@@ -27,12 +32,12 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Elevator extends SubsystemBase {
 	// * Setpoints
 	public static enum ElevatorPosition {
-		L1(118),
-		L2(178),
-		L3(324),
-		L4(600),
+		L1(1.0),
+		L2(2.0),
+		L3(3.0),
+		L4(8.5),
 		HOME(0.0),
-		SOURCE(128);
+		SOURCE(1.0);
 
 		private double position;
 
@@ -53,22 +58,18 @@ public class Elevator extends SubsystemBase {
 	private final TalonFX rightElevatorMotor;
 	private final TalonFXConfiguration rightElevatorMotorConfig;
 
-	// * Position status signal (right motor integrated encoder)
-	private final StatusSignal<Angle> positionStatusSignal;
-
-	// * Status
-	private double setpoint;
-	private ElevatorPosition setpointEnum = null;
-	private boolean pidEnabled = false;
-
 	// * Alerts
 	private Alert alert_leftMotorUnreachable = new Alert(getName() + " left motor unreachable.", AlertType.kError);
 	private Alert alert_rightMotorUnreachable = new Alert(getName() + " right motor unreachable.", AlertType.kError);
-	private Alert alert_encoderUnreachable = new Alert(getName() + " encoder unreachable.", AlertType.kError);
-	private Alert alert_pidDisabled = new Alert(getName() + " PID disabled.", AlertType.kInfo);
 
 	// * Device check
 	private Notifier deviceCheckNotifier = new Notifier(this::deviceCheck);
+
+	// * MotionMagic controller
+	private MotionMagicVoltage positionControl = new MotionMagicVoltage(0);
+
+	// * Status
+	private ElevatorPosition m_setpoint = ElevatorPosition.HOME;
 
 	public Elevator() {
     // * Right motor (MASTER)
@@ -83,19 +84,37 @@ public class Elevator extends SubsystemBase {
               .withSupplyCurrentLowerLimit(ElevatorConstants.kElevatorMotorLowerCurrentLimit)
               .withSupplyCurrentLowerTime(0.5)
       )
-      .withOpenLoopRamps(
-          new OpenLoopRampsConfigs()
-              .withVoltageOpenLoopRampPeriod(ElevatorConstants.kElevatorMotorRampRate)
+      .withClosedLoopRamps(
+          new ClosedLoopRampsConfigs()
+              .withVoltageClosedLoopRampPeriod(ElevatorConstants.kElevatorMotorRampRate)
       )
       .withVoltage(
           new VoltageConfigs()
               .withPeakForwardVoltage(12)
+			  .withPeakForwardVoltage(-12)
       )
       .withMotorOutput(
           new MotorOutputConfigs()
               .withNeutralMode(NeutralModeValue.Brake)
 			  .withInverted(InvertedValue.Clockwise_Positive)
-      );
+      )
+	  .withSlot0(
+		new Slot0Configs()
+			.withGravityType(GravityTypeValue.Elevator_Static)
+			.withKP(ElevatorConstants.kMotionMagicKP)
+			.withKV(ElevatorConstants.kMotionMagicKV)
+			.withKG(ElevatorConstants.kMotionMagicKG)
+	  )
+	  .withFeedback(
+		new FeedbackConfigs()
+			.withSensorToMechanismRatio(ElevatorConstants.kSensorToMechanism)
+	  )
+	  .withMotionMagic(
+		new MotionMagicConfigs()
+			.withMotionMagicCruiseVelocity(ElevatorConstants.kMotionMagicVelocity)
+			.withMotionMagicAcceleration(ElevatorConstants.kMotionMagicAcceleration)
+	);
+
 
     // Apply right motor configuration
     this.rightElevatorMotor.getConfigurator().apply(rightElevatorMotorConfig);
@@ -112,10 +131,6 @@ public class Elevator extends SubsystemBase {
 				.withSupplyCurrentLowerLimit(ElevatorConstants.kElevatorMotorLowerCurrentLimit)
 				.withSupplyCurrentLowerTime(0.5)
 		)
-		.withOpenLoopRamps(
-			new OpenLoopRampsConfigs()
-				.withVoltageOpenLoopRampPeriod(ElevatorConstants.kElevatorMotorRampRate)
-		)
 		.withVoltage(
 			new VoltageConfigs()
 				.withPeakForwardVoltage(12)
@@ -123,7 +138,7 @@ public class Elevator extends SubsystemBase {
 		.withMotorOutput(
 			new MotorOutputConfigs()
 				.withNeutralMode(NeutralModeValue.Brake)
-		);
+	);
 	
 	// Make left motor follow right motor
 	this.leftElevatorMotor.setControl(new Follower(ElevatorConstants.kRightMotorID, true));
@@ -132,13 +147,7 @@ public class Elevator extends SubsystemBase {
     this.leftElevatorMotor.getConfigurator().apply(leftElevatorMotorConfig);
 
     // * Encoder
-    this.positionStatusSignal = rightElevatorMotor.getPosition();
-
-    // * Set setpoint to initial postiion
-    this.setpoint = getPosition();
-
-    // * Elevator PID for tuning
-    SmartDashboard.putData("Elevator/PID", ElevatorConstants.kElevatorPIDController);
+	this.rightElevatorMotor.setPosition(0);
 
     // Start device check
     deviceCheckNotifier.startPeriodic(Constants.deviceCheckPeriod);
@@ -166,19 +175,7 @@ public class Elevator extends SubsystemBase {
 	 * @return
 	 */
 	public double getPosition() {
-		return this.positionStatusSignal.getValue().in(Rotations);
-	}
-
-	/**
-	 * Set the setpoint of the elevator
-	 * 
-	 * @param setpoint
-	 */
-	public void setSetpoint(double setpoint) {
-		resetPID();
-		this.setpoint = setpoint;
-		this.setpointEnum = null;
-		this.pidEnabled = true;
+		return this.rightElevatorMotor.getPosition().getValue().in(Rotations);
 	}
 
 	/**
@@ -187,22 +184,18 @@ public class Elevator extends SubsystemBase {
 	 * @param setpoint
 	 */
 	public void setSetpoint(ElevatorPosition setpoint) {
-		resetPID();
-		this.setpoint = setpoint.getPosition();
-		this.setpointEnum = setpoint;
-		this.pidEnabled = true;
+		this.m_setpoint = setpoint;
+		this.rightElevatorMotor.setControl(positionControl.withSlot(0).withPosition(setpoint.getPosition()));
 	}
 
 	/**
 	 * Stop the elevator
 	 */
 	public void stop() {
-		this.pidEnabled = false;
 		this.rightElevatorMotor.setVoltage(0);
 	}
 
 	public void setVoltage(double voltage) {
-		this.pidEnabled = false;
 		rightElevatorMotor.setVoltage(voltage);
 	}
 
@@ -214,45 +207,24 @@ public class Elevator extends SubsystemBase {
 		return runOnce(this::stop);
 	}
 
-	public Command setSetpointCommand(double setpoint) {
-		return runOnce(() -> setSetpoint(setpoint));
-	}
-
 	public Command setSetpointCommand(ElevatorPosition setpoint) {
-		return runOnce(() -> setSetpoint(setpoint));
+		return run(() -> setSetpoint(setpoint)).until(
+			() -> Math.abs(rightElevatorMotor.getPosition().getValueAsDouble() - setpoint.getPosition()) < ElevatorConstants.kElevatorTolerance
+		);
 	}
 
 	public Command resetElevatorPositionCommand() {
 		return runOnce(() -> rightElevatorMotor.setPosition(0));
 	}
 
-	public void resetPID() {
-		ElevatorConstants.kElevatorPIDController.reset(getPosition());
-	}
-
-	public Command resetPIDCommand() {
-		return runOnce(this::resetPID);
-	}
-
 	@Override
 	public void periodic() {
-		// This method will be called once per scheduler run
-		double currentPosition = getPosition();
-
-		// Calculate needed voltage
-		double pidOutputVolts = ElevatorConstants.kElevatorPIDController.calculate(currentPosition, setpoint);
-		double resultVolts = pidOutputVolts;
-
-		// Set the voltage to the motor
-		// ! CHECK APPLIED VOLTAGE IN THE DASHBOARD FIRST BEFORE POWERING THE MOTOR
-		if (pidEnabled)
-			rightElevatorMotor.setVoltage(resultVolts);
-
 		// Telemetry
 		SmartDashboard.putNumber("Elevator/AppliedOutput", rightElevatorMotor.get());
-		SmartDashboard.putNumber("Elevator/CurrentPosition", currentPosition);
-		SmartDashboard.putNumber("Elevator/SetpointPosition", setpoint);
-		SmartDashboard.putNumber("Elevator/SetpointVoltage", resultVolts);
+		SmartDashboard.putNumber("Elevator/CurrentPosition", getPosition());
+		SmartDashboard.putNumber("Elevator/SetpointPosition", m_setpoint.getPosition());
+		SmartDashboard.putNumber("Elevator/MotorSetpoint", positionControl.getPositionMeasure().baseUnitMagnitude());
+		SmartDashboard.putNumber("Elevator/SetpointVoltage", rightElevatorMotor.getMotorVoltage().getValueAsDouble());
 		SmartDashboard.putNumber("Elevator/LeftCurrent", leftElevatorMotor.getStatorCurrent().getValue().in(Amps));
 		SmartDashboard.putNumber("Elevator/RightCurrent", rightElevatorMotor.getStatorCurrent().getValue().in(Amps));
 	}

@@ -256,8 +256,7 @@ public class RobotContainer {
 
     // ! BIND PID RESETS
     Trigger enabledTrigger = new Trigger(DriverStation::isEnabled);
-    enabledTrigger.onTrue(new SequentialCommandGroup(
-      m_elevator.resetPIDCommand(),
+    enabledTrigger.onTrue(new ParallelCommandGroup(
       m_coralIntakeWrist.resetPIDCommand(),
       m_coralIntakeArm.resetPIDCommand()
     ));
