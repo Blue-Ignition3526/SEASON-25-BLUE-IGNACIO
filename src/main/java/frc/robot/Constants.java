@@ -15,6 +15,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.units.measure.Mass;
 import edu.wpi.first.wpilibj.util.Color;
 import frc.robot.subsystems.Elevator.ElevatorPosition;
 import frc.robot.subsystems.CoralIntakeArm.ArmPosition;
@@ -213,6 +214,13 @@ public class Constants {
             // Robot Without bumpers measures
             public static final Distance kTrackWidth = Inches.of(26);
             public static final Distance kWheelBase = Inches.of(26);
+
+            // Robot With bumpers measures 
+            public static final Distance kWidthWithBumpers = Meters.of(0.860);
+            public static final Distance kLengthWithBumpers = Meters.of(0.860);
+
+            // Robot mass
+            public static final Mass kRobotMass = Kilograms.of(59.600);
     
             // Create a kinematics instance with the positions of the swerve modules
             public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(SwerveChassis.sizeToModulePositions(kTrackWidth.in(Meters), kWheelBase.in(Meters)));

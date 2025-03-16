@@ -17,6 +17,8 @@ import frc.robot.util.LocalADStarAK;
 import lib.Elastic;
 import lib.Elastic.ElasticNotification;
 import lib.Elastic.ElasticNotification.NotificationLevel;
+
+import org.ironmaple.simulation.SimulatedArena;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
@@ -180,5 +182,7 @@ public class Robot extends LoggedRobot {
 
   /** This function is called periodically whilst in simulation. */
   @Override
-  public void simulationPeriodic() {}
+  public void simulationPeriodic() {
+    SimulatedArena.getInstance().simulationPeriodic();
+  }
 }
