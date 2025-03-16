@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
+import com.reduxrobotics.sensors.canandcolor.Canandcolor;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
@@ -16,80 +17,64 @@ import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.Constants.IntakeCoralConstants;
+import frc.robot.Constants.CoralIntakeRollerConstants;
 
-// TODO: Current piece detection
 public class CoralIntakeRollers extends SubsystemBase {
-  // * Upper motor
-  private final SparkMax upperMotor;
-  private final SparkMaxConfig upperMotorConfig;
+  // * Motor
+  private final SparkMax motor;
+  private final SparkMaxConfig motorConfig;
 
-  // * Lower motor
-  private final SparkMax lowerMotor;
-  private final SparkMaxConfig lowerMotorConfig;
+  // * Piece sensor
+  private final Canandcolor pieceSensor;
 
   // * Piece detection
-  private Debouncer detectionDebouncer = new Debouncer(0.25, DebounceType.kRising);
+  private Debouncer detectionDebouncer = new Debouncer(0.15, DebounceType.kRising);
   private boolean hasPiece = false;
 
   // *Alerts
-  private final Alert alert_upperMotorUnreachable = new Alert(getName() + " motor unreachable", AlertType.kError);
-  private final Alert alert_lowerMotorUnreachable = new Alert(getName() + " motor unreachable", AlertType.kError);
+  private final Alert alert_upperMotorUnreachable = new Alert(getName() + " motor unreachable.", AlertType.kError);
+  private final Alert alert_pieceSensorUnreachable = new Alert(getName() + " piece sensor unreachable.", AlertType.kError);
 
   // * Device check
   private final Notifier deviceCheckNotifier = new Notifier(this::deviceCheck);
 
   public CoralIntakeRollers() {
-    // Upper motor
-    this.upperMotor = new SparkMax(Constants.IntakeCoralConstants.kUpperMotorId, MotorType.kBrushless);
+    // * Motor
+    this.motor = new SparkMax(Constants.CoralIntakeRollerConstants.kUpperMotorId, MotorType.kBrushless);
 
     // Upper motor config
-    this.upperMotorConfig = new SparkMaxConfig();
-    this.upperMotorConfig
+    this.motorConfig = new SparkMaxConfig();
+    this.motorConfig
       .idleMode(IdleMode.kBrake)
-      .openLoopRampRate(IntakeCoralConstants.kMotorRampRate)
-      .closedLoopRampRate(IntakeCoralConstants.kMotorRampRate)
-      .smartCurrentLimit(IntakeCoralConstants.kMotorCurrentLimit)
+      .openLoopRampRate(CoralIntakeRollerConstants.kMotorRampRate)
+      .closedLoopRampRate(CoralIntakeRollerConstants.kMotorRampRate)
+      .smartCurrentLimit(CoralIntakeRollerConstants.kMotorCurrentLimit)
       .voltageCompensation(12);
 
     // Configure upper motor
-    this.upperMotor.configure(upperMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+    this.motor.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
 
-    // Lower motor 
-    this.lowerMotor = new SparkMax(Constants.IntakeCoralConstants.kLowerMotorId, MotorType.kBrushless);
-
-    // Lower motor config
-    this.lowerMotorConfig = new SparkMaxConfig();
-    this.lowerMotorConfig
-      .idleMode(IdleMode.kBrake)
-      .openLoopRampRate(IntakeCoralConstants.kMotorRampRate)
-      .closedLoopRampRate(IntakeCoralConstants.kMotorRampRate)
-      .smartCurrentLimit(IntakeCoralConstants.kMotorCurrentLimit)
-      .voltageCompensation(12)
-      // * Lower motor follows upper motor inverted
-      .follow(upperMotor, false);
-
-    this.lowerMotor.configure(lowerMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+    // * Piece sensor
+    this.pieceSensor = new Canandcolor(Constants.CoralIntakeRollerConstants.kPieceSensorId);
   
-    // Start device check notifier
+    // * Start device check notifier
     deviceCheckNotifier.startPeriodic(Constants.deviceCheckPeriod);
   }
 
   private void deviceCheck() {
     try {
-      upperMotor.getFirmwareVersion();
+      motor.getFirmwareVersion();
       alert_upperMotorUnreachable.set(false);
     } catch (Exception e) {
       alert_upperMotorUnreachable.set(true);
       DriverStation.reportError(getName() + " motor unreachable", false);
     }
 
-    try {
-      lowerMotor.getFirmwareVersion();
-      alert_lowerMotorUnreachable.set(false);
-    } catch (Exception e) {
-      alert_lowerMotorUnreachable.set(true);
-      DriverStation.reportError(getName() + " motor unreachable", false);
+    if (pieceSensor.isConnected()) {
+      alert_pieceSensorUnreachable.set(false);
+    } else {
+      alert_pieceSensorUnreachable.set(true);
+      DriverStation.reportError(getName() + " piece sensor unreachable", false);
     }
   }
 
@@ -98,21 +83,21 @@ public class CoralIntakeRollers extends SubsystemBase {
    * Sets the rollers to intake
    */
   public void setIn() {
-    upperMotor.setVoltage(Constants.IntakeCoralConstants.kRollersInVoltage);
+    motor.setVoltage(Constants.CoralIntakeRollerConstants.kRollersInVoltage);
   }
 
   /**
    * Sets the rollers to outtake
    */
   public void setOut() {
-    upperMotor.setVoltage(Constants.IntakeCoralConstants.kRollersOutVoltage);
+    motor.setVoltage(Constants.CoralIntakeRollerConstants.kRollersOutVoltage);
   }
 
   /**
    * Stops the rollers
    */
   public void stop() {
-    upperMotor.setVoltage(0);
+    motor.setVoltage(0);
   }
 
   /**
@@ -141,15 +126,6 @@ public class CoralIntakeRollers extends SubsystemBase {
 
   @Override
   public void periodic() {
-    double upperCurrent = upperMotor.getOutputCurrent();
-    double lowerCurrent = lowerMotor.getOutputCurrent();
-    double avgCurrent = (upperCurrent + lowerCurrent) * 0.5;
-
-    // Update piece detection debouncer
-    this.hasPiece = detectionDebouncer.calculate(upperMotor.getOutputCurrent() > Constants.IntakeCoralConstants.kPieceDetectionCurrent);
-
-    SmartDashboard.putNumber(getName() + "/UpperCurrent", upperCurrent);
-    SmartDashboard.putNumber(getName() + "/LowerCurrent", lowerCurrent);
-    SmartDashboard.putNumber(getName() + "/AvgCurrent", avgCurrent);
+    
   }
 }
