@@ -1,9 +1,7 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.SwerveModule;
 
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.configs.AudioConfigs;
-import com.ctre.phoenix6.configs.ClosedLoopRampsConfigs;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.OpenLoopRampsConfigs;
@@ -28,7 +26,6 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.Alert.AlertType;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.SwerveDriveConstants.SwerveModuleConstants;
 import lib.BlueShift.constants.SwerveModuleOptions;
@@ -36,9 +33,8 @@ import static edu.wpi.first.units.Units.*;
 import java.util.concurrent.locks.ReentrantLock;
 import org.littletonrobotics.junction.Logger;
 
-// TODO: It's probably better to store the status signals and refresh when needed
 // but for now this will do
-public class SwerveModule extends SubsystemBase {
+public class SwerveModuleIOReal implements SwerveModuleIO {
     // * Options for the module
     public final SwerveModuleOptions options;
 
@@ -77,7 +73,7 @@ public class SwerveModule extends SubsystemBase {
      * Create a new swerve module with the provided options
      * @param options
      */
-    public SwerveModule(SwerveModuleOptions options) {
+    public SwerveModuleIOReal(SwerveModuleOptions options) {
         // * Store the options
         this.options = options;
 
@@ -251,14 +247,6 @@ public class SwerveModule extends SubsystemBase {
     }
     
     /**
-     * Reset the drive and turning encoders
-     */
-    public void resetEncoders() {
-        resetDriveEncoder();
-        resetTurningEncoder();
-    }
-
-    /**
      * Get the current angle of the module
      * @return
      */
@@ -280,7 +268,7 @@ public class SwerveModule extends SubsystemBase {
      * @param force If true, the module will ignore the current speed and turn to the target angle
      */
     public void setTargetState(SwerveModuleState state, boolean force) {
-        if (Math.abs(state.speedMetersPerSecond) < Double.MIN_VALUE || force) {
+        if (Math.abs(state.speedMetersPerSecond) < Double.MIN_VALUE && !force) {
             stop();
             return;
         }
@@ -341,6 +329,7 @@ public class SwerveModule extends SubsystemBase {
         );
     }
 
+    @Override
     public void periodic() {
         Logger.recordOutput("SwerveDrive/" + this.options.name + "/MotEncoderDeg", this.getAngle().in(Radians));
         Logger.recordOutput("SwerveDrive/" + this.options.name + "/AbsEncoderDeg", this.getAbsoluteEncoderPosition().in(Radians));

@@ -7,25 +7,37 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Inner-ReefHG"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Score-L1"
+            "pathName": "Start-Center-K"
           }
         },
         {
           "type": "wait",
           "data": {
-            "waitTime": 0.5
+            "waitTime": 0.15
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Score"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.25
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Algae-L3"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "ReefHG-Source"
+            "pathName": "K-Station-L"
           }
         },
         {
@@ -35,63 +47,45 @@
           }
         },
         {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.5
-          }
-        },
-        {
           "type": "path",
           "data": {
-            "pathName": "Source-ReefCD"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Score-L1"
+            "pathName": "L-Station-A"
           }
         },
         {
           "type": "wait",
           "data": {
-            "waitTime": 0.5
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "ReefCD-Source"
+            "waitTime": 0.25
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "Intake-Coral"
+            "name": "Score"
           }
         },
         {
           "type": "wait",
           "data": {
-            "waitTime": 0.5
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Source-ReefCD"
+            "waitTime": 0.25
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "Score-L1"
+            "name": "Algae-L3"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "A-L-Station"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "Old",
+  "folder": null,
   "choreoAuto": false
 }

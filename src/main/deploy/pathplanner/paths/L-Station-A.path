@@ -3,35 +3,42 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.1086578369140623,
-        "y": 1.0886252267020087
+        "x": 1.3019726911846912,
+        "y": 7.142314496894696
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.4330793108258923,
-        "y": 1.3690159388950884
+        "x": 2.566831258240086,
+        "y": 6.025668940217161
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Station-L"
     },
     {
       "anchor": {
-        "x": 3.708941214425223,
-        "y": 2.9611271449497765
+        "x": 3.1941918630715804,
+        "y": 4.189733533308999
       },
       "prevControl": {
-        "x": 3.140316972769365,
-        "y": 1.5488630847120843
+        "x": 2.8787144828263544,
+        "y": 4.466243135873878
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Reef-A"
     }
   ],
   "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "ScorePosition-L4",
+      "waypointRelativePos": 0.7016949152542377,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 3.0,
     "maxAcceleration": 3.0,
@@ -42,13 +49,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -122.17297240639199
+    "rotation": 180.0
   },
   "reversed": false,
-  "folder": "Old",
+  "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 54.81122722857884
+    "rotation": -54.0
   },
   "useDefaultConstraints": true
 }
