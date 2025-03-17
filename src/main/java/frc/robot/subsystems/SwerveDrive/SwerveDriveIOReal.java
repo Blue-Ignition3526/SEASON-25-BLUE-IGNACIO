@@ -178,6 +178,10 @@ public class SwerveDriveIOReal implements SwerveDriveIO {
         this.drive(speeds);
     }
 
+    public void driveFieldRelative(double xSpeed, double ySpeed, double rotSpeed) {
+        this.driveFieldRelative(ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rotSpeed, getHeading()));
+    }
+
     /**
      * Drive the robot with the provided speeds <b>(ROBOT RELATIVE)</b>
      * @param speeds
@@ -185,6 +189,10 @@ public class SwerveDriveIOReal implements SwerveDriveIO {
     public void driveRobotRelative(ChassisSpeeds speeds) {
         this.drivingRobotRelative = true;
         this.drive(speeds);
+    }
+
+    public void driveRobotRelative(double xSpeed, double ySpeed, double rotSpeed) {
+        this.driveRobotRelative(new ChassisSpeeds(xSpeed, ySpeed, rotSpeed));
     }
 
     /**

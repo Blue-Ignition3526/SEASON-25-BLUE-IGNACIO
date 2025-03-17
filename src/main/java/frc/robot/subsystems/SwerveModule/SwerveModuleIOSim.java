@@ -32,10 +32,11 @@ public class SwerveModuleIOSim implements SwerveModuleIO {
     public SwerveModuleIOSim(SwerveModuleSimulation simulation, String name) {
         this.simulation = simulation;
 
-        this.driveMotor = simulation.useGenericMotorControllerForDrive(); //.withCurrentLimit(Amps.of(SwerveDriveConstants.SwerveModuleConstants.kDriveMotorCurrentLimit));
-        this.turningMotor = simulation.useGenericControllerForSteer(); //.withCurrentLimit(Amps.of(SwerveDriveConstants.SwerveModuleConstants.kTurningMotorCurrentLimit));
+        this.driveMotor = simulation.useGenericMotorControllerForDrive().withCurrentLimit(Amps.of(SwerveDriveConstants.SwerveModuleConstants.kDriveMotorCurrentLimit));
+        this.turningMotor = simulation.useGenericControllerForSteer().withCurrentLimit(Amps.of(SwerveDriveConstants.SwerveModuleConstants.kTurningMotorCurrentLimit));
 
         this.turningPID = SwerveDriveConstants.SwerveModuleConstants.kTurningPIDConstants.toPIDController();
+        this.turningPID.enableContinuousInput(0, 1);
 
         this.name = name;
     }
@@ -83,7 +84,7 @@ public class SwerveModuleIOSim implements SwerveModuleIO {
 
         // Set motor speeds
         driveMotor.requestVoltage(Volts.of(state.speedMetersPerSecond / Constants.SwerveDriveConstants.PhysicalModel.kMaxSpeed.in(MetersPerSecond) * 12));
-        turningMotor.requestVoltage(Volts.of(turningPID.calculate(getAngle().in(Rotations), state.angle.getRotations()) * 12));
+        turningMotor.requestVoltage(Volts.of(turningPID.calculate(getAngle().in(Rotations) % 1.0, state.angle.getRotations()) * 12));
     }
 
     public void stop() {

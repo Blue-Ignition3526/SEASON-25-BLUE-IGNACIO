@@ -25,14 +25,10 @@ public interface SwerveDriveIO {
     public void disableSpeedAlterator();
 
     public void driveRobotRelative(ChassisSpeeds speeds);
-    public default void driveRobotRelative(double xSpeed, double ySpeed, double rotSpeed) {
-        driveRobotRelative(new ChassisSpeeds(xSpeed, ySpeed, rotSpeed));
-    };
+    public void driveRobotRelative(double xSpeed, double ySpeed, double rotSpeed);
 
     public void driveFieldRelative(ChassisSpeeds speeds);
-    public default void driveFieldRelative(double xSpeed, double ySpeed, double rotSpeed) {
-        driveFieldRelative(new ChassisSpeeds(xSpeed, ySpeed, rotSpeed));
-    };
+    public void driveFieldRelative(double xSpeed, double ySpeed, double rotSpeed);
 
     public void stop();
 

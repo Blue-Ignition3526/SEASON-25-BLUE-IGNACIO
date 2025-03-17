@@ -6,17 +6,22 @@ import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.COTS;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
+import org.littletonrobotics.junction.Logger;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.util.DriveFeedforwards;
+import com.pathplanner.lib.util.PathPlannerLogging;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -63,7 +68,7 @@ import frc.robot.speedAlterators.*;
 // TODO: QUE NO BAJE EL ELEVADOR DEL 0
 public class RobotContainer {
   // * Controllers
-  private final CustomController DRIVER = new CustomController(0, CustomControllerType.XBOX);
+  private final CustomController DRIVER = new CustomController(0, CustomControllerType.PS5);
   private final CustomController OPERATOR = new CustomController(1, CustomControllerType.PS5);
 
   // * Swerve Drive
@@ -142,7 +147,7 @@ public class RobotContainer {
 			DriveTrainSimulationConfig swerveDriveSimulationConfig = DriveTrainSimulationConfig.Default()
 				.withBumperSize(SwerveDriveConstants.PhysicalModel.kLengthWithBumpers, SwerveDriveConstants.PhysicalModel.kWidthWithBumpers)
 				.withTrackLengthTrackWidth(SwerveDriveConstants.PhysicalModel.kWheelBase, SwerveDriveConstants.PhysicalModel.kTrackWidth)
-				.withRobotMass(SwerveDriveConstants.PhysicalModel.kRobotMass)
+				// .withRobotMass(SwerveDriveConstants.PhysicalModel.kRobotMass)
 				.withGyro(COTS.ofPigeon2())
 				.withSwerveModule(COTS.ofMark4i(
 						DCMotor.getKrakenX60(1),
@@ -151,7 +156,12 @@ public class RobotContainer {
 				));
 
 			// Create simulation
-			SwerveDriveSimulation swerveDriveSimulation = new SwerveDriveSimulation(swerveDriveSimulationConfig, new Pose2d());
+			SwerveDriveSimulation swerveDriveSimulation = new SwerveDriveSimulation(swerveDriveSimulationConfig, new Pose2d(5, 5, Rotation2d.fromDegrees(0)));
+
+      Notifier poseNotif = new Notifier(() -> {
+        Logger.recordOutput("FieldSimulation/RobotPose", swerveDriveSimulation.getSimulatedDriveTrainPose());
+      });
+      poseNotif.startPeriodic(0.02);
 
 			// Add drivetrain to simulation
 			SimulatedArena.getInstance().addDriveTrainSimulation(swerveDriveSimulation);
@@ -168,7 +178,6 @@ public class RobotContainer {
 
 			// Swerve Drive
 			this.m_swerveDrive = new SwerveDrive(new SwerveDriveIOReal(m_frontLeftSwerveModule, m_frontRightSwerveModule, m_backLeftSwerveModule, m_backRightSwerveModule, m_gyro));
-
 
 			// ! OTHER SUBSYSTEMS
 			// * Elevator
@@ -273,6 +282,13 @@ public class RobotContainer {
       () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue,
       m_swerveDrive
     );
+
+    PathPlannerLogging.setLogActivePathCallback((activePath) -> {
+      Logger.recordOutput("Odometry/Trajectory", activePath.toArray(new Pose2d[activePath.size()]));
+    });
+    PathPlannerLogging.setLogTargetPoseCallback((targetPose) -> {
+      Logger.recordOutput("Odometry/TrajectorySetpoint", targetPose);
+    });
 
     // Build auto chooser
     this.m_autonomousChooser = AutoBuilder.buildAutoChooser();

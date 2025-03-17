@@ -55,8 +55,16 @@ public class SwerveDrive extends SubsystemBase implements SwerveDriveIO {
         io.driveRobotRelative(speeds);
     }
 
+    public void driveRobotRelative(double xSpeed, double ySpeed, double rotSpeed) {
+        io.driveFieldRelative(xSpeed, ySpeed, rotSpeed);
+    }
+
     public void driveFieldRelative(ChassisSpeeds speeds) {
         io.driveFieldRelative(speeds);
+    }
+
+    public void driveFieldRelative(double xSpeed, double ySpeed, double rotSpeed) {
+        io.driveFieldRelative(xSpeed, ySpeed, rotSpeed);
     }
 
     public void stop() {
