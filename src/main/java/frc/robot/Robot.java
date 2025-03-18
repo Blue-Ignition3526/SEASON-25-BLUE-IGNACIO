@@ -1,11 +1,6 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot;
 
 import edu.wpi.first.net.PortForwarder;
-import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.Threads;
@@ -13,34 +8,49 @@ import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.Constants.LEDConstants;
 import frc.robot.util.LocalADStarAK;
 import lib.Elastic;
-import lib.Elastic.ElasticNotification;
-import lib.Elastic.ElasticNotification.NotificationLevel;
+import lib.Elastic.Notification;
+import lib.Elastic.Notification.NotificationLevel;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.urcl.URCL;
+import com.ctre.phoenix.led.CANdle;
+import com.ctre.phoenix.led.FireAnimation;
+import com.ctre.phoenix.led.LarsonAnimation;
+import com.ctre.phoenix.led.RainbowAnimation;
+import com.ctre.phoenix.led.SingleFadeAnimation;
+import com.ctre.phoenix.led.TwinkleAnimation;
+import com.ctre.phoenix.led.TwinkleAnimation.TwinklePercent;
+import com.ctre.phoenix.led.TwinkleOffAnimation.TwinkleOffPercent;
 import com.ctre.phoenix6.SignalLogger;
 import com.pathplanner.lib.commands.PathfindingCommand;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 import com.reduxrobotics.canand.CanandEventLoop;
 
-/**
- * The methods in this class are called automatically corresponding to each mode, as described in
- * the TimedRobot documentation. If you change the name of this class or the package after creating
- * this project, you must also update the Main.java file in the project.
- */
 public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
   private final RobotContainer m_robotContainer;
   private final PowerDistribution m_powerDistribution;
+
+  // * LEDs
+  private static final CANdle leds = new CANdle(LEDConstants.kCandleId.getDeviceID(), LEDConstants.kCandleId.getCanbus());
+  static {
+    leds.configBrightnessScalar(LEDConstants.kBrightness);
+    leds.configLEDType(LEDConstants.kType);
+    leds.configLOSBehavior(true);
+  }
 
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
    */
   public Robot() {
+    // * Set initial LED state
+    leds.animate(new RainbowAnimation(LEDConstants.kBrightness, 1, 20));
+
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
@@ -89,11 +99,14 @@ public class Robot extends LoggedRobot {
     URCL.start();
 
     // * Initialization alert
-    Elastic.sendAlert(new ElasticNotification(NotificationLevel.INFO, "Robot ready!", "Wait for subsystem initialization to complete."));
+    Elastic.sendNotification(new Notification(NotificationLevel.INFO, "Robot ready!", "Wait for subsystem initialization to complete."));
 
     // * Path finding warmup
     System.out.println("Pathfinding warmup...");
     PathfindingCommand.warmupCommand().schedule();
+
+    // * Set LEDs to rest state
+    leds.animate(new SingleFadeAnimation(0, 0, 255, 0, 1, 20));
   }
 
   /**
@@ -125,7 +138,8 @@ public class Robot extends LoggedRobot {
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
   public void disabledInit() {
-    Elastic.sendAlert(new ElasticNotification(NotificationLevel.INFO, "Robot Disabled.", "Robot has been disabled."));
+    if (DriverStation.isFMSAttached()) Elastic.selectTab("Checks");
+    Elastic.sendNotification(new Notification(NotificationLevel.INFO, "Robot Disabled.", "Robot has been disabled."));
   }
 
   @Override
@@ -134,7 +148,8 @@ public class Robot extends LoggedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
-    Elastic.sendAlert(new ElasticNotification(NotificationLevel.WARNING, "Robot Enabled Autonomous.", "Robot has been enabled in autonomous mode, BE CAUTIOUS."));
+    if (DriverStation.isFMSAttached()) Elastic.selectTab("Autonomous");
+    Elastic.sendNotification(new Notification(NotificationLevel.WARNING, "Robot Enabled Autonomous.", "Robot has been enabled in autonomous mode, BE CAUTIOUS."));
 
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
@@ -150,7 +165,9 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void teleopInit() {
-    Elastic.sendAlert(new ElasticNotification(NotificationLevel.WARNING, "Robot Enabled Teleop.", "Robot has been enabled in Teleop mode, BE CAUTIOUS."));
+    if (DriverStation.isFMSAttached()) Elastic.selectTab("Teleoperated");
+    Elastic.sendNotification(new Notification(NotificationLevel.WARNING, "Robot Enabled Teleop.", "Robot has been enabled in Teleop mode, BE CAUTIOUS."));
+
     // This makes sure that the autonomous stops running when
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove

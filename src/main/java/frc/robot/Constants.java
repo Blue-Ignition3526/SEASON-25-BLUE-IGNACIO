@@ -29,14 +29,22 @@ import lib.BlueShift.constants.SwerveModuleOptions;
 import lib.BlueShift.utils.SwerveChassis;
 import static edu.wpi.first.units.Units.*;
 
+import com.ctre.phoenix.led.CANdle.LEDStripType;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.path.PathConstraints;
 
 public class Constants {
-    //* Logging options
+    // * Logging options
     public static final class Logging {
         public static final boolean kDebug = true;
         public static final boolean kUseURCL = true;
+    }
+
+    // * LEDs
+    public static final class LEDConstants {
+        public static final CTRECANDevice kCandleId = new CTRECANDevice(41, "*");
+        public static final double kBrightness = 0.75;
+        public static final LEDStripType kType = LEDStripType.GRB;
     }
 
     public static final double deviceCheckPeriod = 5;

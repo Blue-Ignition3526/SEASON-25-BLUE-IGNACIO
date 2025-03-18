@@ -41,8 +41,8 @@ import frc.robot.subsystems.CoralIntakeWrist;
 import frc.robot.subsystems.Gyro.Gyro;
 import frc.robot.subsystems.Gyro.GyroIOPigeon;
 import lib.Elastic;
-import lib.Elastic.ElasticNotification;
-import lib.Elastic.ElasticNotification.NotificationLevel;
+import lib.Elastic.Notification;
+import lib.Elastic.Notification.NotificationLevel;
 import lib.BlueShift.control.CustomController;
 import lib.BlueShift.control.CustomController.CustomControllerType;
 import lib.BlueShift.odometry.swerve.BlueShiftOdometry;
@@ -195,7 +195,7 @@ public class RobotContainer {
     try{
       ppRobotConfig = RobotConfig.fromGUISettings();
     } catch (Exception e) {
-      Elastic.sendAlert(new ElasticNotification(NotificationLevel.ERROR, "ERROR! COULD NOT LOAD PP ROBOT CONFIG", e.getMessage()));
+      Elastic.sendNotification(new Notification(NotificationLevel.ERROR, "ERROR! COULD NOT LOAD PP ROBOT CONFIG", e.getMessage()));
       DriverStation.reportError("ERROR! COULD NOT LOAD PP ROBOT CONFIG", e.getStackTrace());
     }
 
