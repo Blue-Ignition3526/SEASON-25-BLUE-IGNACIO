@@ -1,6 +1,5 @@
 package frc.robot;
 
-import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -8,9 +7,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.units.AngularAccelerationUnit;
-import edu.wpi.first.units.AngularVelocityUnit;
-import edu.wpi.first.units.LinearAccelerationUnit;
 import edu.wpi.first.units.LinearVelocityUnit;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.measure.Angle;
@@ -50,6 +46,7 @@ public class Constants {
     public static final double deviceCheckPeriod = 5;
     public static final double startupStatusSignalTimeout = 20;
 
+    // * Vision
     public static final class Vision {
         public static final class Limelight3G {
           public static final String kName = "limelight-threeg";
@@ -91,7 +88,6 @@ public class Constants {
             public static final Angle kStoreAngle = Degrees.of(-20);
             public static final Angle kClimbHighAngle = Degrees.of(-10);
             public static final Angle kClimbLowAngle = Degrees.of(120);
-
         }
 
         public static final class Rollers {
@@ -137,8 +133,8 @@ public class Constants {
         // TODO: Tune
         public static final Angle epsilon = Degrees.of(1);
         public static final ProfiledPIDController kWristPIDController = new ProfiledPIDController(
-            4.5, 0, 0.25, 
-            new TrapezoidProfile.Constraints(50, 42)
+            4.0, 0, 0, 
+            new TrapezoidProfile.Constraints(50, 40)
         );
     }
 
@@ -148,7 +144,7 @@ public class Constants {
         public static final int kArmPivotMotorCurrentLimit = 25;
         public static final double kArmPivotMotorRampRate = 0.15;
 
-        // Encoder
+        // Gyro
         public static final int kArmPivotGyroID = 2;
         public static final Angle kArmPivotGyroOffset = Degrees.of(0);
 
@@ -273,33 +269,11 @@ public class Constants {
                 .setName("Back Right");
         }
 
-        /**
-         * Poses for each reef branch
-         */
-        public static enum ReefBranch {
-            A(new Pose2d(3.194, 4.189, Rotation2d.fromDegrees(180))),
-            B(new Pose2d(3.194, 4.189, Rotation2d.fromDegrees(180))),
-            C(new Pose2d(0, 0, Rotation2d.fromDegrees(0))),
-            D(new Pose2d(0, 0, Rotation2d.fromDegrees(0))),
-            E(new Pose2d(0, 0, Rotation2d.fromDegrees(0))),
-            F(new Pose2d(0, 0, Rotation2d.fromDegrees(0))),
-            G(new Pose2d(0, 0, Rotation2d.fromDegrees(0))),
-            H(new Pose2d(0, 0, Rotation2d.fromDegrees(0))),
-            I(new Pose2d(0, 0, Rotation2d.fromDegrees(0))),
-            J(new Pose2d(0, 0, Rotation2d.fromDegrees(0))),
-            K(new Pose2d(0, 0, Rotation2d.fromDegrees(0))),
-            L(new Pose2d(0, 0, Rotation2d.fromDegrees(0)));
-
-            private final Pose2d pose;
-            private ReefBranch(Pose2d pose) { this.pose = pose; }
-            public Pose2d getPose() { return pose; }
-        }
-
-        //* AUTONOMOUS
+        // * AUTONOMOUS
         public static final class AutonomousConstants {
             public static final PIDConstants kTranslatePIDConstants = new PIDConstants(5.0, 0.0, 0.0);
             public static final PIDConstants kRotatePIDConstants = new PIDConstants(5.0, 0.0, 0.0);
-            public static final Measure<LinearVelocityUnit> kMaxSpeedMetersPerSecond = MetersPerSecond.of(1);
+            public static final Measure<LinearVelocityUnit> kMaxSpeedMetersPerSecond = MetersPerSecond.of(4);
         }
     }
 

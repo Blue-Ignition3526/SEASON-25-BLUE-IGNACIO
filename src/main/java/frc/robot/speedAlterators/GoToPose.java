@@ -21,8 +21,10 @@ public class GoToPose extends SpeedAlterator{
 
     @Override
     public void onEnable() {
-        //Constants.SwerveDrive.PoseControllers.displacementPID.reset();
-        //Constants.SwerveDrive.PoseControllers.turningPID.reset();
+        Pose2d pose = poseSupplier.get();
+        Constants.SwerveDriveConstants.PoseControllers.translationXPID.reset(pose.getX());
+        Constants.SwerveDriveConstants.PoseControllers.translationYPID.reset(pose.getY());
+        Constants.SwerveDriveConstants.PoseControllers.rotationPID.reset(pose.getRotation().getRotations());
     }
 
     @Override
@@ -31,15 +33,10 @@ public class GoToPose extends SpeedAlterator{
     public ChassisSpeeds alterSpeed(ChassisSpeeds speeds, boolean robotRelative) {
         Pose2d pose = poseSupplier.get();
 
-        double xSpeed, ySpeed, rotSpeed;
-        /*if(Math.abs(pose.getX() - targetPose.getX()) > epsilon)*/ xSpeed = Constants.SwerveDriveConstants.PoseControllers.translationXPID.calculate(pose.getX(), targetPose.getX());
-        //else xSpeed = 0;//speeds.vxMetersPerSecond;
-        /*if(Math.abs(pose.getY() - targetPose.getY()) > epsilon)*/ ySpeed = Constants.SwerveDriveConstants.PoseControllers.translationYPID.calculate(pose.getY(), targetPose.getY());
-        //else ySpeed = 0;//speeds.vyMetersPerSecond;
-
-        /*if(Math.abs(pose.getRotation().getRotations() - targetPose.getRotation().getRotations()) < rotEpsilon)*/ rotSpeed = Constants.SwerveDriveConstants.PoseControllers.rotationPID.calculate(pose.getRotation().getRotations(), targetPose.getRotation().getRotations());
-        // else rotSpeed = speeds.omegaRadiansPerSecond;
-
+        double xSpeed = Constants.SwerveDriveConstants.PoseControllers.translationXPID.calculate(pose.getX(), targetPose.getX());
+        double ySpeed = Constants.SwerveDriveConstants.PoseControllers.translationYPID.calculate(pose.getY(), targetPose.getY());
+        double rotSpeed = Constants.SwerveDriveConstants.PoseControllers.rotationPID.calculate(pose.getRotation().getRotations(), targetPose.getRotation().getRotations());
+       
         SmartDashboard.putNumber("Alterators/pose/rot", rotSpeed);
         SmartDashboard.putNumber("Alterators/pose/x", xSpeed);
         SmartDashboard.putNumber("Alterators/pose/y", ySpeed);
