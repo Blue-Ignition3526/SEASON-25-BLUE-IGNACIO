@@ -24,7 +24,6 @@ import lib.BlueShift.constants.PIDFConstants;
 import lib.BlueShift.constants.SwerveModuleOptions;
 import lib.BlueShift.utils.SwerveChassis;
 import static edu.wpi.first.units.Units.*;
-
 import com.ctre.phoenix.led.CANdle.LEDStripType;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.path.PathConstraints;
@@ -318,7 +317,7 @@ public class Constants {
         public static final double kMotionMagicKG = 0.5;
         public static final double kMotionMagicVelocity = 20;
         public static final double kMotionMagicAcceleration = 15;
-        public static final double kSensorToMechanism = 4;
+        public static final double kSensorToMechanism = 12;
         public static final double kElevatorTolerance = 0.1;
     }
 

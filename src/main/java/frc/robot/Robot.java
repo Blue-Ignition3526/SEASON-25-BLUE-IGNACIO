@@ -18,13 +18,8 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.urcl.URCL;
 import com.ctre.phoenix.led.CANdle;
-import com.ctre.phoenix.led.FireAnimation;
-import com.ctre.phoenix.led.LarsonAnimation;
 import com.ctre.phoenix.led.RainbowAnimation;
 import com.ctre.phoenix.led.SingleFadeAnimation;
-import com.ctre.phoenix.led.TwinkleAnimation;
-import com.ctre.phoenix.led.TwinkleAnimation.TwinklePercent;
-import com.ctre.phoenix.led.TwinkleOffAnimation.TwinkleOffPercent;
 import com.ctre.phoenix6.SignalLogger;
 import com.pathplanner.lib.commands.PathfindingCommand;
 import com.pathplanner.lib.pathfinding.Pathfinding;
@@ -51,8 +46,7 @@ public class Robot extends LoggedRobot {
     // * Set initial LED state
     leds.animate(new RainbowAnimation(LEDConstants.kBrightness, 1, 20));
 
-    // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
-    // autonomous chooser on the dashboard.
+    // Instantiate our RobotContainer.
     m_robotContainer = new RobotContainer();
 
     // Instantiate the power distribution
@@ -106,7 +100,7 @@ public class Robot extends LoggedRobot {
     PathfindingCommand.warmupCommand().schedule();
 
     // * Set LEDs to rest state
-    leds.animate(new SingleFadeAnimation(0, 0, 255, 0, 1, 20));
+    leds.animate(new SingleFadeAnimation(0, 0, 255, 0, 0.5, 20));
   }
 
   /**
@@ -140,6 +134,7 @@ public class Robot extends LoggedRobot {
   public void disabledInit() {
     if (DriverStation.isFMSAttached()) Elastic.selectTab("Checks");
     Elastic.sendNotification(new Notification(NotificationLevel.INFO, "Robot Disabled.", "Robot has been disabled."));
+    leds.setLEDs(0, 0, 255, 0, 0, 20);
   }
 
   @Override
@@ -167,6 +162,8 @@ public class Robot extends LoggedRobot {
   public void teleopInit() {
     if (DriverStation.isFMSAttached()) Elastic.selectTab("Teleoperated");
     Elastic.sendNotification(new Notification(NotificationLevel.WARNING, "Robot Enabled Teleop.", "Robot has been enabled in Teleop mode, BE CAUTIOUS."));
+
+    leds.animate(new SingleFadeAnimation(0, 0, 255, 0, 1, 20));
 
     // This makes sure that the autonomous stops running when
     // teleop starts running. If you want the autonomous to
