@@ -3,8 +3,6 @@ package frc.robot;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.LinearVelocityUnit;
@@ -321,18 +319,18 @@ public class Constants {
         public static final double kElevatorTolerance = 0.1;
     }
 
-    public static final class IntakeCoralConstants {
+    public static final class CoralIntakeRollerConstants {
         // Motor IDs
         public static final int kUpperMotorId = 40;
-        public static final int kLowerMotorId = 41;
 
         // Motor limits
         public static final int kMotorCurrentLimit = 25;
         public static final double kMotorRampRate = 0.05;
 
         // Piece detection
-        public static final double kPieceDetectionDebounceTime = 0.3;
-        public static final int kPieceDetectionCurrent = 20;
+        public static final int kPieceSensorId = 42;
+        public static final double kPieceDetectionDebounceTime = 0.25;
+        public static final double kProximityThreshold = 0.25; // VALUE DECREASES AS OBJECT GETS CLOSER
 
         // Parameters
         public static final double kRollersInVoltage = 6;
