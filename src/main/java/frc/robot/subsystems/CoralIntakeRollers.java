@@ -28,7 +28,7 @@ public class CoralIntakeRollers extends SubsystemBase {
   private final Canandcolor pieceSensor;
 
   // * Piece detection
-  private Debouncer detectionDebouncer = new Debouncer(0.15, DebounceType.kRising);
+  private Debouncer hasPieceDebouncer = new Debouncer(0.15, DebounceType.kRising);
   private boolean hasPiece = false;
 
   // *Alerts
@@ -56,6 +56,7 @@ public class CoralIntakeRollers extends SubsystemBase {
 
     // * Piece sensor
     this.pieceSensor = new Canandcolor(Constants.CoralIntakeRollerConstants.kPieceSensorId);
+    this.pieceSensor.setPartyMode(10);
   
     // * Start device check notifier
     deviceCheckNotifier.startPeriodic(Constants.deviceCheckPeriod);
@@ -78,6 +79,14 @@ public class CoralIntakeRollers extends SubsystemBase {
     }
   }
 
+  public boolean getHasPieceRaw() {
+    return 
+      pieceSensor.getProximity() < CoralIntakeRollerConstants.kProximityThreshold;
+  }
+
+  public boolean getHasPiece() {
+    return hasPiece;
+  }
   
   /**
    * Sets the rollers to intake
@@ -124,8 +133,16 @@ public class CoralIntakeRollers extends SubsystemBase {
     return runOnce(this::stop);
   }
 
+  public Command intakeUntilPieceDetected() {
+    return setInCommand().until(this::getHasPiece).andThen(stopCommand());
+  }
+
   @Override
   public void periodic() {
-    
+    boolean hasPieceRaw = this.getHasPieceRaw();
+    this.hasPiece = this.hasPieceDebouncer.calculate(hasPieceRaw);
+
+    SmartDashboard.putBoolean(getName() + "/HasPiece", hasPiece);
+    SmartDashboard.putBoolean(getName() + "/HasPieceRaw", hasPieceRaw);
   }
 }

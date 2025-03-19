@@ -323,7 +323,8 @@ public class Constants {
 
         // Piece detection
         public static final int kPieceSensorId = 42;
-        public static final double kPieceDetectionDebounceTime = 0.3;
+        public static final double kPieceDetectionDebounceTime = 0.25;
+        public static final double kProximityThreshold = 0.25; // VALUE DECREASES AS OBJECT GETS CLOSER
 
         // Parameters
         public static final double kRollersInVoltage = 6;
