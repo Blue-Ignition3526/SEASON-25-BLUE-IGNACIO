@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.Constants.ClimbertakeConstants;
 
 public class AlgaeClimbertakeRollers extends SubsystemBase {
@@ -56,7 +57,8 @@ public class AlgaeClimbertakeRollers extends SubsystemBase {
     pieceSensor.setLampLEDBrightness(ClimbertakeConstants.Rollers.kPieceSensorLedBrightness);
 
     // Start device check notifier
-    deviceCheckNotifier.startPeriodic(10);
+    deviceCheckNotifier.setName(getName() + " Device Check");
+    deviceCheckNotifier.startPeriodic(Constants.deviceCheckPeriod);
   }
 
   private void deviceCheck() {

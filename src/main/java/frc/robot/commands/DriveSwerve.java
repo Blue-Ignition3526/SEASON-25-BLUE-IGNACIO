@@ -3,16 +3,12 @@ package frc.robot.commands;
 import java.util.function.Supplier;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.Second;
 import frc.robot.Constants;
 import frc.robot.Constants.SwerveDriveConstants;
 import edu.wpi.first.math.filter.SlewRateLimiter;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.SwerveDrive;
-import static frc.robot.Constants.SwerveDriveConstants.*;
 
 public class DriveSwerve extends Command {
   //* The swerve drive subsystem
@@ -37,6 +33,10 @@ public class DriveSwerve extends Command {
 
     // Scale input
     input *= scaleFactor;
+
+    // Square input
+    //! CHECK THIS
+    input *= input;
 
     // Apply rate limit
     slew.reset(input); // TODO: Check this

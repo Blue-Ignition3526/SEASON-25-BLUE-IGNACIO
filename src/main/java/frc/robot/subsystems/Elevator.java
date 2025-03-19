@@ -150,6 +150,7 @@ public class Elevator extends SubsystemBase {
 	this.rightElevatorMotor.setPosition(0);
 
     // Start device check
+	deviceCheckNotifier.setName(getName() + " Device Check");
     deviceCheckNotifier.startPeriodic(Constants.deviceCheckPeriod);
   }
 

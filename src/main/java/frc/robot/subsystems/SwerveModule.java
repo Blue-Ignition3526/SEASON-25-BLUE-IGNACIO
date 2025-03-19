@@ -185,6 +185,7 @@ public class SwerveModule extends SubsystemBase {
         resetDriveEncoder();
 
         // * Start the device check notifier
+        deviceCheckNotifier.setName(getName() + " Device Check");
         deviceCheckNotifier.startPeriodic(Constants.deviceCheckPeriod);
     }
 

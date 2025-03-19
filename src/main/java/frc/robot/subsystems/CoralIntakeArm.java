@@ -128,6 +128,7 @@ public class CoralIntakeArm extends SubsystemBase {
     SmartDashboard.putData("ArmPivot/PID", ArmPivotConstants.kArmPivotPIDController);
 
     //* Device check
+    deviceCheckNotifier.setName(getName() + " Device Check");
     deviceCheckNotifier.startPeriodic(Constants.deviceCheckPeriod);
   }
 

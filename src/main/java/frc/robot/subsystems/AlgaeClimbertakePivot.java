@@ -118,9 +118,8 @@ public class AlgaeClimbertakePivot extends SubsystemBase {
     // * Setpoint
     setpoint = getAngle();
 
-    
-
     // * Device check
+    deviceCheckNotifier.setName(getName() + " Device Check");
     deviceCheckNotifier.startPeriodic(Constants.deviceCheckPeriod);
   }
 

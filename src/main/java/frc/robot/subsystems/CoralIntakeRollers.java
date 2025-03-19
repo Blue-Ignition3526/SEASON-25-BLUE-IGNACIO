@@ -59,6 +59,7 @@ public class CoralIntakeRollers extends SubsystemBase {
     this.pieceSensor.setPartyMode(10);
   
     // * Start device check notifier
+    deviceCheckNotifier.setName(getName() + " Device Check");
     deviceCheckNotifier.startPeriodic(Constants.deviceCheckPeriod);
   }
 

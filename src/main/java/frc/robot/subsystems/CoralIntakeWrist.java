@@ -85,6 +85,7 @@ public class CoralIntakeWrist extends SubsystemBase {
     SmartDashboard.putData("Wrist/PID", WristConstants.kWristPIDController);
     
     // Device check
+    deviceCheckNotifier.setName(getName() + " Device Check");
     deviceCheckNotifier.startPeriodic(Constants.deviceCheckPeriod);
   }
 
