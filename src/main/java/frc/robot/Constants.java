@@ -116,7 +116,7 @@ public class Constants {
 
         // Encoder
         public static final int kWristEncoderPort = 1;
-        public static final Angle kWristEncoderOffset = Degrees.of(-33);
+        public static final Angle kWristEncoderOffset = Degrees.of(-33 - 30);
 
         // Limits
         public static final Angle kMinAngle = Degrees.of(-90);
@@ -330,7 +330,7 @@ public class Constants {
         // Piece detection
         public static final int kPieceSensorId = 42;
         public static final double kPieceDetectionDebounceTime = 0.25;
-        public static final double kProximityThreshold = 0.25; // VALUE DECREASES AS OBJECT GETS CLOSER
+        public static final double kProximityThreshold = 0.05; // VALUE DECREASES AS OBJECT GETS CLOSER
 
         // Parameters
         public static final double kRollersInVoltage = 6;

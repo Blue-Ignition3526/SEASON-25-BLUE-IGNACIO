@@ -36,7 +36,7 @@ public class DriveSwerve extends Command {
 
     // Square input
     //! CHECK THIS
-    input *= input;
+    //input *= input;
 
     // Apply rate limit
     slew.reset(input); // TODO: Check this

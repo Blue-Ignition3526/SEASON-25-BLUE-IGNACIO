@@ -35,7 +35,7 @@ public class Elevator extends SubsystemBase {
 		L1(1.0),
 		L2(2.0),
 		L3(3.0),
-		L4(8.5),
+		L4(4.5),
 		HOME(0.0),
 		SOURCE(1.0);
 
@@ -96,7 +96,7 @@ public class Elevator extends SubsystemBase {
       .withMotorOutput(
           new MotorOutputConfigs()
               .withNeutralMode(NeutralModeValue.Brake)
-			  .withInverted(InvertedValue.Clockwise_Positive)
+			  .withInverted(InvertedValue.CounterClockwise_Positive)
       )
 	  .withSlot0(
 		new Slot0Configs()
@@ -221,6 +221,7 @@ public class Elevator extends SubsystemBase {
 	@Override
 	public void periodic() {
 		// Telemetry
+		SmartDashboard.putString("Elevator/MotionMagicInfo", positionControl.getControlInfo().toString());
 		SmartDashboard.putNumber("Elevator/AppliedOutput", rightElevatorMotor.get());
 		SmartDashboard.putNumber("Elevator/CurrentPosition", getPosition());
 		SmartDashboard.putNumber("Elevator/SetpointPosition", m_setpoint.getPosition());
