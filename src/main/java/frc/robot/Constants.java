@@ -22,13 +22,10 @@ import lib.BlueShift.constants.PIDFConstants;
 import lib.BlueShift.constants.SwerveModuleOptions;
 import lib.BlueShift.utils.SwerveChassis;
 import static edu.wpi.first.units.Units.*;
-
-import com.ctre.phoenix.led.ColorFlowAnimation;
 import com.ctre.phoenix.led.LarsonAnimation;
 import com.ctre.phoenix.led.RainbowAnimation;
 import com.ctre.phoenix.led.SingleFadeAnimation;
 import com.ctre.phoenix.led.CANdle.LEDStripType;
-import com.ctre.phoenix.led.ColorFlowAnimation.Direction;
 import com.ctre.phoenix.led.LarsonAnimation.BounceMode;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.path.PathConstraints;
