@@ -197,7 +197,7 @@ public class Constants {
         //* Gyroscope (Pigeon 2.0)
         public static final CTRECANDevice kGyroDevice = new CTRECANDevice(34, "*");
 
-        public static final double kJoystickDeadband = 0.1;
+        public static final double kJoystickDeadband = 0.09;
         //* Physical model of the robot
         public static final class PhysicalModel {
             //* MAX DISPLACEMENT SPEED (and acceleration)

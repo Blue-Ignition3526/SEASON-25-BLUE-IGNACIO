@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -87,19 +90,19 @@ public class FieldConstants {
 
       // Initialize thresholding face poses
       for (int face = 0; face < 6; face++) {
-        // Pose2d poseDirection = new Pose2d(center, Rotation2d.fromDegrees(180 - (60 * face)));
-        // double adjustX = Units.inchesToMeters(12);
-        // thresholdingFaceCenters[face] = new Pose2d(
-        //     new Translation2d(
-        //         poseDirection
-        //             .transformBy(new Transform2d(adjustX, 0, Rotation2d.kZero))
-        //             .getX(),
-        //         poseDirection
-        //             .transformBy(new Transform2d(adjustX, 0, Rotation2d.kZero))
-        //             .getY(),
-        //         new Rotation2d()
-        //     )
-        // )
+        Pose2d poseDirection = new Pose2d(center, Rotation2d.fromDegrees(180 - (60 * face)));
+        double adjustX = faceToZoneLine;
+        thresholdingFaceCenters[face] = new Pose2d(
+            new Translation2d(
+                poseDirection
+                    .transformBy(new Transform2d(adjustX, 0.0, Rotation2d.kZero))
+                    .getX(),
+                poseDirection
+                    .transformBy(new Transform2d(adjustX, 0.0, Rotation2d.kZero))
+                    .getY()
+            ),
+            new Rotation2d(0.0, poseDirection.getRotation().getRadians())
+        );
       }
 
       // Initialize branch positions
@@ -154,8 +157,9 @@ public class FieldConstants {
       }
     }
 
-    static {
-        System.out.println();
+    public static void logPoses() {
+      Logger.recordOutput("FieldConstants/Reef/FaceCenters", faceCenters);
+      Logger.recordOutput("FieldConstants/Reef/ThresholdingFaceCenters", thresholdingFaceCenters);
     }
   }
 }

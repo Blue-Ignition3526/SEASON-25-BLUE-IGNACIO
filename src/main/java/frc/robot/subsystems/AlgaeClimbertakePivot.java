@@ -129,7 +129,7 @@ public class AlgaeClimbertakePivot extends SubsystemBase {
       alert_leftMotorUnreachable.set(false);
     } catch (Exception e) {
       alert_leftMotorUnreachable.set(true);
-      DriverStation.reportError(alert_leftMotorUnreachable.getText(), false);
+      DriverStation.reportError(getName() + " left motor unreachable.", false);
     }
 
     try {
@@ -137,14 +137,14 @@ public class AlgaeClimbertakePivot extends SubsystemBase {
       alert_rightMotorUnreachable.set(false);
     } catch (Exception e) {
       alert_rightMotorUnreachable.set(true);
-      DriverStation.reportError(alert_rightMotorUnreachable.getText(), false);
+      DriverStation.reportError(getName() + " right motor unreachable.", false);
     }
 
     if (pivotEncoder.isConnected()) {
       alert_encoderUnreachable.set(false);
     } else {
       alert_encoderUnreachable.set(true);
-      DriverStation.reportError(alert_encoderUnreachable.getText(), false);
+      DriverStation.reportError(getName() + " encoder unreachable.", false);
     }
   }
 
