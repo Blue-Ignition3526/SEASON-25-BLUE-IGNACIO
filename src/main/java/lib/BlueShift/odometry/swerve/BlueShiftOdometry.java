@@ -10,6 +10,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.wpilibj.Notifier;
+import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -123,7 +125,8 @@ public class BlueShiftOdometry extends SubsystemBase {
     @Override
     public void periodic() {
         // Update state odometry
-        m_poseEstimator.update(
+        m_poseEstimator.updateWithTime(
+            RobotController.getFPGATime() / 1000000.0,
             m_gyroAngleSupplier.get(),
             m_modulePositionsSupplier.get()
         );

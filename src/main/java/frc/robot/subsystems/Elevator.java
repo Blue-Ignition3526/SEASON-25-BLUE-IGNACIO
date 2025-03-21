@@ -160,14 +160,14 @@ public class Elevator extends SubsystemBase {
 			alert_rightMotorUnreachable.set(false);
 		} else {
 			alert_rightMotorUnreachable.set(true);
-			DriverStation.reportError(alert_rightMotorUnreachable.getText(), false);
+			DriverStation.reportError(getName() + " left motor unreachable.", false);
 		}
 
 		if (leftElevatorMotor.isConnected()) {
 			alert_leftMotorUnreachable.set(false);
 		} else {
 			alert_leftMotorUnreachable.set(true);
-			DriverStation.reportError(alert_leftMotorUnreachable.getText(), false);
+			DriverStation.reportError(getName() + " right motor unreachable.", false);
 		}
 	}
 
@@ -228,7 +228,6 @@ public class Elevator extends SubsystemBase {
 	@Override
 	public void periodic() {
 		// Telemetry
-		SmartDashboard.putString("Elevator/MotionMagicInfo", positionControl.getControlInfo().toString());
 		SmartDashboard.putNumber("Elevator/AppliedOutput", rightElevatorMotor.get());
 		SmartDashboard.putNumber("Elevator/CurrentPosition", getPosition());
 		SmartDashboard.putNumber("Elevator/SetpointPosition", m_setpoint.getPosition());

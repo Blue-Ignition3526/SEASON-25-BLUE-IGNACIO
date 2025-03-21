@@ -79,7 +79,7 @@ public class CoralIntakeWrist extends SubsystemBase {
     this.encoder = new DutyCycleEncoder(WristConstants.kWristEncoderPort);
 
     // * Setpoint angle
-    //! SETPOINT SET ABOVEz
+    //! SETPOINT SET ABOVE
     // this.setpoint = getAngle();
     
     SmartDashboard.putData("Wrist/PID", WristConstants.kWristPIDController);
