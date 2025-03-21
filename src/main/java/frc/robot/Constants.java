@@ -306,7 +306,7 @@ public class Constants {
             this.armPosition = armPosition;
             this.wristPosition = wristPosition;
         }
-        public ElevatorPosition getElevatorPosition() {return elevatorPos; }
+        public ElevatorPosition getElevatorPosition() { return elevatorPos; }
         public ArmPosition getArmPosition() { return armPosition; }
         public WristPosition getWristPosition() { return wristPosition; }
     }   
@@ -322,7 +322,7 @@ public class Constants {
         public static final int kElevatorMotorRampRate = 0;
 
         // Limits
-        public static final double kElevatorMaxHeight = 12.86;
+        public static final double kElevatorMaxHeight = 16;
         public static final double kElevatorMinHeight = 0.1;
 
         // Motion magic

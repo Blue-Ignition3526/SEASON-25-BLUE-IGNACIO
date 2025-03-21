@@ -32,12 +32,22 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Elevator extends SubsystemBase {
 	// * Setpoints
 	public static enum ElevatorPosition {
-		L1(1.0),
-		L2(2.0),
-		L3(3.0),
-		L4(4.5),
-		HOME(0.1),
-		SOURCE(1);
+		L1(3.0), // ! Tuned
+
+		L2(3.9), // ! Tuned
+		L2_ALGAE_HIGH(5.36), // ! Tuned
+		L2_ALGAE_LOW(3.0), // ! Tuned
+
+		L3(9.37), // ! Tuned
+		L3_ALGAE_HIGH(9.5), // ! Tuned
+		L3_ALGAE_LOW(8.2), // ! Tuned
+
+		L4(15.5), // ! Tuned 
+
+		SOURCE(3.6), // ! Tuned
+
+		HOME(0.5); // ! Tuned
+		
 
 		private double position;
 
