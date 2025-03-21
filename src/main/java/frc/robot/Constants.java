@@ -22,7 +22,14 @@ import lib.BlueShift.constants.PIDFConstants;
 import lib.BlueShift.constants.SwerveModuleOptions;
 import lib.BlueShift.utils.SwerveChassis;
 import static edu.wpi.first.units.Units.*;
+
+import com.ctre.phoenix.led.ColorFlowAnimation;
+import com.ctre.phoenix.led.LarsonAnimation;
+import com.ctre.phoenix.led.RainbowAnimation;
+import com.ctre.phoenix.led.SingleFadeAnimation;
 import com.ctre.phoenix.led.CANdle.LEDStripType;
+import com.ctre.phoenix.led.ColorFlowAnimation.Direction;
+import com.ctre.phoenix.led.LarsonAnimation.BounceMode;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.path.PathConstraints;
 
@@ -36,8 +43,17 @@ public class Constants {
     // * LEDs
     public static final class LEDConstants {
         public static final CTRECANDevice kCandleId = new CTRECANDevice(41, "*");
-        public static final double kBrightness = 0.75;
+        public static final double kBrightness = 0.5;
+        public static final int kSideLedNum = 21;
+        public static final int kTotalLedNum = kSideLedNum;
         public static final LEDStripType kType = LEDStripType.GRB;
+
+        public static final class LEDAnimations {
+            public static final RainbowAnimation kThinkingAnimation = new RainbowAnimation(LEDConstants.kBrightness, 0.85, kTotalLedNum);
+            public static final SingleFadeAnimation kIdleAnimation = new SingleFadeAnimation(0, 0, 255, 0, 0.5, 20);
+            public static final SingleFadeAnimation kTeleopAnimation = new SingleFadeAnimation(0, 0, 255, 0, 1, 20);
+            public static final LarsonAnimation kAutoAnimation = new LarsonAnimation(0, 0, 255, 0, 0.85, kTotalLedNum, BounceMode.Front, 3);
+        }
     }
 
     public static final double deviceCheckPeriod = 5;
@@ -306,16 +322,16 @@ public class Constants {
         public static final int kElevatorMotorRampRate = 0;
 
         // Limits
-        public static final double kElevatorMaxHeight = 60.0;
-        public static final double kElevatorMinHeight = 0.0;
+        public static final double kElevatorMaxHeight = 12.86;
+        public static final double kElevatorMinHeight = 0.1;
 
         // Motion magic
-        public static final double kMotionMagicKP = 40;
-        public static final double kMotionMagicKV = 2;
-        public static final double kMotionMagicKG = 0.5;
-        public static final double kMotionMagicVelocity = 20;
-        public static final double kMotionMagicAcceleration = 15;
-        public static final double kSensorToMechanism = 12;
+        public static final double kMotionMagicKP = 35;
+        public static final double kMotionMagicKV = 1.85;
+        public static final double kMotionMagicKG = 0.12;
+        public static final double kMotionMagicVelocity = 35;
+        public static final double kMotionMagicAcceleration = 20;
+        public static final double kSensorToMechanism = 20;
         public static final double kElevatorTolerance = 0.1;
     }
 

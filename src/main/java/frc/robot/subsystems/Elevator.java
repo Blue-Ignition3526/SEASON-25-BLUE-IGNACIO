@@ -19,7 +19,7 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import frc.robot.Constants;
 import frc.robot.Constants.ElevatorConstants;
-import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Notifier;
@@ -36,8 +36,8 @@ public class Elevator extends SubsystemBase {
 		L2(2.0),
 		L3(3.0),
 		L4(4.5),
-		HOME(0.0),
-		SOURCE(1.0);
+		HOME(0.1),
+		SOURCE(1);
 
 		private double position;
 
@@ -134,6 +134,7 @@ public class Elevator extends SubsystemBase {
 		.withVoltage(
 			new VoltageConfigs()
 				.withPeakForwardVoltage(12)
+				.withPeakReverseVoltage(-12)
 		)
 		.withMotorOutput(
 			new MotorOutputConfigs()
@@ -186,7 +187,15 @@ public class Elevator extends SubsystemBase {
 	 */
 	public void setSetpoint(ElevatorPosition setpoint) {
 		this.m_setpoint = setpoint;
-		this.rightElevatorMotor.setControl(positionControl.withSlot(0).withPosition(setpoint.getPosition()));
+		this.rightElevatorMotor.setControl(
+			positionControl
+				.withSlot(0)
+				.withPosition(MathUtil.clamp(
+					setpoint.getPosition(),
+					ElevatorConstants.kElevatorMinHeight,
+					ElevatorConstants.kElevatorMaxHeight
+				))
+		);
 	}
 
 	/**
@@ -209,9 +218,7 @@ public class Elevator extends SubsystemBase {
 	}
 
 	public Command setSetpointCommand(ElevatorPosition setpoint) {
-		return run(() -> setSetpoint(setpoint)).until(
-			() -> Math.abs(rightElevatorMotor.getPosition().getValueAsDouble() - setpoint.getPosition()) < ElevatorConstants.kElevatorTolerance
-		);
+		return run(() -> setSetpoint(setpoint));//.until(() -> Math.abs(rightElevatorMotor.getPosition().getValueAsDouble() - setpoint.getPosition()) < ElevatorConstants.kElevatorTolerance);
 	}
 
 	public Command resetElevatorPositionCommand() {

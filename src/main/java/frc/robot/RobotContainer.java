@@ -74,6 +74,7 @@ public class RobotContainer {
   private final SpeedAlterator m_speedAlterator_lookAt;
   private final SpeedAlterator m_speedAlterator_backUp;
   private final SpeedAlterator m_speedAlterator_goToPose;
+  private final SpeedAlterator m_speedAlterator_LookAtNearestStation;
 
   // * Elevator
   private final Elevator m_elevator;
@@ -137,7 +138,7 @@ public class RobotContainer {
     this.m_speedAlterator_lookAt = new LookController(this.m_gyro::getYaw, this.DRIVER::getRightX, this.DRIVER::getRightY, 0.1);
     this.m_speedAlterator_backUp = new BackUp(-0.1, m_gyro::getHeading);
     this.m_speedAlterator_goToPose = new GoToPose(m_odometry::getEstimatedPosition, new Pose2d(new Translation2d(3.2, 4), Rotation2d.fromDegrees(180)));
-
+    this.m_speedAlterator_LookAtNearestStation = new LookAtNearestStation(m_odometry::getEstimatedPosition);
     
     // * Autonomous
     // Register commands
@@ -273,12 +274,12 @@ public class RobotContainer {
       Math.abs(DRIVER.getRightY()) > SwerveDriveConstants.kJoystickDeadband
       );
       
-      // Binding
-      lookAtTrigger.onTrue(m_swerveDrive.enableSpeedAlteratorCommand(m_speedAlterator_lookAt));
-      lookAtTrigger.onFalse(m_swerveDrive.disableSpeedAlteratorCommand());
-      this.DRIVER.rightBumper().onTrue(m_swerveDrive.enableSpeedAlteratorCommand(m_speedAlterator_goToPose));
-      this.DRIVER.rightBumper().onFalse(m_swerveDrive.disableSpeedAlteratorCommand());
-      
+    // Binding
+    lookAtTrigger.onTrue(m_swerveDrive.enableSpeedAlteratorCommand(m_speedAlterator_lookAt));
+    lookAtTrigger.onFalse(m_swerveDrive.disableSpeedAlteratorCommand());
+    this.DRIVER.rightBumper().onTrue(m_swerveDrive.enableSpeedAlteratorCommand(m_speedAlterator_goToPose));
+    this.DRIVER.rightBumper().onFalse(m_swerveDrive.disableSpeedAlteratorCommand());
+    
     // * Turn 180
     this.DRIVER.leftBumper().onTrue(m_swerveDrive.enableSpeedAlteratorCommand(m_speedAlterator_turn180));
     this.DRIVER.leftBumper().onFalse(m_swerveDrive.disableSpeedAlteratorCommand());
@@ -342,6 +343,10 @@ public class RobotContainer {
     // Ready
     this.OPERATOR.leftTrigger().onTrue(this.m_coralIntakeArm.setSetpointCommand(ArmPosition.HORIZONTAL));
     this.OPERATOR.rightTrigger().onTrue(this.m_coralIntakeArm.setSetpointCommand(ArmPosition.HIGH));
+
+    // * Autoalign
+    this.OPERATOR.rightStickButton().onTrue(m_swerveDrive.enableSpeedAlteratorCommand(m_speedAlterator_LookAtNearestStation));
+    this.OPERATOR.rightStickButton().onFalse(m_swerveDrive.disableSpeedAlteratorCommand());
 
     // * Selected level bindings
     this.OPERATOR.povDown().onTrue(new InstantCommand(() -> m_robotState = RobotState.L1));

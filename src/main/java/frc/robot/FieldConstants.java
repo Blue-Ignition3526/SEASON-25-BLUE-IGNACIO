@@ -87,7 +87,19 @@ public class FieldConstants {
 
       // Initialize thresholding face poses
       for (int face = 0; face < 6; face++) {
-        
+        // Pose2d poseDirection = new Pose2d(center, Rotation2d.fromDegrees(180 - (60 * face)));
+        // double adjustX = Units.inchesToMeters(12);
+        // thresholdingFaceCenters[face] = new Pose2d(
+        //     new Translation2d(
+        //         poseDirection
+        //             .transformBy(new Transform2d(adjustX, 0, Rotation2d.kZero))
+        //             .getX(),
+        //         poseDirection
+        //             .transformBy(new Transform2d(adjustX, 0, Rotation2d.kZero))
+        //             .getY(),
+        //         new Rotation2d()
+        //     )
+        // )
       }
 
       // Initialize branch positions

@@ -36,12 +36,12 @@ public class LookAtNearestStation extends SpeedAlterator {
         double fieldCenter = FieldConstants.kFieldCenter.getY();
 
         double targetRotation;
-        if (pose.getY() > fieldCenter) targetRotation = -60;
-        else targetRotation = 60;
+        if (pose.getY() > fieldCenter) targetRotation = FieldConstants.CoralStation.leftCenterFace.getRotation().getRotations();
+        else targetRotation = FieldConstants.CoralStation.rightCenterFace.getRotation().getRotations();
 
-        if (alliance == Alliance.Red) targetRotation += 180;
+        if (alliance == Alliance.Blue) targetRotation += 180;
 
-        // TODO: es muy tarde para mate, ya mañana.
+        speeds.omegaRadiansPerSecond = SwerveDriveConstants.PoseControllers.rotationPID.calculate(pose.getRotation().getRotations(), targetRotation);
 
         return speeds;
     }

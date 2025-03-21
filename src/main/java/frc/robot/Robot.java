@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.LEDConstants;
+import frc.robot.Constants.LEDConstants.LEDAnimations;
 import frc.robot.util.LocalADStarAK;
 import lib.Elastic;
 import lib.Elastic.Notification;
@@ -18,7 +19,6 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.urcl.URCL;
 import com.ctre.phoenix.led.CANdle;
-import com.ctre.phoenix.led.RainbowAnimation;
 import com.ctre.phoenix.led.SingleFadeAnimation;
 import com.ctre.phoenix6.SignalLogger;
 import com.pathplanner.lib.commands.PathfindingCommand;
@@ -31,7 +31,7 @@ public class Robot extends LoggedRobot {
   private final PowerDistribution m_powerDistribution;
 
   // * LEDs
-  private static final CANdle leds = new CANdle(LEDConstants.kCandleId.getDeviceID(), LEDConstants.kCandleId.getCanbus());
+  public static final CANdle leds = new CANdle(LEDConstants.kCandleId.getDeviceID(), LEDConstants.kCandleId.getCanbus());
   static {
     leds.configBrightnessScalar(LEDConstants.kBrightness);
     leds.configLEDType(LEDConstants.kType);
@@ -44,7 +44,7 @@ public class Robot extends LoggedRobot {
    */
   public Robot() {
     // * Set initial LED state
-    leds.animate(new RainbowAnimation(LEDConstants.kBrightness, 1, 20));
+    leds.animate(LEDAnimations.kThinkingAnimation);
 
     // Instantiate our RobotContainer.
     m_robotContainer = new RobotContainer();
@@ -90,7 +90,6 @@ public class Robot extends LoggedRobot {
     Logger.addDataReceiver(new NT4Publisher());
     if (Constants.Logging.kUseURCL) Logger.registerURCL(URCL.startExternal());
     Logger.start();
-    URCL.start();
 
     // * Initialization alert
     Elastic.sendNotification(new Notification(NotificationLevel.INFO, "Robot ready!", "Wait for subsystem initialization to complete."));
@@ -100,7 +99,7 @@ public class Robot extends LoggedRobot {
     PathfindingCommand.warmupCommand().schedule();
 
     // * Set LEDs to rest state
-    leds.animate(new SingleFadeAnimation(0, 0, 255, 0, 0.5, 20));
+    leds.animate(LEDAnimations.kIdleAnimation);
   }
 
   /**
@@ -134,7 +133,8 @@ public class Robot extends LoggedRobot {
   public void disabledInit() {
     if (DriverStation.isFMSAttached()) Elastic.selectTab("Checks");
     Elastic.sendNotification(new Notification(NotificationLevel.INFO, "Robot Disabled.", "Robot has been disabled."));
-    leds.setLEDs(0, 0, 255, 0, 0, 20);
+
+    leds.animate(LEDAnimations.kIdleAnimation);
   }
 
   @Override
@@ -145,6 +145,8 @@ public class Robot extends LoggedRobot {
   public void autonomousInit() {
     if (DriverStation.isFMSAttached()) Elastic.selectTab("Autonomous");
     Elastic.sendNotification(new Notification(NotificationLevel.WARNING, "Robot Enabled Autonomous.", "Robot has been enabled in autonomous mode, BE CAUTIOUS."));
+
+    leds.animate(LEDAnimations.kAutoAnimation);
 
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
@@ -163,7 +165,7 @@ public class Robot extends LoggedRobot {
     if (DriverStation.isFMSAttached()) Elastic.selectTab("Teleoperated");
     Elastic.sendNotification(new Notification(NotificationLevel.WARNING, "Robot Enabled Teleop.", "Robot has been enabled in Teleop mode, BE CAUTIOUS."));
 
-    leds.animate(new SingleFadeAnimation(0, 0, 255, 0, 1, 20));
+    leds.animate(LEDAnimations.kTeleopAnimation);
 
     // This makes sure that the autonomous stops running when
     // teleop starts running. If you want the autonomous to
