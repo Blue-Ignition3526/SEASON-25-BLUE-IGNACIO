@@ -2,10 +2,7 @@ package frc.robot.speedAlterators;
 
 import java.util.ArrayList;
 import java.util.function.Supplier;
-
-//import org.dyn4j.geometry.Transform;
 import org.littletonrobotics.junction.Logger;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -23,7 +20,6 @@ public class AlignToNearestBranch extends SpeedAlterator {
     private final Supplier<Boolean> isRightSupplier;
     private final Supplier<Double> xOffsetSupplier;
     private final Supplier<Double> yOffsetSupplier;
-    private Alliance alliance = Alliance.Blue;
 
     public AlignToNearestBranch(Supplier<Pose2d> poseSupplier, Supplier<Boolean> isRightSupplier, Supplier<Double> xOffsetSupplier, Supplier<Double> yOffsetSupplier) {
         this.poseSupplier = poseSupplier;
@@ -38,8 +34,6 @@ public class AlignToNearestBranch extends SpeedAlterator {
         SwerveDriveConstants.PoseControllers.translationXPID.reset(pose.getX());
         SwerveDriveConstants.PoseControllers.translationYPID.reset(pose.getY());
         SwerveDriveConstants.PoseControllers.rotationPID.reset(pose.getRotation().getRotations());
-
-        this.alliance = DriverStation.getAlliance().orElse(Alliance.Blue);
     }
 
     ArrayList<Pose2d> getAppropriateReefFaceCenters(Pose2d pose) {
@@ -53,7 +47,7 @@ public class AlignToNearestBranch extends SpeedAlterator {
         Pose2d pose = poseSupplier.get();
 
         // Add offset to pose
-        pose.transformBy(new Transform2d(AllianceFlipUtil.apply(new Translation2d(
+        Pose2d thresholdingPose = new Pose2d(pose.getTranslation(), pose.getRotation()).transformBy(new Transform2d(AllianceFlipUtil.apply(new Translation2d(
             SwerveDriveConstants.PoseControllers.kOffsetBoxWidth.times(xOffsetSupplier.get()),
             SwerveDriveConstants.PoseControllers.kOffsetBoxWidth.times(yOffsetSupplier.get())
         ), false), Rotation2d.kZero));
@@ -61,8 +55,26 @@ public class AlignToNearestBranch extends SpeedAlterator {
         // Get nearest reef face center (thresholding)
         Pose2d nearestFaceCenter = pose.nearest(getAppropriateReefFaceCenters(pose));
 
+        // Apply offset to branch (either left or right depending on the value returned by the isRight supplier)
+        // TODO: Currently it will go to the thresholding pose, offset it to be up against the reef face
+        Pose2d poseAlignedToBranch = AllianceFlipUtil.apply(new Pose2d(
+            new Translation2d(
+                nearestFaceCenter
+                    .transformBy(new Transform2d(0.0, FieldConstants.Reef.branchAdjustY * (isRightSupplier.get() ? -1 : 1), Rotation2d.kZero))
+                    .getX(),
+                nearestFaceCenter
+                    .transformBy(new Transform2d(0.0, FieldConstants.Reef.branchAdjustY * (isRightSupplier.get() ? -1 : 1), Rotation2d.kZero))
+                    .getY()
+            ),
+            nearestFaceCenter.getRotation()
+        ), false);
+
         // Log
+        Logger.recordOutput("Automation/ThresholdingPose", thresholdingPose);
         Logger.recordOutput("Automation/NearestReefFaceCenter", nearestFaceCenter);
+        Logger.recordOutput("Automation/AlignedToBranch", poseAlignedToBranch);
+
+
 
         return speeds;
     }
