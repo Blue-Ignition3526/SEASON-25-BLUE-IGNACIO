@@ -12,39 +12,39 @@ import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.FieldConstants;
 
 public class AllianceFlipUtil {
-  public static double applyX(double x) {
-    return shouldFlip() ? FieldConstants.kFieldLength - x : x;
+  public static double applyX(double x, boolean force) {
+    return force || shouldFlip() ? FieldConstants.kFieldLength - x : x;
   }
 
-  public static double applyY(double y) {
-    return shouldFlip() ? FieldConstants.kFieldWidth - y : y;
+  public static double applyY(double y, boolean force) {
+    return force || shouldFlip() ? FieldConstants.kFieldWidth - y : y;
   }
 
-  public static Translation2d apply(Translation2d translation) {
-    return new Translation2d(applyX(translation.getX()), applyY(translation.getY()));
+  public static Translation2d apply(Translation2d translation, boolean force) {
+    return new Translation2d(applyX(translation.getX(), force), applyY(translation.getY(), force));
   }
 
-  public static Rotation2d apply(Rotation2d rotation) {
-    return shouldFlip() ? rotation.rotateBy(Rotation2d.kPi) : rotation;
+  public static Rotation2d apply(Rotation2d rotation, boolean force) {
+    return force || shouldFlip() ? rotation.rotateBy(Rotation2d.kPi) : rotation;
   }
 
-  public static Pose2d apply(Pose2d pose) {
-    return shouldFlip()
-        ? new Pose2d(apply(pose.getTranslation()), apply(pose.getRotation()))
+  public static Pose2d apply(Pose2d pose, boolean force) {
+    return force || shouldFlip()
+        ? new Pose2d(apply(pose.getTranslation(), force), apply(pose.getRotation(), force))
         : pose;
   }
 
-  public static Translation3d apply(Translation3d translation) {
+  public static Translation3d apply(Translation3d translation, boolean force) {
     return new Translation3d(
-        applyX(translation.getX()), applyY(translation.getY()), translation.getZ());
+        applyX(translation.getX(), force), applyY(translation.getY(), force), translation.getZ());
   }
 
-  public static Rotation3d apply(Rotation3d rotation) {
-    return shouldFlip() ? rotation.rotateBy(new Rotation3d(0.0, 0.0, Math.PI)) : rotation;
+  public static Rotation3d apply(Rotation3d rotation, boolean force) {
+    return force || shouldFlip() ? rotation.rotateBy(new Rotation3d(0.0, 0.0, Math.PI)) : rotation;
   }
 
-  public static Pose3d apply(Pose3d pose) {
-    return new Pose3d(apply(pose.getTranslation()), apply(pose.getRotation()));
+  public static Pose3d apply(Pose3d pose, boolean force) {
+    return new Pose3d(apply(pose.getTranslation(), force), apply(pose.getRotation(), force));
   }
 
   public static boolean shouldFlip() {

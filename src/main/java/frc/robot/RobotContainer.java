@@ -80,8 +80,8 @@ public class RobotContainer {
   private final Elevator m_elevator;
 
   // * Climbertake
-  private final AlgaeClimbertakePivot m_algaeClimbertakePivot;
-  private final AlgaeClimbertakeRollers m_algaeClimbertakeRollers;
+  // private final AlgaeClimbertakePivot m_algaeClimbertakePivot;
+  // private final AlgaeClimbertakeRollers m_algaeClimbertakeRollers;
 
   // * Coral intake
   private final CoralIntakeWrist m_coralIntakeWrist;
@@ -110,8 +110,8 @@ public class RobotContainer {
     this.m_elevator = new Elevator();
     
     // * Climbertake
-    m_algaeClimbertakePivot = new AlgaeClimbertakePivot();
-    m_algaeClimbertakeRollers = new AlgaeClimbertakeRollers();
+    // m_algaeClimbertakePivot = new AlgaeClimbertakePivot();
+    // m_algaeClimbertakeRollers = new AlgaeClimbertakeRollers();
     
     // * Coral intake
     m_coralIntakeWrist = new CoralIntakeWrist();
@@ -221,10 +221,10 @@ public class RobotContainer {
     SmartDashboard.putData("Elevator/L4", m_elevator.setSetpointCommand(ElevatorPosition.L4).ignoringDisable(true));
 
     // Climbertake pivot
-    SmartDashboard.putData("Climbertake/Pivot/IntakeAngleCommand", m_algaeClimbertakePivot.setSetpointCommand(Constants.ClimbertakeConstants.Pivot.kIntakeAngle).ignoringDisable(true));
-    SmartDashboard.putData("Climbertake/Pivot/StoreAngleCommand", m_algaeClimbertakePivot.setSetpointCommand(Constants.ClimbertakeConstants.Pivot.kStoreAngle).ignoringDisable(true));
-    SmartDashboard.putData("Climbertake/Pivot/ClimbHighAngleCommand", m_algaeClimbertakePivot.setSetpointCommand(Constants.ClimbertakeConstants.Pivot.kClimbHighAngle).ignoringDisable(true));
-    SmartDashboard.putData("Climbertake/Pivot/ClimbLowAngleCommand", m_algaeClimbertakePivot.setSetpointCommand(Constants.ClimbertakeConstants.Pivot.kClimbLowAngle).ignoringDisable(true));
+    // SmartDashboard.putData("Climbertake/Pivot/IntakeAngleCommand", m_algaeClimbertakePivot.setSetpointCommand(Constants.ClimbertakeConstants.Pivot.kIntakeAngle).ignoringDisable(true));
+    // SmartDashboard.putData("Climbertake/Pivot/StoreAngleCommand", m_algaeClimbertakePivot.setSetpointCommand(Constants.ClimbertakeConstants.Pivot.kStoreAngle).ignoringDisable(true));
+    // SmartDashboard.putData("Climbertake/Pivot/ClimbHighAngleCommand", m_algaeClimbertakePivot.setSetpointCommand(Constants.ClimbertakeConstants.Pivot.kClimbHighAngle).ignoringDisable(true));
+    // SmartDashboard.putData("Climbertake/Pivot/ClimbLowAngleCommand", m_algaeClimbertakePivot.setSetpointCommand(Constants.ClimbertakeConstants.Pivot.kClimbLowAngle).ignoringDisable(true));
 
     // Wrist
     SmartDashboard.putData("Wrist/Perpendicular", m_coralIntakeWrist.setSetpointCommand(WristPosition.PERPENDICULAR).ignoringDisable(true));
@@ -308,21 +308,21 @@ public class RobotContainer {
     this.OPERATOR.backButton().whileTrue(m_elevator.setVoltageCommand(-2));
     this.OPERATOR.backButton().onFalse(m_elevator.stopCommand());
 
-    // * Manuel Climbertake pivot
-    // Ready
-    this.OPERATOR.rightBumper().onTrue(this.m_algaeClimbertakePivot.setVoltageCommand(-8));
-    this.OPERATOR.rightBumper().onFalse(this.m_algaeClimbertakePivot.setVoltageCommand(0));
+    // // * Manuel Climbertake pivot
+    // // Ready
+    // this.OPERATOR.rightBumper().onTrue(this.m_algaeClimbertakePivot.setVoltageCommand(-8));
+    // this.OPERATOR.rightBumper().onFalse(this.m_algaeClimbertakePivot.setVoltageCommand(0));
  
-    this.OPERATOR.leftBumper().onTrue(this.m_algaeClimbertakePivot.setVoltageCommand(8));
-    this.OPERATOR.leftBumper().onFalse(this.m_algaeClimbertakePivot.setVoltageCommand(0));
+    // this.OPERATOR.leftBumper().onTrue(this.m_algaeClimbertakePivot.setVoltageCommand(8));
+    // this.OPERATOR.leftBumper().onFalse(this.m_algaeClimbertakePivot.setVoltageCommand(0));
 
-    // * Manuel Climbertake
-    // Ready
-    this.OPERATOR.leftButton().onTrue(this.m_algaeClimbertakeRollers.setInCommand());
-    this.OPERATOR.leftButton().onFalse(this.m_algaeClimbertakeRollers.stopCommand());
+    // // * Manuel Climbertake
+    // // Ready
+    // this.OPERATOR.leftButton().onTrue(this.m_algaeClimbertakeRollers.setInCommand());
+    // this.OPERATOR.leftButton().onFalse(this.m_algaeClimbertakeRollers.stopCommand());
     
-    this.OPERATOR.topButton().onTrue(this.m_algaeClimbertakeRollers.setOutCommand());
-    this.OPERATOR.topButton().onFalse(this.m_algaeClimbertakeRollers.stopCommand());
+    // this.OPERATOR.topButton().onTrue(this.m_algaeClimbertakeRollers.setOutCommand());
+    // this.OPERATOR.topButton().onFalse(this.m_algaeClimbertakeRollers.stopCommand());
 
     // * Coral Intake
     // Ready

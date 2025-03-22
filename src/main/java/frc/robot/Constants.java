@@ -187,6 +187,9 @@ public class Constants {
             public static final ProfiledPIDController translationXPID = new ProfiledPIDController(1, 0, 0, new TrapezoidProfile.Constraints(4.5, 3.3526));
             public static final ProfiledPIDController translationYPID = new ProfiledPIDController(1, 0, 0, new TrapezoidProfile.Constraints(4.5, 3.3526));
 
+            public static final Distance kOffsetBoxHeight = Meters.of(0.25);
+            public static final Distance kOffsetBoxWidth = Meters.of(0.25);
+
             public static final double epsilon = 0.05;
             public static final double rotEpsilon = 1.;
         }
@@ -199,11 +202,11 @@ public class Constants {
         public static final class PhysicalModel {
             //* MAX DISPLACEMENT SPEED (and acceleration)
             public static final LinearVelocity kMaxSpeed = MetersPerSecond.of(4.0);
-            public static final LinearAcceleration kMaxAcceleration = MetersPerSecond.per(Second).of(8.0);
-            public static final LinearAcceleration kMaxDeceleration = MetersPerSecond.per(Second).of(-8.0);
+            public static final LinearAcceleration kMaxAcceleration = MetersPerSecond.per(Second).of(5.0);
+            public static final LinearAcceleration kMaxDeceleration = MetersPerSecond.per(Second).of(-5.0);
 
             //* MAX ROTATIONAL SPEED (and acceleration)
-            public static final AngularVelocity kMaxAngularSpeed = DegreesPerSecond.of(180.0);
+            public static final AngularVelocity kMaxAngularSpeed = DegreesPerSecond.of(270.0);
             public static final AngularAcceleration kMaxAngularAcceleration = DegreesPerSecond.per(Second).of(360.0);
             public static final AngularAcceleration kMaxAngularDeceleration = DegreesPerSecond.per(Second).of(-360.0);
 

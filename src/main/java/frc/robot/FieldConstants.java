@@ -17,6 +17,7 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
+import frc.robot.util.AllianceFlipUtil;
 
 public class FieldConstants {
     public static final AprilTagFieldLayout kApriltagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
@@ -77,11 +78,11 @@ public class FieldConstants {
     public static final Pose2d[] thresholdingFaceCenters = new Pose2d[6]; // Starting facing the driver station in clockwise order 
                                                                           // * Faces offset to the zone line marked with tape
     
-    public static final Pose2d[] driverFacingCenters = new Pose2d[3];
-    public static final Pose2d[] centerFacingCenters = new Pose2d[3];
+    public static final ArrayList<Pose2d> driverFacingCenters = new ArrayList<>(3);
+    public static final ArrayList<Pose2d> centerFacingCenters = new ArrayList<>(3);
 
-    public static final Pose2d[] driverFacingThresholdingCenters = new Pose2d[3];
-    public static final Pose2d[] centerFacingThresholdingCenters = new Pose2d[3];
+    public static final ArrayList<Pose2d> driverFacingThresholdingCenters = new ArrayList<>(3);
+    public static final ArrayList<Pose2d> centerFacingThresholdingCenters = new ArrayList<>(3);
 
     public static final List<Map<ReefLevel, Pose3d>> branchPositions = new ArrayList<>(); // Starting at the right branch facing the driver station in clockwise
     public static final List<Map<ReefLevel, Pose2d>> branchPositions2d = new ArrayList<>();
@@ -164,28 +165,32 @@ public class FieldConstants {
         branchPositions2d.add(fillLeft2d);
       }
 
-      driverFacingCenters[0] = faceCenters[5];
-      driverFacingCenters[1] = faceCenters[0];
-      driverFacingCenters[2] = faceCenters[1];
+      driverFacingCenters.add(faceCenters[5]);
+      driverFacingCenters.add(faceCenters[0]);
+      driverFacingCenters.add(faceCenters[1]);
 
-      centerFacingCenters[0] = faceCenters[2];
-      centerFacingCenters[1] = faceCenters[3];
-      centerFacingCenters[2] = faceCenters[4];
+      centerFacingCenters.add(faceCenters[2]);
+      centerFacingCenters.add(faceCenters[3]);
+      centerFacingCenters.add(faceCenters[4]);
 
-      driverFacingThresholdingCenters[0] = driverFacingCenters[5];
-      driverFacingThresholdingCenters[1] = driverFacingCenters[0];
-      driverFacingThresholdingCenters[2] = driverFacingCenters[1];
+      driverFacingThresholdingCenters.add(thresholdingFaceCenters[5]);
+      driverFacingThresholdingCenters.add(thresholdingFaceCenters[0]);
+      driverFacingThresholdingCenters.add(thresholdingFaceCenters[1]);
 
-      centerFacingThresholdingCenters[0] = driverFacingCenters[2];
-      centerFacingThresholdingCenters[1] = driverFacingCenters[3];
-      centerFacingThresholdingCenters[2] = driverFacingCenters[4];
+      centerFacingThresholdingCenters.add(thresholdingFaceCenters[2]);
+      centerFacingThresholdingCenters.add(thresholdingFaceCenters[3]);
+      centerFacingThresholdingCenters.add(thresholdingFaceCenters[4]);
     }
 
   }
 
   public static void logCalculatedPoses() {
-    Logger.recordOutput("FieldConstants/Reef/Center", Reef.center);
-    Logger.recordOutput("FieldConstants/Reef/FaceCenters", Reef.faceCenters);
-    Logger.recordOutput("FieldConstants/Reef/ThresholdingFaceCenters", Reef.thresholdingFaceCenters);
+    Logger.recordOutput("FieldConstants/Reef/Center/Blue", Reef.center);
+    Logger.recordOutput("FieldConstants/Reef/FaceCenters/Blue", Reef.faceCenters);
+    Logger.recordOutput("FieldConstants/Reef/ThresholdingFaceCenters/Blue", Reef.thresholdingFaceCenters);
+
+    Logger.recordOutput("FieldConstants/Reef/Center/Red", AllianceFlipUtil.apply(Reef.center, true));
+    Logger.recordOutput("FieldConstants/Reef/FaceCenters/Red", Reef.faceCenters);
+    Logger.recordOutput("FieldConstants/Reef/ThresholdingFaceCenters/Red", Reef.thresholdingFaceCenters);
   }
 }
