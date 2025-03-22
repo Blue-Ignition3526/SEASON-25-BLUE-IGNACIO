@@ -340,7 +340,7 @@ public class Constants {
         public static final int kUpperMotorId = 40;
 
         // Motor limits
-        public static final int kMotorCurrentLimit = 25;
+        public static final int kMotorCurrentLimit = 30;
         public static final double kMotorRampRate = 0.05;
 
         // Piece detection
@@ -350,6 +350,6 @@ public class Constants {
 
         // Parameters
         public static final double kRollersInVoltage = 6;
-        public static final double kRollersOutVoltage = -3;
+        public static final double kRollersOutVoltage = -6;
     }
 }

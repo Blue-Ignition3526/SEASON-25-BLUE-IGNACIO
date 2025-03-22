@@ -75,6 +75,7 @@ public class RobotContainer {
   private final SpeedAlterator m_speedAlterator_backUp;
   private final SpeedAlterator m_speedAlterator_goToPose;
   private final SpeedAlterator m_speedAlterator_LookAtNearestStation;
+  private final SpeedAlterator m_speedAlterator_AlignToNearestBranch;
 
   // * Elevator
   private final Elevator m_elevator;
@@ -137,6 +138,7 @@ public class RobotContainer {
     this.m_speedAlterator_backUp = new BackUp(-0.1, m_gyro::getHeading);
     this.m_speedAlterator_goToPose = new GoToPose(m_odometry::getEstimatedPosition, new Pose2d(new Translation2d(3.2, 4), Rotation2d.fromDegrees(180)));
     this.m_speedAlterator_LookAtNearestStation = new LookAtNearestStation(m_odometry::getEstimatedPosition);
+    this.m_speedAlterator_AlignToNearestBranch = new AlignToNearestBranch(m_odometry::getEstimatedPosition, this.DRIVER.rightBumper()::getAsBoolean, this.DRIVER::getLeftY, this.DRIVER::getLeftX);
     
     // * Autonomous
     // Register commands
@@ -278,8 +280,11 @@ public class RobotContainer {
     this.DRIVER.rightBumper().onTrue(m_swerveDrive.enableSpeedAlteratorCommand(m_speedAlterator_goToPose));
     this.DRIVER.rightBumper().onFalse(m_swerveDrive.disableSpeedAlteratorCommand());
     
-    // * Turn 180
-    this.DRIVER.leftBumper().onTrue(m_swerveDrive.enableSpeedAlteratorCommand(m_speedAlterator_turn180));
+    // * Align to reef alterator
+    this.DRIVER.rightBumper().onTrue(m_swerveDrive.enableSpeedAlteratorCommand(m_speedAlterator_AlignToNearestBranch));
+    this.DRIVER.rightBumper().onFalse(m_swerveDrive.disableSpeedAlteratorCommand());
+
+    this.DRIVER.leftBumper().onTrue(m_swerveDrive.enableSpeedAlteratorCommand(m_speedAlterator_AlignToNearestBranch));
     this.DRIVER.leftBumper().onFalse(m_swerveDrive.disableSpeedAlteratorCommand());
 
     // * Reset heading with right stick button
@@ -305,7 +310,7 @@ public class RobotContainer {
     this.OPERATOR.startButton().onFalse(m_elevator.stopCommand());
 
     // Share
-    this.OPERATOR.backButton().whileTrue(m_elevator.setVoltageCommand(-2));
+    this.OPERATOR.backButton().whileTrue(m_elevator.setVoltageCommand(-6));
     this.OPERATOR.backButton().onFalse(m_elevator.stopCommand());
 
     // // * Manuel Climbertake pivot
