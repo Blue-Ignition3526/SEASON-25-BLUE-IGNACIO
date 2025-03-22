@@ -91,6 +91,9 @@ public class Robot extends LoggedRobot {
     if (Constants.Logging.kUseURCL) Logger.registerURCL(URCL.startExternal());
     Logger.start();
 
+    // * Log calculated field constants poses
+    FieldConstants.logCalculatedPoses();
+
     // * Initialization alert
     Elastic.sendNotification(new Notification(NotificationLevel.INFO, "Robot ready!", "Wait for subsystem initialization to complete."));
 

@@ -24,7 +24,6 @@ public class FieldConstants {
     public static final double kFieldLength = kApriltagFieldLayout.getFieldLength();
     public static final Translation2d kFieldCenter = new Translation2d(kFieldLength / 2, kFieldWidth / 2);
 
-    // ! FROM MECHANICAL ADVANTAGE
     public static class CoralStation {
         public static final double stationLength = Units.inchesToMeters(79.750);
         public static final Pose2d rightCenterFace =
@@ -39,7 +38,6 @@ public class FieldConstants {
                 Rotation2d.fromRadians(-rightCenterFace.getRotation().getRadians()));
   }
 
-  // ! FROM MECHANICAL ADVANTAGE
   public enum ReefLevel {
     L1(Units.inchesToMeters(25.0), 0),
     L2(Units.inchesToMeters(31.875 - Math.cos(Math.toRadians(35.0)) * 0.625), -35),
@@ -72,12 +70,24 @@ public class FieldConstants {
     public static final double faceLength = Units.inchesToMeters(36.792600);
     public static final Translation2d center = new Translation2d(Units.inchesToMeters(176.746), kFieldWidth / 2.0);
     public static final double faceToZoneLine = Units.inchesToMeters(12); // Side of the reef to the inside of the reef zone line
+    public static final double faceToThresholdDistance = Units.inchesToMeters(18);
+    public static final double driverFacingLine = center.getX();
 
     public static final Pose2d[] faceCenters = new Pose2d[6]; // Starting facing the driver station in clockwise order
     public static final Pose2d[] thresholdingFaceCenters = new Pose2d[6]; // Starting facing the driver station in clockwise order 
                                                                           // * Faces offset to the zone line marked with tape
+    
+    public static final Pose2d[] driverFacingCenters = new Pose2d[3];
+    public static final Pose2d[] centerFacingCenters = new Pose2d[3];
+
+    public static final Pose2d[] driverFacingThresholdingCenters = new Pose2d[3];
+    public static final Pose2d[] centerFacingThresholdingCenters = new Pose2d[3];
+
     public static final List<Map<ReefLevel, Pose3d>> branchPositions = new ArrayList<>(); // Starting at the right branch facing the driver station in clockwise
     public static final List<Map<ReefLevel, Pose2d>> branchPositions2d = new ArrayList<>();
+
+    public static final double branchAdjustX = Units.inchesToMeters(30.738);
+    public static final double branchAdjustY = Units.inchesToMeters(6.469);
 
     static {
       // Initialize faces
@@ -90,18 +100,18 @@ public class FieldConstants {
 
       // Initialize thresholding face poses
       for (int face = 0; face < 6; face++) {
-        Pose2d poseDirection = new Pose2d(center, Rotation2d.fromDegrees(180 - (60 * face)));
-        double adjustX = faceToZoneLine;
+        Pose2d facePose = faceCenters[face];
+
         thresholdingFaceCenters[face] = new Pose2d(
             new Translation2d(
-                poseDirection
-                    .transformBy(new Transform2d(adjustX, 0.0, Rotation2d.kZero))
+                facePose
+                    .transformBy(new Transform2d(faceToThresholdDistance, 0.0, Rotation2d.kZero))
                     .getX(),
-                poseDirection
-                    .transformBy(new Transform2d(adjustX, 0.0, Rotation2d.kZero))
+                facePose
+                    .transformBy(new Transform2d(faceToThresholdDistance, 0.0, Rotation2d.kZero))
                     .getY()
             ),
-            new Rotation2d(0.0, poseDirection.getRotation().getRadians())
+            facePose.getRotation()
         );
       }
 
@@ -113,17 +123,15 @@ public class FieldConstants {
         Map<ReefLevel, Pose2d> fillLeft2d = new HashMap<>();
         for (var level : ReefLevel.values()) {
           Pose2d poseDirection = new Pose2d(center, Rotation2d.fromDegrees(180 - (60 * face)));
-          double adjustX = Units.inchesToMeters(30.738);
-          double adjustY = Units.inchesToMeters(6.469);
-
+          
           var rightBranchPose =
               new Pose3d(
                   new Translation3d(
                       poseDirection
-                          .transformBy(new Transform2d(adjustX, adjustY, Rotation2d.kZero))
+                          .transformBy(new Transform2d(branchAdjustX, branchAdjustY, Rotation2d.kZero))
                           .getX(),
                       poseDirection
-                          .transformBy(new Transform2d(adjustX, adjustY, Rotation2d.kZero))
+                          .transformBy(new Transform2d(branchAdjustX, branchAdjustY, Rotation2d.kZero))
                           .getY(),
                       level.height),
                   new Rotation3d(
@@ -134,10 +142,10 @@ public class FieldConstants {
               new Pose3d(
                   new Translation3d(
                       poseDirection
-                          .transformBy(new Transform2d(adjustX, -adjustY, Rotation2d.kZero))
+                          .transformBy(new Transform2d(branchAdjustX, -branchAdjustY, Rotation2d.kZero))
                           .getX(),
                       poseDirection
-                          .transformBy(new Transform2d(adjustX, -adjustY, Rotation2d.kZero))
+                          .transformBy(new Transform2d(branchAdjustX, -branchAdjustY, Rotation2d.kZero))
                           .getY(),
                       level.height),
                   new Rotation3d(
@@ -155,11 +163,29 @@ public class FieldConstants {
         branchPositions2d.add(fillRight2d);
         branchPositions2d.add(fillLeft2d);
       }
+
+      driverFacingCenters[0] = faceCenters[5];
+      driverFacingCenters[1] = faceCenters[0];
+      driverFacingCenters[2] = faceCenters[1];
+
+      centerFacingCenters[0] = faceCenters[2];
+      centerFacingCenters[1] = faceCenters[3];
+      centerFacingCenters[2] = faceCenters[4];
+
+      driverFacingThresholdingCenters[0] = driverFacingCenters[5];
+      driverFacingThresholdingCenters[1] = driverFacingCenters[0];
+      driverFacingThresholdingCenters[2] = driverFacingCenters[1];
+
+      centerFacingThresholdingCenters[0] = driverFacingCenters[2];
+      centerFacingThresholdingCenters[1] = driverFacingCenters[3];
+      centerFacingThresholdingCenters[2] = driverFacingCenters[4];
     }
 
-    public static void logPoses() {
-      Logger.recordOutput("FieldConstants/Reef/FaceCenters", faceCenters);
-      Logger.recordOutput("FieldConstants/Reef/ThresholdingFaceCenters", thresholdingFaceCenters);
-    }
+  }
+
+  public static void logCalculatedPoses() {
+    Logger.recordOutput("FieldConstants/Reef/Center", Reef.center);
+    Logger.recordOutput("FieldConstants/Reef/FaceCenters", Reef.faceCenters);
+    Logger.recordOutput("FieldConstants/Reef/ThresholdingFaceCenters", Reef.thresholdingFaceCenters);
   }
 }
