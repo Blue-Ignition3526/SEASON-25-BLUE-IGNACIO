@@ -27,6 +27,7 @@ import frc.robot.commands.DriveSwerve;
 import frc.robot.commands.CompoundCommands.ScoringCommands;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.CoralIntakeRollers;
+import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.CoralIntakeArm;
 import frc.robot.subsystems.SwerveModule;
 import frc.robot.subsystems.CoralIntakeArm.ArmPosition;
@@ -83,6 +84,8 @@ public class RobotContainer {
   // * Autonomous
   private final SendableChooser<Command> m_autonomousChooser;
 
+  private final Climber m_climber;
+
   // * Robot state
   public RobotState m_robotState = RobotState.HOME;
 
@@ -107,6 +110,7 @@ public class RobotContainer {
     m_coralIntakeWrist = new CoralIntakeWrist();
     m_coralIntakeArm = new CoralIntakeArm();
     m_coralIntakeRollers = new CoralIntakeRollers();
+    m_climber = new Climber();
 
     // * Odometry and Vision
     this.m_limelight3G = new LimelightOdometryCamera(Constants.Vision.Limelight3G.kName, false, VisionOdometryFilters::visionFilter);
@@ -252,7 +256,7 @@ public class RobotContainer {
         m_swerveDrive,
         () -> -DRIVER.getLeftY(),
         () -> -DRIVER.getLeftX(),
-        () -> DRIVER.getLeftTrigger() - DRIVER.getRightTrigger(),
+        () -> 0.0, //DRIVER.getLeftTrigger() - DRIVER.getRightTrigger(),
         () -> !DRIVER.bottomButton().getAsBoolean()
       )
     );
@@ -291,6 +295,21 @@ public class RobotContainer {
 
     // * Driver score
     this.DRIVER.topButton().onTrue(ScoringCommands.scoreCommand(m_robotState, m_coralIntakeArm, m_coralIntakeRollers));
+
+    //TODO change this binding (dev)
+    this.DRIVER.leftTrigger().onTrue(m_climber.setVoltLowCommand(2));
+    this.DRIVER.leftTrigger().onFalse(m_climber.setVoltLowCommand(0));
+    this.DRIVER.rightTrigger().onTrue(m_climber.setVoltLowCommand(-2));
+    this.DRIVER.rightTrigger().onFalse(m_climber.setVoltLowCommand(0));
+
+    this.DRIVER.povUp().onTrue(m_climber.setVoltHighCommand(2));
+    this.DRIVER.povUp().onFalse(m_climber.setVoltHighCommand(0));
+    this.DRIVER.povDown().onTrue(m_climber.setVoltHighCommand(-2));
+    this.DRIVER.povDown().onFalse(m_climber.setVoltHighCommand(0));
+    this.DRIVER.povLeft().onTrue(m_climber.setServo(0.7));
+    this.DRIVER.povLeft().onFalse(m_climber.setServo(0.5));
+    this.DRIVER.povRight().onTrue(m_climber.setServo(0.3));
+    this.DRIVER.povRight().onFalse(m_climber.setServo(0.5));
 
     // ! OPERATOR BINDINGS
     // * Manuel Elevator

@@ -356,4 +356,10 @@ public class Constants {
         public static final double kRollersInVoltage = 6;
         public static final double kRollersOutVoltage = -6;
     }
+
+    public static final class ClimberConstants {
+        public static final int kUpperMotorId = 58;
+        public static final int kLowerMotorId = 57;
+        public static final int kServoPort = 9;
+    }
 }
