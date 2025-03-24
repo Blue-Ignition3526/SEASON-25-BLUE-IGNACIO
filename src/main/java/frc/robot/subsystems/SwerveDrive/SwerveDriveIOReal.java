@@ -1,4 +1,4 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.SwerveDrive;
 
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
@@ -8,15 +8,14 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.subsystems.SwerveModule;
 import frc.robot.subsystems.Gyro.Gyro;
 import lib.BlueShift.control.SpeedAlterator;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import org.littletonrobotics.junction.Logger;
 
-public class SwerveDrive extends SubsystemBase {
+public class SwerveDriveIOReal implements SwerveDriveIO {
     // * Swerve modules
     public final SwerveModule frontLeft;
     public final SwerveModule frontRight;
@@ -41,7 +40,7 @@ public class SwerveDrive extends SubsystemBase {
      * @param backRight Back Right Swerve Module
      * @param gyro Gyroscope
      */
-    public SwerveDrive(SwerveModule frontLeft, SwerveModule frontRight, SwerveModule backLeft, SwerveModule backRight, Gyro gyro) {
+    public SwerveDriveIOReal(SwerveModule frontLeft, SwerveModule frontRight, SwerveModule backLeft, SwerveModule backRight, Gyro gyro) {
         // Store the modules
         this.frontLeft = frontLeft;
         this.frontRight = frontRight;
@@ -155,32 +154,15 @@ public class SwerveDrive extends SubsystemBase {
     }
 
     public void enableSpeedAlterator(SpeedAlterator alterator) {
-        alterator.onEnable();
+        if (this.speedAlterator != alterator) alterator.onEnable();
+        if (this.speedAlterator != null) this.speedAlterator.onDisable();
         this.speedAlterator = alterator;
-    }
-
-    /**
-     * Enable a speed alterator with a command
-     * @param alterator
-     * @return
-     */
-    public Command enableSpeedAlteratorCommand(SpeedAlterator alterator) {
-        return runOnce(() -> this.enableSpeedAlterator(alterator));
     }
 
     public void disableSpeedAlterator() {
         if(this.speedAlterator != null) this.speedAlterator.onDisable();
         this.speedAlterator = null;
     }
-
-    /**
-     * Disable the speed alterator with a command
-     * @return
-     */
-    public Command disableSpeedAlteratorCommand() {
-        return runOnce(() -> this.disableSpeedAlterator());
-    }
-
 
     /**
      * Drive the robot with the provided speeds <b>(ROBOT RELATIVE)</b>
@@ -262,19 +244,7 @@ public class SwerveDrive extends SubsystemBase {
         this.backLeft.resetDriveEncoder();
         this.backRight.resetDriveEncoder();
     }
-
-    /**
-     * Reset all encoders of all swerve modules
-     */
-    public void resetEncoders() {
-        this.resetTurningEncoders();
-        this.resetDriveEncoders();
-    }
-
-    public Command zeroHeadingCommand() {
-        return runOnce(this::zeroHeading).ignoringDisable(true);
-    }
-
+    
     @Override
     public void periodic() {
         // Log data

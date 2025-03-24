@@ -28,9 +28,6 @@ import frc.robot.commands.CompoundCommands.ScoringCommands;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.CoralIntakeRollers;
 import frc.robot.subsystems.CoralIntakeArm;
-import frc.robot.subsystems.AlgaeClimbertakePivot;
-import frc.robot.subsystems.AlgaeClimbertakeRollers;
-import frc.robot.subsystems.SwerveDrive;
 import frc.robot.subsystems.SwerveModule;
 import frc.robot.subsystems.CoralIntakeArm.ArmPosition;
 import frc.robot.subsystems.CoralIntakeWrist.WristPosition;
@@ -38,6 +35,9 @@ import frc.robot.subsystems.Elevator.ElevatorPosition;
 import frc.robot.subsystems.CoralIntakeWrist;
 import frc.robot.subsystems.Gyro.Gyro;
 import frc.robot.subsystems.Gyro.GyroIOPigeon;
+import frc.robot.subsystems.SwerveDrive.SwerveDrive;
+import frc.robot.subsystems.SwerveDrive.SwerveDriveIOReal;
+import frc.robot.subsystems.SwerveDrive.SwerveDriveIOSim;
 import lib.Elastic;
 import lib.Elastic.Notification;
 import lib.Elastic.Notification.NotificationLevel;
@@ -53,19 +53,9 @@ import frc.robot.speedAlterators.*;
 // TODO: QUE NO BAJE EL ELEVADOR DEL 0
 public class RobotContainer {
   // * Controllers
-  private final CustomController DRIVER = new CustomController(0, CustomControllerType.XBOX);
+  private final CustomController DRIVER = new CustomController(0, Robot.isReal() ? CustomControllerType.XBOX : CustomControllerType.PS5);
   private final CustomController OPERATOR = new CustomController(1, CustomControllerType.PS5);
 
-  // * Swerve Drive
-  // Swerve modules
-  private final SwerveModule frontLeft = new SwerveModule(Constants.SwerveDriveConstants.SwerveModuleConstants.kFrontLeftOptions);
-  private final SwerveModule frontRight = new SwerveModule(Constants.SwerveDriveConstants.SwerveModuleConstants.kFrontRightOptions);
-  private final SwerveModule backLeft = new SwerveModule(Constants.SwerveDriveConstants.SwerveModuleConstants.kBackLeftOptions);
-  private final SwerveModule backRight = new SwerveModule(Constants.SwerveDriveConstants.SwerveModuleConstants.kBackRightOptions);
-  
-  // Gyro
-  private final Gyro m_gyro;
-  
   // Swerve Drive
   private final SwerveDrive m_swerveDrive;
 
@@ -79,10 +69,6 @@ public class RobotContainer {
 
   // * Elevator
   private final Elevator m_elevator;
-
-  // * Climbertake
-  // private final AlgaeClimbertakePivot m_algaeClimbertakePivot;
-  // private final AlgaeClimbertakeRollers m_algaeClimbertakeRollers;
 
   // * Coral intake
   private final CoralIntakeWrist m_coralIntakeWrist;
@@ -101,18 +87,21 @@ public class RobotContainer {
   public RobotState m_robotState = RobotState.HOME;
 
   public RobotContainer() {
-    // * Gyro
-    m_gyro = new Gyro(new GyroIOPigeon(Constants.SwerveDriveConstants.kGyroDevice));
-
     // * Swerve Drive
-    m_swerveDrive = new SwerveDrive(frontLeft, frontRight, backLeft, backRight, m_gyro);
+    if (Robot.isReal()) {
+      this.m_swerveDrive = new SwerveDrive(new SwerveDriveIOReal(
+        new SwerveModule(Constants.SwerveDriveConstants.SwerveModuleConstants.kFrontLeftOptions),
+        new SwerveModule(Constants.SwerveDriveConstants.SwerveModuleConstants.kFrontRightOptions),
+        new SwerveModule(Constants.SwerveDriveConstants.SwerveModuleConstants.kBackLeftOptions),
+        new SwerveModule(Constants.SwerveDriveConstants.SwerveModuleConstants.kBackRightOptions),
+        new Gyro(new GyroIOPigeon(Constants.SwerveDriveConstants.kGyroDevice))
+      ));
+    } else {
+      this.m_swerveDrive = new SwerveDrive(new SwerveDriveIOSim());
+    }
 
     // * Elevator
     this.m_elevator = new Elevator();
-    
-    // * Climbertake
-    // m_algaeClimbertakePivot = new AlgaeClimbertakePivot();
-    // m_algaeClimbertakeRollers = new AlgaeClimbertakeRollers();
     
     // * Coral intake
     m_coralIntakeWrist = new CoralIntakeWrist();
@@ -123,7 +112,7 @@ public class RobotContainer {
     this.m_limelight3G = new LimelightOdometryCamera(Constants.Vision.Limelight3G.kName, false, VisionOdometryFilters::visionFilter);
     this.m_odometry = new BlueShiftOdometry(
       Constants.SwerveDriveConstants.PhysicalModel.kDriveKinematics, 
-      m_gyro::getHeading,
+      m_swerveDrive::getHeading,
       m_swerveDrive::getModulePositions,
       new Pose2d(),
       m_visionPeriod,
@@ -134,8 +123,8 @@ public class RobotContainer {
 
     // * Speed alterators
     this.m_speedAlterator_turn180 = new Turn180(m_odometry::getEstimatedPosition);
-    this.m_speedAlterator_lookAt = new LookController(this.m_gyro::getYaw, this.DRIVER::getRightX, this.DRIVER::getRightY, 0.1);
-    this.m_speedAlterator_backUp = new BackUp(-0.1, m_gyro::getHeading);
+    this.m_speedAlterator_lookAt = new LookController(this.m_swerveDrive::getHeading, this.DRIVER::getRightX, this.DRIVER::getRightY, 0.1);
+    this.m_speedAlterator_backUp = new BackUp(-0.1, this.m_swerveDrive::getHeading);
     this.m_speedAlterator_goToPose = new GoToPose(m_odometry::getEstimatedPosition, new Pose2d(new Translation2d(3.2, 4), Rotation2d.fromDegrees(180)));
     this.m_speedAlterator_LookAtNearestStation = new LookAtNearestStation(m_odometry::getEstimatedPosition);
     this.m_speedAlterator_AlignToNearestBranch = new AlignToNearestBranch(m_odometry::getEstimatedPosition, this.DRIVER.rightBumper()::getAsBoolean, this.DRIVER::getLeftY, this.DRIVER::getLeftX);
