@@ -63,8 +63,6 @@ public class RobotContainer {
   // Speed alterators
   private final SpeedAlterator m_speedAlterator_turn180;
   private final SpeedAlterator m_speedAlterator_lookAt;
-  private final SpeedAlterator m_speedAlterator_backUp;
-  private final SpeedAlterator m_speedAlterator_goToPose;
   private final SpeedAlterator m_speedAlterator_LookAtNearestStation;
   private final SpeedAlterator m_speedAlterator_AlignToNearestBranch;
 
@@ -127,9 +125,7 @@ public class RobotContainer {
 
     // * Speed alterators
     this.m_speedAlterator_turn180 = new Turn180(m_odometry::getEstimatedPosition);
-    this.m_speedAlterator_lookAt = new LookController(this.m_swerveDrive::getHeading, this.DRIVER::getRightX, this.DRIVER::getRightY, 0.1);
-    this.m_speedAlterator_backUp = new BackUp(-0.1, this.m_swerveDrive::getHeading);
-    this.m_speedAlterator_goToPose = new GoToPose(m_odometry::getEstimatedPosition, new Pose2d(new Translation2d(3.2, 4), Rotation2d.fromDegrees(180)));
+    this.m_speedAlterator_lookAt = new LookController(this.m_swerveDrive::getHeading, this.DRIVER::getRightX, this.DRIVER::getRightY, Constants.SwerveDriveConstants.kJoystickDeadband);
     this.m_speedAlterator_LookAtNearestStation = new LookAtNearestStation(m_odometry::getEstimatedPosition);
     this.m_speedAlterator_AlignToNearestBranch = new AlignToNearestBranch(m_odometry::getEstimatedPosition, this.DRIVER.rightBumper()::getAsBoolean, this.DRIVER::getLeftY, this.DRIVER::getLeftX);
     
@@ -256,7 +252,7 @@ public class RobotContainer {
         m_swerveDrive,
         () -> -DRIVER.getLeftY(),
         () -> -DRIVER.getLeftX(),
-        () -> 0.0, //DRIVER.getLeftTrigger() - DRIVER.getRightTrigger(),
+        () -> DRIVER.getLeftTrigger() - DRIVER.getRightTrigger(),
         () -> !DRIVER.bottomButton().getAsBoolean()
       )
     );
@@ -265,22 +261,21 @@ public class RobotContainer {
     Trigger lookAtTrigger = new Trigger(() -> 
       Math.abs(DRIVER.getRightX()) > SwerveDriveConstants.kJoystickDeadband ||
       Math.abs(DRIVER.getRightY()) > SwerveDriveConstants.kJoystickDeadband
-      );
+    );
       
     // Binding
     lookAtTrigger.onTrue(m_swerveDrive.enableSpeedAlteratorCommand(m_speedAlterator_lookAt));
     lookAtTrigger.onFalse(m_swerveDrive.disableSpeedAlteratorCommand());
-    this.DRIVER.rightBumper().onTrue(m_swerveDrive.enableSpeedAlteratorCommand(m_speedAlterator_goToPose));
-    this.DRIVER.rightBumper().onFalse(m_swerveDrive.disableSpeedAlteratorCommand());
     
     // * Align to reef alterator
-    this.DRIVER.rightBumper().onTrue(m_swerveDrive.enableSpeedAlteratorCommand(m_speedAlterator_AlignToNearestBranch));
+    this.DRIVER.rightBumper().whileTrue(m_swerveDrive.enableSpeedAlteratorCommand(m_speedAlterator_AlignToNearestBranch));
     this.DRIVER.rightBumper().onFalse(m_swerveDrive.disableSpeedAlteratorCommand());
 
-    this.DRIVER.leftBumper().onTrue(m_swerveDrive.enableSpeedAlteratorCommand(m_speedAlterator_AlignToNearestBranch));
+    this.DRIVER.leftBumper().whileTrue(m_swerveDrive.enableSpeedAlteratorCommand(m_speedAlterator_AlignToNearestBranch));
     this.DRIVER.leftBumper().onFalse(m_swerveDrive.disableSpeedAlteratorCommand());
 
     // * Reset heading with right stick button
+    //TODO: think of a better button to bind this to
     this.DRIVER.rightStickButton().onTrue(this.m_swerveDrive.zeroHeadingCommand());
 
     // * Driver Coral intake
@@ -297,10 +292,10 @@ public class RobotContainer {
     this.DRIVER.topButton().onTrue(ScoringCommands.scoreCommand(m_robotState, m_coralIntakeArm, m_coralIntakeRollers));
 
     //TODO change this binding (dev)
-    this.DRIVER.leftTrigger().onTrue(m_climber.setVoltLowCommand(2));
-    this.DRIVER.leftTrigger().onFalse(m_climber.setVoltLowCommand(0));
-    this.DRIVER.rightTrigger().onTrue(m_climber.setVoltLowCommand(-2));
-    this.DRIVER.rightTrigger().onFalse(m_climber.setVoltLowCommand(0));
+    this.DRIVER.startButton().onTrue(m_climber.setVoltLowCommand(2));
+    this.DRIVER.startButton().onFalse(m_climber.setVoltLowCommand(0));
+    this.DRIVER.backButton().onTrue(m_climber.setVoltLowCommand(-2));
+    this.DRIVER.backButton().onFalse(m_climber.setVoltLowCommand(0));
 
     this.DRIVER.povUp().onTrue(m_climber.setVoltHighCommand(2));
     this.DRIVER.povUp().onFalse(m_climber.setVoltHighCommand(0));
@@ -320,22 +315,6 @@ public class RobotContainer {
     // Share
     this.OPERATOR.backButton().whileTrue(m_elevator.setVoltageCommand(-6));
     this.OPERATOR.backButton().onFalse(m_elevator.stopCommand());
-
-    // // * Manuel Climbertake pivot
-    // // Ready
-    // this.OPERATOR.rightBumper().onTrue(this.m_algaeClimbertakePivot.setVoltageCommand(-8));
-    // this.OPERATOR.rightBumper().onFalse(this.m_algaeClimbertakePivot.setVoltageCommand(0));
- 
-    // this.OPERATOR.leftBumper().onTrue(this.m_algaeClimbertakePivot.setVoltageCommand(8));
-    // this.OPERATOR.leftBumper().onFalse(this.m_algaeClimbertakePivot.setVoltageCommand(0));
-
-    // // * Manuel Climbertake
-    // // Ready
-    // this.OPERATOR.leftButton().onTrue(this.m_algaeClimbertakeRollers.setInCommand());
-    // this.OPERATOR.leftButton().onFalse(this.m_algaeClimbertakeRollers.stopCommand());
-    
-    // this.OPERATOR.topButton().onTrue(this.m_algaeClimbertakeRollers.setOutCommand());
-    // this.OPERATOR.topButton().onFalse(this.m_algaeClimbertakeRollers.stopCommand());
 
     // * Coral Intake
     // Ready
