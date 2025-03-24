@@ -10,7 +10,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.LEDConstants;
 import frc.robot.Constants.LEDConstants.LEDAnimations;
-import frc.robot.util.LocalADStarAK;
 import lib.Elastic;
 import lib.Elastic.Notification;
 import lib.Elastic.Notification.NotificationLevel;
@@ -21,7 +20,6 @@ import org.littletonrobotics.urcl.URCL;
 import com.ctre.phoenix.led.CANdle;
 import com.ctre.phoenix6.SignalLogger;
 import com.pathplanner.lib.commands.PathfindingCommand;
-import com.pathplanner.lib.pathfinding.Pathfinding;
 import com.reduxrobotics.canand.CanandEventLoop;
 
 public class Robot extends LoggedRobot {
@@ -56,9 +54,6 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void robotInit() {
-    // * Set pathfinder
-    Pathfinding.setPathfinder(new LocalADStarAK());
-
     // * DISABLE LIVE WINDOW
     LiveWindow.disableAllTelemetry();
 
