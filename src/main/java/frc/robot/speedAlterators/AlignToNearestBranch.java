@@ -61,11 +61,12 @@ public class AlignToNearestBranch extends SpeedAlterator {
         // TODO: Currently it will go to the thresholding pose, offset it to be up against the reef face
         Pose2d poseAlignedToBranch = AllianceFlipUtil.apply(new Pose2d(
             new Translation2d(
+                // TODO: wtf 
                 nearestFaceCenter
-                    .transformBy(new Transform2d(0.0, (FieldConstants.Reef.branchAdjustY + 0.10) * (isRightSupplier.get() ? -1 : 1), Rotation2d.kZero))
+                    .transformBy(new Transform2d(0.0, -(FieldConstants.Reef.branchAdjustY + 0.10) * (isRightSupplier.get() ? 1 : -1), Rotation2d.kZero))
                     .getX(),
                 nearestFaceCenter
-                    .transformBy(new Transform2d(0.0, (FieldConstants.Reef.branchAdjustY + 0.10) * (isRightSupplier.get() ? -1 : 1), Rotation2d.kZero))
+                    .transformBy(new Transform2d(0.0, -(FieldConstants.Reef.branchAdjustY + 0.10) * (isRightSupplier.get() ? 1 : -1), Rotation2d.kZero))
                     .getY()
             ),
             nearestFaceCenter.getRotation()

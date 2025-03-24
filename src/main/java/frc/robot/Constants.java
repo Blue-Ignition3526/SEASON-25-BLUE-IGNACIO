@@ -187,9 +187,9 @@ public class Constants {
     //* Swerve Drive
     public static final class SwerveDriveConstants {
         public static final class PoseControllers {
-            public static final ProfiledPIDController rotationPID = new ProfiledPIDController(12, 0, 0, new TrapezoidProfile.Constraints(400, 180));
-            public static final ProfiledPIDController translationXPID = new ProfiledPIDController(1600.0, 0, 0, new TrapezoidProfile.Constraints(800.0, 500.0));
-            public static final ProfiledPIDController translationYPID = new ProfiledPIDController(1600.0, 0, 0, new TrapezoidProfile.Constraints(800.0, 500.0));
+            public static final ProfiledPIDController rotationPID = new ProfiledPIDController(4, 0, 0, new TrapezoidProfile.Constraints(100, 80));
+            public static final ProfiledPIDController translationXPID = new ProfiledPIDController(1.2, 0, 0, new TrapezoidProfile.Constraints(40.0, 10.0));
+            public static final ProfiledPIDController translationYPID = new ProfiledPIDController(1.2, 0, 0, new TrapezoidProfile.Constraints(40.0, 10.0));
 
             public static final Distance kOffsetBoxHeight = Meters.of(0.25);
             public static final Distance kOffsetBoxWidth = Meters.of(0.25);
