@@ -10,6 +10,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.SwerveDriveConstants;
 import lib.BlueShift.control.SpeedAlterator;
 import frc.robot.util.AllianceFlipUtil;
@@ -31,9 +32,9 @@ public class AlignToNearestBranch extends SpeedAlterator {
     @Override
     public void onEnable() {
         Pose2d pose = poseSupplier.get();
-        SwerveDriveConstants.PoseControllers.translationXPID.reset(pose.getX());
-        SwerveDriveConstants.PoseControllers.translationYPID.reset(pose.getY());
-        SwerveDriveConstants.PoseControllers.rotationPID.reset(pose.getRotation().getRotations());
+        // SwerveDriveConstants.PoseControllers.translationXPID.reset(pose.getX());
+        // SwerveDriveConstants.PoseControllers.translationYPID.reset(pose.getY());
+        // SwerveDriveConstants.PoseControllers.rotationPID.reset(pose.getRotation().getRotations());
     }
 
     ArrayList<Pose2d> getAppropriateReefFaceCenters(Pose2d pose) {
@@ -53,6 +54,7 @@ public class AlignToNearestBranch extends SpeedAlterator {
         ), false), Rotation2d.kZero));
 
         // Get nearest reef face center (thresholding)
+        // TODO: Check if this works with red
         Pose2d nearestFaceCenter = pose.nearest(getAppropriateReefFaceCenters(pose));
 
         // Apply offset to branch (either left or right depending on the value returned by the isRight supplier)
@@ -60,10 +62,10 @@ public class AlignToNearestBranch extends SpeedAlterator {
         Pose2d poseAlignedToBranch = AllianceFlipUtil.apply(new Pose2d(
             new Translation2d(
                 nearestFaceCenter
-                    .transformBy(new Transform2d(0.0, FieldConstants.Reef.branchAdjustY * (isRightSupplier.get() ? -1 : 1), Rotation2d.kZero))
+                    .transformBy(new Transform2d(0.0, (FieldConstants.Reef.branchAdjustY + 0.10) * (isRightSupplier.get() ? -1 : 1), Rotation2d.kZero))
                     .getX(),
                 nearestFaceCenter
-                    .transformBy(new Transform2d(0.0, FieldConstants.Reef.branchAdjustY * (isRightSupplier.get() ? -1 : 1), Rotation2d.kZero))
+                    .transformBy(new Transform2d(0.0, (FieldConstants.Reef.branchAdjustY + 0.10) * (isRightSupplier.get() ? -1 : 1), Rotation2d.kZero))
                     .getY()
             ),
             nearestFaceCenter.getRotation()
@@ -74,8 +76,16 @@ public class AlignToNearestBranch extends SpeedAlterator {
         Logger.recordOutput("Automation/NearestReefFaceCenter", nearestFaceCenter);
         Logger.recordOutput("Automation/AlignedToBranch", poseAlignedToBranch);
 
+        double vX = SwerveDriveConstants.PoseControllers.translationXPID.calculate(pose.getX(), poseAlignedToBranch.getX());
+        SmartDashboard.putNumber("PLSPLS/Vx", vX);
+        double vY = SwerveDriveConstants.PoseControllers.translationYPID.calculate(pose.getY(), poseAlignedToBranch.getY());
+        SmartDashboard.putNumber("PLSPLS/Vy", vY);
+        double rot = SwerveDriveConstants.PoseControllers.rotationPID.calculate(pose.getRotation().getRotations(), poseAlignedToBranch.getRotation().getRotations());
 
+        ChassisSpeeds newSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(vX, vY, rot, pose.getRotation());
+        
+        SmartDashboard.putString("Automation/TargetSpeeds", newSpeeds.toString());
 
-        return speeds;
+        return newSpeeds;
     }
 }

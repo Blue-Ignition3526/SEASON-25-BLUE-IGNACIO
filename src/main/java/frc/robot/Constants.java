@@ -13,6 +13,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import frc.robot.subsystems.Elevator.ElevatorPosition;
 import frc.robot.subsystems.CoralIntakeArm.ArmPosition;
@@ -25,6 +26,7 @@ import static edu.wpi.first.units.Units.*;
 import com.ctre.phoenix.led.LarsonAnimation;
 import com.ctre.phoenix.led.RainbowAnimation;
 import com.ctre.phoenix.led.SingleFadeAnimation;
+import com.ctre.phoenix.led.StrobeAnimation;
 import com.ctre.phoenix.led.CANdle.LEDStripType;
 import com.ctre.phoenix.led.LarsonAnimation.BounceMode;
 import com.pathplanner.lib.config.PIDConstants;
@@ -49,6 +51,8 @@ public class Constants {
             public static final RainbowAnimation kThinkingAnimation = new RainbowAnimation(LEDConstants.kBrightness, 0.85, kTotalLedNum);
             public static final SingleFadeAnimation kIdleAnimation = new SingleFadeAnimation(0, 0, 255, 0, 0.5, 20);
             public static final SingleFadeAnimation kTeleopAnimation = new SingleFadeAnimation(0, 0, 255, 0, 1, 20);
+            public static final LarsonAnimation kIntakeStartAnimation = new LarsonAnimation(0, 0, 255, 0, 0.75, kTotalLedNum, BounceMode.Front, 1);
+            public static final StrobeAnimation kIntakeCompleteAnimation = new StrobeAnimation(0, 0, 255, 0, 0.5, kTotalLedNum);
             public static final LarsonAnimation kAutoAnimation = new LarsonAnimation(0, 0, 255, 0, 0.85, kTotalLedNum, BounceMode.Front, 3);
         }
     }
@@ -183,9 +187,9 @@ public class Constants {
     //* Swerve Drive
     public static final class SwerveDriveConstants {
         public static final class PoseControllers {
-            public static final ProfiledPIDController rotationPID = new ProfiledPIDController(10, 0, 0, new TrapezoidProfile.Constraints(400, 180));
-            public static final ProfiledPIDController translationXPID = new ProfiledPIDController(1, 0, 0, new TrapezoidProfile.Constraints(4.5, 3.3526));
-            public static final ProfiledPIDController translationYPID = new ProfiledPIDController(1, 0, 0, new TrapezoidProfile.Constraints(4.5, 3.3526));
+            public static final ProfiledPIDController rotationPID = new ProfiledPIDController(12, 0, 0, new TrapezoidProfile.Constraints(400, 180));
+            public static final ProfiledPIDController translationXPID = new ProfiledPIDController(1600.0, 0, 0, new TrapezoidProfile.Constraints(800.0, 500.0));
+            public static final ProfiledPIDController translationYPID = new ProfiledPIDController(1600.0, 0, 0, new TrapezoidProfile.Constraints(800.0, 500.0));
 
             public static final Distance kOffsetBoxHeight = Meters.of(0.25);
             public static final Distance kOffsetBoxWidth = Meters.of(0.25);

@@ -141,11 +141,13 @@ public class SwerveDrive extends SubsystemBase {
      * @param rotSpeed
      */
     public void drive(ChassisSpeeds speeds) {
+        Logger.recordOutput("SwerveDrive/SpeedsAltered", speeds);
         if (speedAlterator != null) {
             this.speeds = speedAlterator.alterSpeed(speeds, drivingRobotRelative);
         } else {
             this.speeds = speeds;
         }
+        Logger.recordOutput("SwerveDrive/SpeedsUnaltered", speeds);
 
         // Convert speeds to module states
         SwerveModuleState[] m_moduleStates = Constants.SwerveDriveConstants.PhysicalModel.kDriveKinematics.toSwerveModuleStates(this.speeds);
