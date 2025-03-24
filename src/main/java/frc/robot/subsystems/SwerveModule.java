@@ -97,6 +97,7 @@ public class SwerveModule extends SubsystemBase {
             .withVoltage(
                 new VoltageConfigs()
                     .withPeakForwardVoltage(12)
+                    .withPeakReverseVoltage(-12)
             )
             .withMotorOutput(
                 new MotorOutputConfigs()
