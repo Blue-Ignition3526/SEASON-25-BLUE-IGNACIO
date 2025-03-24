@@ -19,7 +19,7 @@ public class SwerveDriveIOSim implements SwerveDriveIO {
     private final SwerveModuleSim m_backLeft;
     private final SwerveModuleSim m_backRight;
 
-    private ChassisSpeeds m_chassisSpeeds = new ChassisSpeeds();
+    private ChassisSpeeds speeds = new ChassisSpeeds();
     private double heading = 0;
     private double speedsUpdated = Timer.getFPGATimestamp();
     private boolean drivingRobotRelative = false;
@@ -54,9 +54,9 @@ public class SwerveDriveIOSim implements SwerveDriveIO {
      */
     public ChassisSpeeds getRobotRelativeChassisSpeeds() {
         if (this.drivingRobotRelative) {
-            return this.m_chassisSpeeds;
+            return this.speeds;
         } else {
-            return ChassisSpeeds.fromFieldRelativeSpeeds(m_chassisSpeeds, getHeading());
+            return ChassisSpeeds.fromFieldRelativeSpeeds(speeds, getHeading());
         }
     }
 
@@ -94,8 +94,13 @@ public class SwerveDriveIOSim implements SwerveDriveIO {
      * @param speeds The speeds to drive at (Check `ChassisSpeeds` for more info)
      */
     public void drive(ChassisSpeeds speeds) {
+        if (speedAlterator != null) {
+            this.speeds = speedAlterator.alterSpeed(speeds, drivingRobotRelative);
+        } else {
+            this.speeds = speeds;
+        }
+
         this.speedsUpdated = Timer.getFPGATimestamp();
-        this.m_chassisSpeeds = speeds;
         SwerveModuleState[] m_moduleStates = SwerveDriveConstants.PhysicalModel.kDriveKinematics.toSwerveModuleStates(speeds);
         this.setModuleStates(m_moduleStates);
     }
@@ -174,7 +179,7 @@ public class SwerveDriveIOSim implements SwerveDriveIO {
     }
 
     public void periodic() {
-        this.heading += m_chassisSpeeds.omegaRadiansPerSecond * (Timer.getFPGATimestamp() - this.speedsUpdated);
+        this.heading += speeds.omegaRadiansPerSecond * (Timer.getFPGATimestamp() - this.speedsUpdated);
 
         Logger.recordOutput("SwerveDrive/RobotHeadingRad", this.getHeading().getRadians());
         Logger.recordOutput("SwerveDrive/RobotHeadingDeg", this.getHeading().getDegrees());
