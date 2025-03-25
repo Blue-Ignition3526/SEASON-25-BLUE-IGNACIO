@@ -342,8 +342,8 @@ public class SwerveModule extends SubsystemBase {
     }
 
     public void periodic() {
-        Logger.recordOutput("SwerveDrive/" + this.options.name + "/MotEncoderDeg", this.getAngle().in(Radians));
-        Logger.recordOutput("SwerveDrive/" + this.options.name + "/AbsEncoderDeg", this.getAbsoluteEncoderPosition().in(Radians));
+        Logger.recordOutput("SwerveDrive/" + this.options.name + "/MotEncoderDeg", this.getAngle().in(Degrees));
+        Logger.recordOutput("SwerveDrive/" + this.options.name + "/AbsEncoderDeg", this.getAbsoluteEncoderPosition().in(Degrees));
         Logger.recordOutput("SwerveDrive/" + this.options.name + "/RealState", this.getRealState());
         Logger.recordOutput("SwerveDrive/" + this.options.name + "/TargetState", this.getTargetState());
     }
