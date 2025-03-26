@@ -73,8 +73,8 @@ public class DriveSwerve extends Command {
 
     // Apply deadzone to the joystick values
     if(Math.hypot(x, y) > Constants.SwerveDriveConstants.kJoystickDeadband) {
-      x = (x + ((x > 0 ? -1 : 1) * Constants.SwerveDriveConstants.kJoystickDeadband)) * 1 / ( 1 - Constants.SwerveDriveConstants.kJoystickDeadband);
-      y = (y + ((y > 0 ? -1 : 1) * Constants.SwerveDriveConstants.kJoystickDeadband)) * 1 / ( 1 - Constants.SwerveDriveConstants.kJoystickDeadband);
+      //x = (x + ((x > 0 ? -1 : 1) * Constants.SwerveDriveConstants.kJoystickDeadband)) * 1 / ( 1 - Constants.SwerveDriveConstants.kJoystickDeadband);
+      //y = (y + ((y > 0 ? -1 : 1) * Constants.SwerveDriveConstants.kJoystickDeadband)) * 1 / ( 1 - Constants.SwerveDriveConstants.kJoystickDeadband);
     } else {
       x = 0;
       y = 0;
