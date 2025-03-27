@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -246,13 +247,12 @@ public class RobotContainer {
     this.DRIVER.rightStickButton().onTrue(this.m_swerveDrive.zeroHeadingCommand());
 
     // * Driver Coral intake
-    this.DRIVER.leftButton().onTrue(new ParallelCommandGroup(
+    this.DRIVER.leftButton().toggleOnTrue(new ParallelCommandGroup(
       ScoringCommands.scorePositionCommand(RobotState.SOURCE, m_elevator, m_coralIntakeArm, m_coralIntakeWrist),
       m_coralIntakeRollers.setInCommand()
     ));
     this.DRIVER.leftButton().onFalse(new ParallelCommandGroup(
-      ScoringCommands.scorePositionCommand(RobotState.L1, m_elevator, m_coralIntakeArm, m_coralIntakeWrist),
-      m_coralIntakeRollers.stopCommand()
+      m_elevator.setSetpointCommand(RobotState.L1.getElevatorPosition())
     ));
 
     // * Driver score

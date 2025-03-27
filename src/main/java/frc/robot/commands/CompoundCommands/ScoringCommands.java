@@ -41,7 +41,7 @@ public class ScoringCommands {
         } else {
             return new SequentialCommandGroup(
                 new InstantCommand(coralRollers::setOut),
-                new WaitCommand(0.1),
+                new WaitCommand(0.075),
                 new InstantCommand(()->arm.setSetpoint(ArmPosition.HORIZONTAL))
             );
         }

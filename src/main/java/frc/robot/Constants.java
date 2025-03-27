@@ -354,7 +354,7 @@ public class Constants {
 
         // Parameters
         public static final double kRollersInVoltage = 6;
-        public static final double kRollersOutVoltage = -4;
+        public static final double kRollersOutVoltage = -3.5;
     }
 
     public static final class ClimberConstants {
