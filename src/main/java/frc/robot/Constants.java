@@ -288,9 +288,9 @@ public class Constants {
 
         // * AUTONOMOUS
         public static final class AutonomousConstants {
-            public static final PIDConstants kTranslatePIDConstants = new PIDConstants(5.0, 0.0, 0.0);
-            public static final PIDConstants kRotatePIDConstants = new PIDConstants(5.0, 0.0, 0.0);
-            public static final Measure<LinearVelocityUnit> kMaxSpeedMetersPerSecond = MetersPerSecond.of(4);
+            public static final PIDConstants kTranslatePIDConstants = new PIDConstants(1.0, 0.0, 0.0);
+            public static final PIDConstants kRotatePIDConstants = new PIDConstants(1.0, 0.0, 0.0);
+            // public static final Measure<LinearVelocityUnit> kMaxSpeedMetersPerSecond = MetersPerSecond.of(3);
         }
     }
 
@@ -336,7 +336,7 @@ public class Constants {
         public static final double kMotionMagicVelocity = 35;
         public static final double kMotionMagicAcceleration = 20;
         public static final double kSensorToMechanism = 20;
-        public static final double kElevatorTolerance = 0.1;
+        public static final double kElevatorTolerance = 0.3;
     }
 
     public static final class CoralIntakeRollerConstants {
@@ -354,7 +354,7 @@ public class Constants {
 
         // Parameters
         public static final double kRollersInVoltage = 6;
-        public static final double kRollersOutVoltage = -6;
+        public static final double kRollersOutVoltage = -4;
     }
 
     public static final class ClimberConstants {

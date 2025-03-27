@@ -1,5 +1,7 @@
 package frc.robot;
 
+import static edu.wpi.first.units.Units.MetersPerSecond;
+
 import java.util.HashMap;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -132,45 +134,10 @@ public class RobotContainer {
     // * Autonomous
     // Register commands
     NamedCommands.registerCommands(new HashMap<String, Command>(){{
-       put("Score-L1", new SequentialCommandGroup(
-        ScoringCommands.scorePositionAutoCommand(RobotState.L1, m_elevator, m_coralIntakeArm, m_coralIntakeWrist),
-        new WaitCommand(0.5),
-        m_coralIntakeRollers.setOutCommand(),
-        new WaitCommand(0.5),
-        m_coralIntakeRollers.stopCommand()
-       ));
+      put("ScorePos-L1", ScoringCommands.scorePositionAutoCommand(RobotState.L1, m_elevator, m_coralIntakeArm, m_coralIntakeWrist));
+      put("ScorePos-L2", ScoringCommands.scorePositionAutoCommand(RobotState.L2, m_elevator, m_coralIntakeArm, m_coralIntakeWrist));
 
-       // TODO: Checar bien el wait que llegue
-       put("Score-L2", new SequentialCommandGroup(
-        ScoringCommands.scorePositionAutoCommand(RobotState.L2, m_elevator, m_coralIntakeArm, m_coralIntakeWrist),
-        new WaitCommand(0.5),
-        m_coralIntakeRollers.setOutCommand(),
-        new WaitCommand(0.5),
-        m_coralIntakeRollers.stopCommand()
-       ));
-
-       put("Score-L3", new SequentialCommandGroup(
-        ScoringCommands.scorePositionAutoCommand(RobotState.L3, m_elevator, m_coralIntakeArm, m_coralIntakeWrist),
-        new WaitCommand(0.5),
-        m_coralIntakeRollers.setOutCommand(),
-        new WaitCommand(0.5),
-        m_coralIntakeRollers.stopCommand()
-       ));
-
-       put("Score-L4", new SequentialCommandGroup(
-        ScoringCommands.scorePositionAutoCommand(RobotState.L4, m_elevator, m_coralIntakeArm, m_coralIntakeWrist),
-        new WaitCommand(0.5),
-        m_coralIntakeRollers.setOutCommand(),
-        new WaitCommand(0.5),
-        m_coralIntakeRollers.stopCommand()
-       ));
-
-       put("Intake-Coral", new SequentialCommandGroup(
-        ScoringCommands.scorePositionCommand(RobotState.SOURCE, m_elevator, m_coralIntakeArm, m_coralIntakeWrist),
-        m_coralIntakeRollers.setInCommand(),
-        new WaitCommand(2),
-        m_coralIntakeRollers.stopCommand()
-       ));
+      put("Score-L1", ScoringCommands.scoreCommand(RobotState.L1, m_coralIntakeArm, m_coralIntakeRollers));
     }});
 
     // Robot config
@@ -186,13 +153,13 @@ public class RobotContainer {
       m_odometry::getEstimatedPosition,
       m_odometry::resetPosition,
       m_swerveDrive::getRobotRelativeChassisSpeeds,
-      (ChassisSpeeds speeds, DriveFeedforwards ff) -> m_swerveDrive.drive(speeds),
+      (ChassisSpeeds speeds, DriveFeedforwards ff) -> m_swerveDrive.driveRobotRelative(speeds),
       new PPHolonomicDriveController(
         SwerveDriveConstants.AutonomousConstants.kTranslatePIDConstants,
         SwerveDriveConstants.AutonomousConstants.kRotatePIDConstants
       ),
       ppRobotConfig,
-      () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue,
+      () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
       m_swerveDrive
     );
 
@@ -292,9 +259,9 @@ public class RobotContainer {
     this.DRIVER.topButton().onTrue(ScoringCommands.scoreCommand(m_robotState, m_coralIntakeArm, m_coralIntakeRollers));
 
     //TODO change this binding (dev)
-    this.DRIVER.startButton().onTrue(m_climber.setVoltLowCommand(2));
+    this.DRIVER.startButton().onTrue(m_climber.setVoltLowCommand(8));
     this.DRIVER.startButton().onFalse(m_climber.setVoltLowCommand(0));
-    this.DRIVER.backButton().onTrue(m_climber.setVoltLowCommand(-2));
+    this.DRIVER.backButton().onTrue(m_climber.setVoltLowCommand(-8));
     this.DRIVER.backButton().onFalse(m_climber.setVoltLowCommand(0));
 
     this.DRIVER.povUp().onTrue(m_climber.setVoltHighCommand(2));
@@ -335,7 +302,7 @@ public class RobotContainer {
     this.OPERATOR.rightTrigger().onTrue(this.m_coralIntakeArm.setSetpointCommand(ArmPosition.HIGH));
 
     // * Autoalign
-    this.OPERATOR.rightStickButton().onTrue(m_swerveDrive.enableSpeedAlteratorCommand(m_speedAlterator_LookAtNearestStation));
+    this.OPERATOR.rightStickButton().whileTrue(m_swerveDrive.enableSpeedAlteratorCommand(m_speedAlterator_LookAtNearestStation));
     this.OPERATOR.rightStickButton().onFalse(m_swerveDrive.disableSpeedAlteratorCommand());
 
     // * Selected level bindings

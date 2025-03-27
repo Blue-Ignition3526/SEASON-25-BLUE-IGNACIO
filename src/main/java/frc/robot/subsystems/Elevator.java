@@ -31,20 +31,20 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 // TODO: Check unused stuff
 public class Elevator extends SubsystemBase {
 	// * Setpoints
-	public static enum ElevatorPosition {
-		L1(3.0), // ! Tuned
+	public static enum  ElevatorPosition {
+		L1(1.8), // ! Tuned
 
-		L2(3.9), // ! Tuned
-		L2_ALGAE_HIGH(5.36), // ! Tuned
-		L2_ALGAE_LOW(3.0), // ! Tuned
+		L2(2.35), // ! Tuned
+		L2_ALGAE_HIGH(5.36), //  Tuned
+		L2_ALGAE_LOW(3.0), //  Tuned
 
-		L3(9.37), // ! Tuned
+		L3(5.16), // ! Tuned
 		L3_ALGAE_HIGH(9.5), // ! Tuned
 		L3_ALGAE_LOW(8.2), // ! Tuned
 
-		L4(15.5), // ! Tuned 
+		L4(9.7), // ! Tuned 
 
-		SOURCE(3.6), // ! Tuned
+		SOURCE(1.8), // ! Tuned
 
 		HOME(0.5); // ! Tuned
 		
@@ -158,7 +158,7 @@ public class Elevator extends SubsystemBase {
     this.leftElevatorMotor.getConfigurator().apply(leftElevatorMotorConfig);
 
     // * Encoder
-	this.rightElevatorMotor.setPosition(0);
+	// this.rightElevatorMotor.setPosition(0);
 
     // Start device check
 	deviceCheckNotifier.setName(getName() + " Device Check");
@@ -228,7 +228,9 @@ public class Elevator extends SubsystemBase {
 	}
 
 	public Command setSetpointCommand(ElevatorPosition setpoint) {
-		return run(() -> setSetpoint(setpoint));//.until(() -> Math.abs(rightElevatorMotor.getPosition().getValueAsDouble() - setpoint.getPosition()) < ElevatorConstants.kElevatorTolerance);
+		return 
+		run(() -> setSetpoint(setpoint))
+		.until(() -> Math.abs(rightElevatorMotor.getPosition().getValueAsDouble() - setpoint.getPosition()) < ElevatorConstants.kElevatorTolerance);
 	}
 
 	public Command resetElevatorPositionCommand() {

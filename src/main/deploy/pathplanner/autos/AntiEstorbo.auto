@@ -5,9 +5,21 @@
     "data": {
       "commands": [
         {
+          "type": "named",
+          "data": {
+            "name": "ScorePos-L1"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "AntiEstorbo"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Score-L1"
           }
         }
       ]
