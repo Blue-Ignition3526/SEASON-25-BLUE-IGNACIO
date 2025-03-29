@@ -221,7 +221,7 @@ public class SwerveModule extends SubsystemBase {
         if (Math.abs(turnEncErr) > 5) {
             alert_turnEncodersOutOfSync.set(true);
             DriverStation.reportError(options.name +  " turning encoders are out of sync (" + String.valueOf(turnEncErr) + "°)", false);
-            // resetTurningEncoder();
+            resetTurningEncoder();
         } else {
             alert_turnEncodersOutOfSync.set(false);
         }

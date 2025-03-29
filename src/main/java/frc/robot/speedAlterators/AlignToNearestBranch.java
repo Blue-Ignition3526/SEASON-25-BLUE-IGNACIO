@@ -48,10 +48,11 @@ public class AlignToNearestBranch extends SpeedAlterator {
         Pose2d pose = poseSupplier.get();
 
         // Add offset to pose
-        Pose2d thresholdingPose = new Pose2d(pose.getTranslation(), pose.getRotation()).transformBy(new Transform2d(AllianceFlipUtil.apply(new Translation2d(
-            SwerveDriveConstants.PoseControllers.kOffsetBoxWidth.times(xOffsetSupplier.get()),
-            SwerveDriveConstants.PoseControllers.kOffsetBoxWidth.times(yOffsetSupplier.get())
-        ), false), Rotation2d.kZero));
+        // Pose2d thresholdingPose = new Pose2d(pose.getTranslation(), pose.getRotation()).transformBy(new Transform2d(AllianceFlipUtil.apply(new Translation2d(
+        //     SwerveDriveConstants.PoseControllers.kOffsetBoxWidth.times(xOffsetSupplier.get()),
+        //     SwerveDriveConstants.PoseControllers.kOffsetBoxWidth.times(yOffsetSupplier.get())
+        // ), false), Rotation2d.kZero));
+        Pose2d thresholdingPose = pose;
 
         // Get nearest reef face center (thresholding)
         // TODO: Check if this works with red
