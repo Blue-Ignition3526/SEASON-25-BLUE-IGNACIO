@@ -147,7 +147,7 @@ public class CoralIntakeWrist extends SubsystemBase {
    * @return
    */
   public Command setSetpointCommand(WristPosition setpoint) {
-    return runOnce(() -> setSetpoint(setpoint));
+    return runOnce(() -> setSetpoint(setpoint)).until(this::atSetpoint);
   }
 
   /**

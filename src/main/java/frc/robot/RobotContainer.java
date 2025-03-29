@@ -135,10 +135,10 @@ public class RobotContainer {
     // * Autonomous
     // Register commands
     NamedCommands.registerCommands(new HashMap<String, Command>(){{
-      put("ScorePos-L1", ScoringCommands.scorePositionAutoCommand(RobotState.L1, m_elevator, m_coralIntakeArm, m_coralIntakeWrist));
-      put("ScorePos-L2", ScoringCommands.scorePositionAutoCommand(RobotState.L2, m_elevator, m_coralIntakeArm, m_coralIntakeWrist));
+      put("L1", ScoringCommands.scorePositionAutoCommand(RobotState.L1, m_elevator, m_coralIntakeArm, m_coralIntakeWrist));
+      put("L2", ScoringCommands.scorePositionAutoCommand(RobotState.L2, m_elevator, m_coralIntakeArm, m_coralIntakeWrist));
 
-      put("Score-L1", ScoringCommands.scoreCommand(RobotState.L1, m_coralIntakeArm, m_coralIntakeRollers));
+      put("Score-L1", ScoringCommands.scoreCommand(RobotState.L1, m_elevator, m_coralIntakeArm, m_coralIntakeWrist, m_coralIntakeRollers));
     }});
 
     // Robot config
@@ -247,16 +247,17 @@ public class RobotContainer {
     this.DRIVER.rightStickButton().onTrue(this.m_swerveDrive.zeroHeadingCommand());
 
     // * Driver Coral intake
-    this.DRIVER.leftButton().toggleOnTrue(new ParallelCommandGroup(
+    this.DRIVER.leftButton().onTrue(new ParallelCommandGroup(
       ScoringCommands.scorePositionCommand(RobotState.SOURCE, m_elevator, m_coralIntakeArm, m_coralIntakeWrist),
-      m_coralIntakeRollers.setInCommand()
+      m_coralIntakeRollers.intakeUntilPieceDetected()
     ));
     this.DRIVER.leftButton().onFalse(new ParallelCommandGroup(
-      m_elevator.setSetpointCommand(RobotState.L1.getElevatorPosition())
+      ScoringCommands.scorePositionCommand(RobotState.HOME, m_elevator, m_coralIntakeArm, m_coralIntakeWrist),
+      m_coralIntakeRollers.intakeUntilPieceDetected()
     ));
 
     // * Driver score
-    this.DRIVER.topButton().onTrue(ScoringCommands.scoreCommand(m_robotState, m_coralIntakeArm, m_coralIntakeRollers));
+    this.DRIVER.topButton().onTrue(ScoringCommands.scoreCommand(ScoringCommands.StateMachine.getInstance().getState(), m_elevator, m_coralIntakeArm, m_coralIntakeWrist, m_coralIntakeRollers));
 
     //TODO change this binding (dev)
     this.DRIVER.startButton().onTrue(m_climber.setVoltLowCommand(8));
@@ -306,10 +307,10 @@ public class RobotContainer {
     this.OPERATOR.rightStickButton().onFalse(m_swerveDrive.disableSpeedAlteratorCommand());
 
     // * Selected level bindings
-    this.OPERATOR.povDown().onTrue(new InstantCommand(() -> m_robotState = RobotState.L1));
-    this.OPERATOR.povLeft().onTrue(new InstantCommand(() -> m_robotState = RobotState.L2));
-    this.OPERATOR.povRight().onTrue(new InstantCommand(() -> m_robotState = RobotState.L3));
-    this.OPERATOR.povUp().onTrue(new InstantCommand(() -> m_robotState = RobotState.L4));
+    //this.OPERATOR.povDown().onTrue(new InstantCommand(() -> m_robotState = RobotState.L1));
+    //this.OPERATOR.povLeft().onTrue(new InstantCommand(() -> m_robotState = RobotState.L2));
+    //this.OPERATOR.povRight().onTrue(new InstantCommand(() -> m_robotState = RobotState.L3));
+    //this.OPERATOR.povUp().onTrue(new InstantCommand(() -> m_robotState = RobotState.L4));
 
     this.OPERATOR.povDown().onTrue(ScoringCommands.scorePositionCommand(RobotState.L1, m_elevator, m_coralIntakeArm, m_coralIntakeWrist));
     this.OPERATOR.povLeft().onTrue(ScoringCommands.scorePositionCommand(RobotState.L2, m_elevator, m_coralIntakeArm, m_coralIntakeWrist));
@@ -318,6 +319,9 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return m_autonomousChooser.getSelected();
+    return new ParallelCommandGroup(
+      new InstantCommand(m_odometry::setVisionPose),
+      m_autonomousChooser.getSelected()
+    );
   }
 }

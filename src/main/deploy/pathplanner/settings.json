@@ -6,13 +6,11 @@
     "Approach",
     "Old"
   ],
-  "autoFolders": [
-    "Old"
-  ],
+  "autoFolders": [],
   "defaultMaxVel": 3.0,
-  "defaultMaxAccel": 3.0,
-  "defaultMaxAngVel": 540.0,
-  "defaultMaxAngAccel": 720.0,
+  "defaultMaxAccel": 1.5,
+  "defaultMaxAngVel": 360.0,
+  "defaultMaxAngAccel": 360.0,
   "defaultNominalVoltage": 12.0,
   "robotMass": 59.6,
   "robotMOI": 6.0,

@@ -34,19 +34,19 @@ public class Elevator extends SubsystemBase {
 	public static enum  ElevatorPosition {
 		L1(1.8), // ! Tuned
 
-		L2(2.35), // ! Tuned
-		L2_ALGAE_HIGH(5.36), //  Tuned
-		L2_ALGAE_LOW(3.0), //  Tuned
+		L2(2.27), // ! Tuned
+		L2_ALGAE_HIGH(5.36), // TODO
+		L2_ALGAE_LOW(3.0), // TODO
 
-		L3(5.16), // ! Tuned
-		L3_ALGAE_HIGH(9.5), // ! Tuned
-		L3_ALGAE_LOW(8.2), // ! Tuned
+		L3(4.60), // ! Tuned
+		L3_ALGAE_HIGH(9.5), // TODO
+		L3_ALGAE_LOW(8.2), // TODO
 
-		L4(9.7), // ! Tuned 
+		L4(9.18), // ! Tuned 
 
-		SOURCE(1.8), // ! Tuned
+		SOURCE(1.8), // TODO
 
-		HOME(0.5); // ! Tuned
+		HOME(0.5); // TODO
 		
 
 		private double position;
@@ -227,10 +227,12 @@ public class Elevator extends SubsystemBase {
 		return runOnce(this::stop);
 	}
 
+	public boolean atSetpoint() {
+		return Math.abs(rightElevatorMotor.getPosition().getValueAsDouble() - m_setpoint.getPosition()) < ElevatorConstants.kElevatorTolerance;
+	}
+
 	public Command setSetpointCommand(ElevatorPosition setpoint) {
-		return 
-		run(() -> setSetpoint(setpoint))
-		.until(() -> Math.abs(rightElevatorMotor.getPosition().getValueAsDouble() - setpoint.getPosition()) < ElevatorConstants.kElevatorTolerance);
+		return run(() -> setSetpoint(setpoint)).until(() -> atSetpoint());
 	}
 
 	public Command resetElevatorPositionCommand() {

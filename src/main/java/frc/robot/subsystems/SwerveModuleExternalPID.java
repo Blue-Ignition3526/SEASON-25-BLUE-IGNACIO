@@ -12,14 +12,12 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
-import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
-
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -38,7 +36,7 @@ import org.littletonrobotics.junction.Logger;
 
 // TODO: It's probably better to store the status signals and refresh when needed
 // but for now this will do
-public class SwerveModule extends SubsystemBase {
+public class SwerveModuleExternalPID extends SubsystemBase {
     // * Options for the module
     public final SwerveModuleOptions options;
 
@@ -51,7 +49,7 @@ public class SwerveModule extends SubsystemBase {
     private final SparkMaxConfig turnConfig;
 
     // * PID Controller for turning
-    public final SparkClosedLoopController turnPID;
+    public final PIDController turnPID;
 
     // * Absolute encoder
     private final CANcoder absoluteEncoder;
@@ -77,7 +75,7 @@ public class SwerveModule extends SubsystemBase {
      * Create a new swerve module with the provided options
      * @param options
      */
-    public SwerveModule(SwerveModuleOptions options) {
+    public SwerveModuleExternalPID(SwerveModuleOptions options) {
         // * Store the options
         this.options = options;
 
@@ -131,18 +129,19 @@ public class SwerveModule extends SubsystemBase {
             //.uvwAverageDepth(2);
 
         // Configure closed loop controller
-        this.turnConfig.closedLoop
-            .p(Constants.SwerveDriveConstants.SwerveModuleConstants.kTurningPIDConstants.kP)
-            .i(Constants.SwerveDriveConstants.SwerveModuleConstants.kTurningPIDConstants.kI)
-            .d(Constants.SwerveDriveConstants.SwerveModuleConstants.kTurningPIDConstants.kD)
-            .positionWrappingInputRange(0, 1)
-            .positionWrappingEnabled(true);
+        // this.turnConfig.closedLoop
+        //     .p(Constants.SwerveDriveConstants.SwerveModuleConstants.kTurningPIDConstants.kP)
+        //     .i(Constants.SwerveDriveConstants.SwerveModuleConstants.kTurningPIDConstants.kI)
+        //     .d(Constants.SwerveDriveConstants.SwerveModuleConstants.kTurningPIDConstants.kD)
+        //     .positionWrappingInputRange(0, 1)
+        //     .positionWrappingEnabled(true);
         
         // Apply config to turn motor
         this.turnMotor.configure(turnConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
 
         // * Get the PID controller for the turning motor
-        this.turnPID = turnMotor.getClosedLoopController();
+        this.turnPID = Constants.SwerveDriveConstants.SwerveModuleConstants.kTurningPIDConstants.toPIDController();
+        this.turnPID.enableContinuousInput(0, 1);
 
         // * Absolute encoder
         this.absoluteEncoder = new CANcoder(options.absoluteEncoderDevice.getDeviceID(), options.absoluteEncoderDevice.getCanbus());
@@ -304,7 +303,7 @@ public class SwerveModule extends SubsystemBase {
 
         // Set motor speeds
         driveMotor.setVoltage(state.speedMetersPerSecond / Constants.SwerveDriveConstants.PhysicalModel.kMaxSpeed.in(MetersPerSecond) * 12);
-        turnPID.setReference(state.angle.getRotations(), ControlType.kPosition);
+        turnMotor.setVoltage(turnPID.calculate(getAbsoluteEncoderPosition().in(Rotations), state.angle.getRotations()));
     }
 
     /**
@@ -346,6 +345,7 @@ public class SwerveModule extends SubsystemBase {
     }
 
     public void periodic() {
+        Logger.recordOutput("SwerveDrive/" + this.options.name + "/TurnMotorVoltage", turnMotor.getAppliedOutput() * turnMotor.getBusVoltage());
         Logger.recordOutput("SwerveDrive/" + this.options.name + "/MotEncoderDeg", MathUtil.inputModulus(this.getAngle().in(Degrees), 0, 360));
         Logger.recordOutput("SwerveDrive/" + this.options.name + "/AbsEncoderDeg", this.getAbsoluteEncoderPosition().in(Degrees));
         Logger.recordOutput("SwerveDrive/" + this.options.name + "/AbsEncoderDegDirect", this.absoluteEncoder.getAbsolutePosition().refresh().getValue().in(Degrees));

@@ -9,11 +9,17 @@
           "data": {
             "pathName": "Start-Center-K"
           }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "K-Station-L"
+          }
         }
       ]
     }
   },
-  "resetOdom": true,
+  "resetOdom": false,
   "folder": null,
   "choreoAuto": false
 }

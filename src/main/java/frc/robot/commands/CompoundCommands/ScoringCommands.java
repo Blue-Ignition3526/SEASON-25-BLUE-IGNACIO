@@ -54,7 +54,7 @@ public class ScoringCommands {
         );
     }
     
-    public static final Command scoreCommand(RobotState level, CoralIntakeArm arm, CoralIntakeRollers coralRollers) {
+    public static final Command scoreCommand(RobotState level, Elevator elevator, CoralIntakeArm arm, CoralIntakeWrist wrist, CoralIntakeRollers coralRollers) {
         if (level == RobotState.L1) {
             return new SequentialCommandGroup(
                 new InstantCommand(coralRollers::setOut),
@@ -70,3 +70,14 @@ public class ScoringCommands {
         }
     }
 }
+/*
+else if (level == RobotState.SOURCE || level == RobotState.HOME) {
+    return new SequentialCommandGroup(
+        scorePositionCommand(level, elevator, arm, wrist),
+
+        new InstantCommand(coralRollers::setOut),
+        new WaitCommand(0.075),
+        new InstantCommand(()->arm.setSetpoint(ArmPosition.HORIZONTAL))
+    );
+}
+*/

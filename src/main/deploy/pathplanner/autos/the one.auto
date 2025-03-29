@@ -19,7 +19,7 @@
         {
           "type": "named",
           "data": {
-            "name": "Score"
+            "name": null
           }
         },
         {
@@ -31,7 +31,7 @@
         {
           "type": "named",
           "data": {
-            "name": "Algae-L3"
+            "name": null
           }
         },
         {
@@ -43,7 +43,7 @@
         {
           "type": "named",
           "data": {
-            "name": "Intake-Coral"
+            "name": null
           }
         },
         {
@@ -61,7 +61,7 @@
         {
           "type": "named",
           "data": {
-            "name": "Score"
+            "name": null
           }
         },
         {
@@ -73,7 +73,7 @@
         {
           "type": "named",
           "data": {
-            "name": "Algae-L3"
+            "name": null
           }
         },
         {
@@ -85,7 +85,7 @@
       ]
     }
   },
-  "resetOdom": true,
+  "resetOdom": false,
   "folder": null,
   "choreoAuto": false
 }

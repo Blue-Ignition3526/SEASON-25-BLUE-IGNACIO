@@ -238,7 +238,7 @@ public class CoralIntakeArm extends SubsystemBase {
    * @return
    */
   public Command setSetpointCommand(ArmPosition setpoint) {
-    return runOnce(() -> setSetpoint(setpoint));
+    return runOnce(() -> setSetpoint(setpoint)).until(this::atSetpoint);
   }
 
   /**
