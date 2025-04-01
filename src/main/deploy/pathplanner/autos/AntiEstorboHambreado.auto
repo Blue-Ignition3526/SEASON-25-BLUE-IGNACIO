@@ -7,13 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Start-Center-K"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": null
+            "pathName": "AntiEstorboHambreado"
           }
         }
       ]

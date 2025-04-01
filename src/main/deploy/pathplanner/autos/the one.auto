@@ -13,25 +13,13 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 0.15
+            "waitTime": 0.5
           }
         },
         {
           "type": "named",
           "data": {
-            "name": null
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.25
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": null
+            "name": "Score-L2"
           }
         },
         {
@@ -43,7 +31,7 @@
         {
           "type": "named",
           "data": {
-            "name": null
+            "name": "Eat"
           }
         },
         {
@@ -53,27 +41,21 @@
           }
         },
         {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.25
-          }
-        },
-        {
           "type": "named",
           "data": {
-            "name": null
+            "name": "L3"
           }
         },
         {
           "type": "wait",
           "data": {
-            "waitTime": 0.25
+            "waitTime": 0.75
           }
         },
         {
           "type": "named",
           "data": {
-            "name": null
+            "name": "Score-L3"
           }
         },
         {

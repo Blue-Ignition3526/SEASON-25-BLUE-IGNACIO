@@ -288,8 +288,8 @@ public class Constants {
 
         // * AUTONOMOUS
         public static final class AutonomousConstants {
-            public static final PIDConstants kTranslatePIDConstants = new PIDConstants(5.0, 0.0, 0.0);
-            public static final PIDConstants kRotatePIDConstants = new PIDConstants(5.0, 0.0, 0.0);
+            public static final PIDConstants kTranslatePIDConstants = new PIDConstants(4.0, 0.0, 0.0);
+            public static final PIDConstants kRotatePIDConstants = new PIDConstants(4.0, 0.0, 0.0);
             // public static final Measure<LinearVelocityUnit> kMaxSpeedMetersPerSecond = MetersPerSecond.of(3);
         }
     }

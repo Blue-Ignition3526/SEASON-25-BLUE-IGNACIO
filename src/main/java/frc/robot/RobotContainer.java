@@ -40,6 +40,7 @@ import frc.robot.subsystems.SwerveDrive.SwerveDriveIOSim;
 import lib.Elastic;
 import lib.Elastic.Notification;
 import lib.Elastic.Notification.NotificationLevel;
+import lib.BlueShift.commands.LogCommand;
 import lib.BlueShift.control.CustomController;
 import lib.BlueShift.control.CustomController.CustomControllerType;
 import lib.BlueShift.odometry.swerve.BlueShiftOdometry;
@@ -129,12 +130,28 @@ public class RobotContainer {
     
     // * Autonomous
     // Register commands
-    NamedCommands.registerCommands(new HashMap<String, Command>(){{
-      put("L1", ScoringCommands.scorePositionAutoCommand(RobotState.L1, m_elevator, m_coralIntakeArm, m_coralIntakeWrist));
-      put("L2", ScoringCommands.scorePositionAutoCommand(RobotState.L2, m_elevator, m_coralIntakeArm, m_coralIntakeWrist));
+    NamedCommands.registerCommand("L1", ScoringCommands.scorePositionAutoCommand(RobotState.L1, m_elevator, m_coralIntakeArm, m_coralIntakeWrist));
+    NamedCommands.registerCommand("L2", ScoringCommands.scorePositionAutoCommand(RobotState.L2, m_elevator, m_coralIntakeArm, m_coralIntakeWrist));
+    NamedCommands.registerCommand("L3", ScoringCommands.scorePositionAutoCommand(RobotState.L3, m_elevator, m_coralIntakeArm, m_coralIntakeWrist));
+    NamedCommands.registerCommand("L4", ScoringCommands.scorePositionAutoCommand(RobotState.L4, m_elevator, m_coralIntakeArm, m_coralIntakeWrist));
 
-      put("Score-L1", ScoringCommands.scoreCommand(RobotState.L1, m_elevator, m_coralIntakeArm, m_coralIntakeWrist, m_coralIntakeRollers));
-    }});
+    NamedCommands.registerCommand("Home", ScoringCommands.scorePositionAutoCommand(RobotState.HOME, m_elevator, m_coralIntakeArm, m_coralIntakeWrist));
+
+    NamedCommands.registerCommand("L1-ALT", ScoringCommands.scorePositionAutoCommandWithWait(RobotState.L1, m_elevator, m_coralIntakeArm, m_coralIntakeWrist));
+    NamedCommands.registerCommand("L2-ALT", ScoringCommands.scorePositionAutoCommandWithWait(RobotState.L2, m_elevator, m_coralIntakeArm, m_coralIntakeWrist));
+    NamedCommands.registerCommand("L3-ALT", ScoringCommands.scorePositionAutoCommandWithWait(RobotState.L3, m_elevator, m_coralIntakeArm, m_coralIntakeWrist));
+    NamedCommands.registerCommand("L4-ALT", ScoringCommands.scorePositionAutoCommandWithWait(RobotState.L4, m_elevator, m_coralIntakeArm, m_coralIntakeWrist));
+
+    NamedCommands.registerCommand("Score-L1", ScoringCommands.scoreCommand(RobotState.L1, m_elevator, m_coralIntakeArm, m_coralIntakeWrist, m_coralIntakeRollers));
+    NamedCommands.registerCommand("Score-L2", ScoringCommands.scoreCommand(RobotState.L2, m_elevator, m_coralIntakeArm, m_coralIntakeWrist, m_coralIntakeRollers));
+    NamedCommands.registerCommand("Score-L3", ScoringCommands.scoreCommand(RobotState.L3, m_elevator, m_coralIntakeArm, m_coralIntakeWrist, m_coralIntakeRollers));
+    NamedCommands.registerCommand("Score-L4", ScoringCommands.scoreCommand(RobotState.L4, m_elevator, m_coralIntakeArm, m_coralIntakeWrist, m_coralIntakeRollers));
+
+    NamedCommands.registerCommand("Eat", new ParallelCommandGroup(
+      ScoringCommands.scorePositionAutoCommand(RobotState.SOURCE, m_elevator, m_coralIntakeArm, m_coralIntakeWrist),
+      m_coralIntakeRollers.intakeUntilPieceDetected()
+    ));
+
 
     // Robot config
     RobotConfig ppRobotConfig = null;
@@ -201,7 +218,9 @@ public class RobotContainer {
     Trigger enabledTrigger = new Trigger(DriverStation::isEnabled);
     enabledTrigger.onTrue(new ParallelCommandGroup(
       m_coralIntakeWrist.resetPIDCommand(),
-      m_coralIntakeArm.resetPIDCommand()
+      m_coralIntakeArm.resetPIDCommand(),
+      new InstantCommand(m_odometry::setVisionPose),
+      new LogCommand("Enabled!")
     ));
 
     // * Add controller bindings
@@ -314,9 +333,6 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return new ParallelCommandGroup(
-      new InstantCommand(m_odometry::setVisionPose),
-      m_autonomousChooser.getSelected()
-    );
+    return m_autonomousChooser.getSelected();
   }
 }

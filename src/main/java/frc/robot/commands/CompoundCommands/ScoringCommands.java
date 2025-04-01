@@ -4,6 +4,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants.RobotState;
@@ -36,7 +38,6 @@ public class ScoringCommands {
     }
 
     public static Command scorePositionCommand(RobotState level, Elevator elevator, CoralIntakeArm arm, CoralIntakeWrist wrist) {
-        // TODO: Leyva dice que asi si jala, depracaria scorePositionAutoCommand y se usaria este para los 2, falta probarlo
         return Commands.parallel(
             new InstantCommand(() -> StateMachine.getInstance().setState(level)),
             elevator.setSetpointCommand(level.getElevatorPosition()),
@@ -46,11 +47,20 @@ public class ScoringCommands {
     }
 
     public static Command scorePositionAutoCommand(RobotState level, Elevator elevator, CoralIntakeArm arm, CoralIntakeWrist wrist) {
-        return new SequentialCommandGroup(
+        return new ParallelCommandGroup(
+            //new InstantCommand(() -> StateMachine.getInstance().setState(level)),
+            new InstantCommand(() -> wrist.setSetpoint(level.getWristPosition())),
+            new InstantCommand(() -> arm.setSetpoint(level.getArmPosition())),
+            new InstantCommand(() -> elevator.setSetpoint(level.getElevatorPosition()))
+        );
+    }
+
+    public static Command scorePositionAutoCommandWithWait(RobotState level, Elevator elevator, CoralIntakeArm arm, CoralIntakeWrist wrist) {
+        return Commands.parallel(
             new InstantCommand(() -> StateMachine.getInstance().setState(level)),
-            new InstantCommand(() -> arm.setSetpoint(level.getArmPosition()), arm),
-            new InstantCommand(() -> elevator.setSetpoint(level.getElevatorPosition()), elevator),
-            new InstantCommand(() -> wrist.setSetpointCommand(level.getWristPosition()), wrist)
+            new RunCommand(() -> wrist.setSetpoint(level.getWristPosition())).until(wrist::atSetpoint),
+            new RunCommand(() -> arm.setSetpoint(level.getArmPosition())).until(arm::atSetpoint),
+            new RunCommand(() -> elevator.setSetpoint(level.getElevatorPosition())).until(elevator::atSetpoint)
         );
     }
     

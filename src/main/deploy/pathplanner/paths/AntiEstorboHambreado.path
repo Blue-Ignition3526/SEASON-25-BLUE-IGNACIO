@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.823118809291294,
-        "y": 4.139206804547991
+        "x": 7.177796052631578,
+        "y": 4.044243421052631
       },
       "prevControl": null,
       "nextControl": {
-        "x": 9.554503522600445,
-        "y": 2.753524780273437
+        "x": 6.271690793144971,
+        "y": 4.01715819853589
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 1.1086578369140623,
-        "y": 1.0886252267020087
+        "x": 5.878865131578947,
+        "y": 4.044243421052631
       },
       "prevControl": {
-        "x": 3.2740984235539656,
-        "y": 0.8535805838393139
+        "x": 6.173181014670464,
+        "y": 4.041795039356202
       },
       "nextControl": null,
       "isLocked": false,
@@ -31,7 +31,19 @@
   "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "L2",
+      "waypointRelativePos": 0.5133689839572194,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "Eat"
+        }
+      }
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 2.5,
     "maxAcceleration": 2.0,
@@ -42,10 +54,10 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 54.81122722857884
+    "rotation": 0.0
   },
   "reversed": false,
-  "folder": "Old",
+  "folder": null,
   "idealStartingState": {
     "velocity": 0,
     "rotation": 0.0

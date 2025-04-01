@@ -140,7 +140,7 @@ public class CoralIntakeRollers extends SubsystemBase {
   public Command intakeUntilPieceDetected() {
     return new RunCommand(this::setIn, this).until(this::getHasPiece).andThen(stopCommand());
   }
-
+  
   @Override
   public void periodic() {
     boolean hasPieceRaw = this.getHasPieceRaw();
