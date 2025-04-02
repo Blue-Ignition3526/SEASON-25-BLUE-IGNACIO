@@ -11,15 +11,9 @@
           }
         },
         {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.5
-          }
-        },
-        {
           "type": "named",
           "data": {
-            "name": "Score-L2"
+            "name": "Score-L1"
           }
         },
         {
@@ -37,31 +31,43 @@
         {
           "type": "path",
           "data": {
+            "pathName": "L-Station-K-L4"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.15
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Score-L4"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "K-Station-L"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Eat"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
             "pathName": "L-Station-A-L1"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "L3"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.75
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Score-L3"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "A-L-Station"
+            "name": "Score-L1"
           }
         }
       ]

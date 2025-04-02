@@ -16,48 +16,57 @@ import frc.robot.Constants.ClimberConstants;
 
 //TODO: bruh
 public class Climber extends SubsystemBase {
-  private final SparkFlex upperMotor;
-  private final SparkFlex lowerMotor;
-  private final SparkFlexConfig upperMotorConfig;
-  private final SparkFlexConfig lowerMotorConfig;
+  private final SparkFlex motor;
+  private final SparkFlexConfig motorConfig;
+
+  public static enum ServoPosition {
+    LOCKED(0),
+    UNLOCKED(180);
+
+    private final int position;
+    private ServoPosition(int position) {
+      this.position = position;
+    }
+
+    public int getPosition() {
+      return position;
+    }
+  }
 
   private final Servo servo;
   /** Creates a new Climber. */
   public Climber() {
-    this.upperMotor = new SparkFlex(ClimberConstants.kUpperMotorId, MotorType.kBrushless);
-    this.lowerMotor = new SparkFlex(ClimberConstants.kLowerMotorId, MotorType.kBrushless);
+    this.motor = new SparkFlex(ClimberConstants.kLowerMotorId, MotorType.kBrushless);
     this.servo = new Servo(ClimberConstants.kServoPort);
-    this.upperMotorConfig = new SparkFlexConfig();
-    this.lowerMotorConfig = new SparkFlexConfig(); 
-
-    this.upperMotorConfig
-      .idleMode(IdleMode.kCoast)
-      .smartCurrentLimit(40);
+    this.motorConfig = new SparkFlexConfig(); 
     
-    this.lowerMotorConfig
+    this.motorConfig
       .idleMode(IdleMode.kBrake)
       .smartCurrentLimit(40);
 
   }
 
-  public void highSetVoltage(double volts) {
-    this.upperMotor.setVoltage(volts);
+  public void setVoltage(double volts) {
+    this.motor.setVoltage(volts);
   }
 
-  public void lowSetVoltage(double volts) {
-    this.lowerMotor.setVoltage(volts);
+  public Command setVoltCommand(double volts) {
+    return runOnce(() -> setVoltage(volts));
   }
 
-  public Command setVoltHighCommand(double volts) {
-    return runOnce(() -> highSetVoltage(volts));
+  public Command setServo(ServoPosition pos) {
+    return runOnce(() -> servo.setPosition(pos.getPosition()));
   }
 
-  public Command setVoltLowCommand(double volts) {
-    return runOnce(() -> lowSetVoltage(volts));
-  }
-
-  public Command setServo(double speed) {
-    return runOnce(() -> servo.set(speed));
+  public Command setUpCommand() {
+    return runEnd(() -> {
+      setVoltage(5);
+      servo.setPosition(ServoPosition.UNLOCKED.getPosition());
+    }, () -> { 
+      setVoltage(0);
+      servo.setPosition(ServoPosition.LOCKED.getPosition());
+      }
+    );
   }
 
   @Override

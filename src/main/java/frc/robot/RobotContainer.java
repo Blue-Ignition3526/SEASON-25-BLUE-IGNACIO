@@ -152,6 +152,10 @@ public class RobotContainer {
       m_coralIntakeRollers.intakeUntilPieceDetected()
     ));
 
+    NamedCommands.registerCommand("Intake", new ParallelCommandGroup(
+      ScoringCommands.scorePositionAutoCommand(RobotState.SOURCE, m_elevator, m_coralIntakeArm, m_coralIntakeWrist),
+      new InstantCommand(m_coralIntakeRollers::setIn)
+    ));
 
     // Robot config
     RobotConfig ppRobotConfig = null;
@@ -238,16 +242,6 @@ public class RobotContainer {
         () -> !DRIVER.bottomButton().getAsBoolean()
       )
     );
-
-    // * Look at speed alterator
-    Trigger lookAtTrigger = new Trigger(() -> 
-      Math.abs(DRIVER.getRightX()) > SwerveDriveConstants.kJoystickDeadband ||
-      Math.abs(DRIVER.getRightY()) > SwerveDriveConstants.kJoystickDeadband
-    );
-      
-    // Binding
-    lookAtTrigger.onTrue(m_swerveDrive.enableSpeedAlteratorCommand(m_speedAlterator_lookAt));
-    lookAtTrigger.onFalse(m_swerveDrive.disableSpeedAlteratorCommand());
     
     // * Align to reef alterator
     this.DRIVER.rightBumper().whileTrue(m_swerveDrive.enableSpeedAlteratorCommand(m_speedAlterator_AlignToNearestBranch));
@@ -259,6 +253,11 @@ public class RobotContainer {
     // * Reset heading with right stick button
     //TODO: think of a better button to bind this to
     this.DRIVER.rightStickButton().onTrue(this.m_swerveDrive.zeroHeadingCommand());
+
+    this.DRIVER.startButton().onTrue(m_climber.setVoltCommand(7));
+    this.DRIVER.startButton().onFalse(m_climber.setVoltCommand(0));
+    this.DRIVER.backButton().onTrue(m_climber.setVoltCommand(-7));
+    this.DRIVER.backButton().onFalse(m_climber.setVoltCommand(0));
 
     // * Driver Coral intake
     this.DRIVER.leftButton().onTrue(new ParallelCommandGroup(
@@ -272,21 +271,6 @@ public class RobotContainer {
 
     // * Driver score
     this.DRIVER.topButton().onTrue(ScoringCommands.scoreCommand(ScoringCommands.StateMachine.getInstance().getState(), m_elevator, m_coralIntakeArm, m_coralIntakeWrist, m_coralIntakeRollers));
-
-    //TODO change this binding (dev)
-    this.DRIVER.startButton().onTrue(m_climber.setVoltLowCommand(8));
-    this.DRIVER.startButton().onFalse(m_climber.setVoltLowCommand(0));
-    this.DRIVER.backButton().onTrue(m_climber.setVoltLowCommand(-8));
-    this.DRIVER.backButton().onFalse(m_climber.setVoltLowCommand(0));
-
-    this.DRIVER.povUp().onTrue(m_climber.setVoltHighCommand(2));
-    this.DRIVER.povUp().onFalse(m_climber.setVoltHighCommand(0));
-    this.DRIVER.povDown().onTrue(m_climber.setVoltHighCommand(-2));
-    this.DRIVER.povDown().onFalse(m_climber.setVoltHighCommand(0));
-    this.DRIVER.povLeft().onTrue(m_climber.setServo(0.7));
-    this.DRIVER.povLeft().onFalse(m_climber.setServo(0.5));
-    this.DRIVER.povRight().onTrue(m_climber.setServo(0.3));
-    this.DRIVER.povRight().onFalse(m_climber.setServo(0.5));
 
     // ! OPERATOR BINDINGS
     // * Manuel Elevator

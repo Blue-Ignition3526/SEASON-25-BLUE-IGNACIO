@@ -21,7 +21,6 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.ArmPivotConstants;
@@ -35,6 +34,7 @@ public class CoralIntakeArm extends SubsystemBase {
     // ! BE MINDFUL OF MECHANICAL LIMITS
     HORIZONTAL(Degrees.of(8)),
     INTAKE(Degrees.of(68)),
+    L1(Degrees.of(12)),
     HIGH(Degrees.of(45));
 
     private Angle angle;
