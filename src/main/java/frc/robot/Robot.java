@@ -1,5 +1,6 @@
 package frc.robot;
 
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
@@ -61,9 +62,11 @@ public class Robot extends LoggedRobot {
     SignalLogger.enableAutoLogging(false);
     SignalLogger.stop();
 
+    //CameraServer.startAutomaticCapture();
+
     // * Cameras port forwarding over USB
-    // for (int port = 5800; port <= 5807; port++) PortForwarder.add(port, Constants.Vision.Limelight3.kName + ".local", port);
-    for (int port = 5800; port <= 5807; port++) PortForwarder.add(port, Constants.Vision.Limelight3G.kName, port);
+    for (int port = 5800; port <= 5807; port++) PortForwarder.add(port, Constants.Vision.Limelight3G_Front.kName + ".local", port);
+    for (int port = 5800; port <= 5807; port++) PortForwarder.add(port, Constants.Vision.Limelight3G_Back.kName + ".local", port);
     // for (int port = 5800; port <= 5807; port++) PortForwarder.add(port, Constants.Vision.LimelightTwoPlus.kName + ".local", port);
     for (int port = 5800; port <= 5807; port++) PortForwarder.add(port, "photonvision", port);
 
@@ -92,8 +95,8 @@ public class Robot extends LoggedRobot {
     Elastic.sendNotification(new Notification(NotificationLevel.INFO, "Robot ready!", "Wait for subsystem initialization to complete."));
 
     // * Path finding warmup
-    System.out.println("Pathfinding warmup...");
-    PathfindingCommand.warmupCommand().schedule();
+    //System.out.println("Pathfinding warmup...");
+    //PathfindingCommand.warmupCommand().schedule();
 
     // * Set LEDs to rest state
     leds.animate(LEDAnimations.kIdleAnimation);

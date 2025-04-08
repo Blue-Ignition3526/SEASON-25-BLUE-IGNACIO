@@ -16,19 +16,24 @@
     },
     {
       "anchor": {
-        "x": 3.1944078947368415,
-        "y": 4.265542763157895
+        "x": 3.271381578947368,
+        "y": 4.2270559210526315
       },
       "prevControl": {
-        "x": 2.8789305144916155,
-        "y": 4.542052365722774
+        "x": 3.040460526315789,
+        "y": 4.409868421052631
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": "Reef-A"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.6481257557436516,
+      "rotationDegrees": 180.0
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [
@@ -53,7 +58,7 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0,
+    "velocity": 0.0,
     "rotation": 180.0
   },
   "reversed": false,

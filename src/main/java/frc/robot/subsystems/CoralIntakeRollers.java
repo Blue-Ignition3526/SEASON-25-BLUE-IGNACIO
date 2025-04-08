@@ -15,10 +15,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants;
 import frc.robot.Constants.CoralIntakeRollerConstants;
 
@@ -31,7 +29,7 @@ public class CoralIntakeRollers extends SubsystemBase {
   private final Canandcolor pieceSensor;
 
   // * Piece detection
-  private Debouncer hasPieceDebouncer = new Debouncer(0.15, DebounceType.kRising);
+  private Debouncer hasPieceDebouncer = new Debouncer(0.20, DebounceType.kRising);
   private boolean hasPiece = false;
 
   // *Alerts
@@ -106,6 +104,10 @@ public class CoralIntakeRollers extends SubsystemBase {
     motor.setVoltage(Constants.CoralIntakeRollerConstants.kRollersOutVoltage);
   }
 
+  public void setOutFASTER() {
+    motor.setVoltage(Constants.CoralIntakeRollerConstants.kRollersOutVoltageFASTER);
+  }
+
   /**
    * Stops the rollers
    */
@@ -145,7 +147,7 @@ public class CoralIntakeRollers extends SubsystemBase {
   public void periodic() {
     boolean hasPieceRaw = this.getHasPieceRaw();
     this.hasPiece = this.hasPieceDebouncer.calculate(hasPieceRaw);
-
+    SmartDashboard.putBoolean(getName() + "/Proximity", hasPieceRaw);
     SmartDashboard.putBoolean(getName() + "/HasPiece", hasPiece);
     SmartDashboard.putBoolean(getName() + "/HasPieceRaw", hasPieceRaw);
   }

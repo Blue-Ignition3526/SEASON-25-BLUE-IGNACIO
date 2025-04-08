@@ -1,6 +1,7 @@
 package frc.robot;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -62,11 +63,15 @@ public class Constants {
 
     // * Vision
     public static final class Vision {
-        public static final class Limelight3G {
+        public static final class Limelight3G_Back {
           public static final String kName = "limelight-threeg";
           public static final int kOdometryPipeline = 0;
           public static final int kSpeakerPipeline = 1;
           public static final int kViewfinderPipeline = 2;
+        }
+
+        public static final class Limelight3G_Front {
+            public static final String kName = "limelight-threegf";
         }
     }
 
@@ -164,7 +169,7 @@ public class Constants {
 
         // Angle limits
         public static final Angle kMinAngle = Degrees.of(0);
-        public static final Angle kMaxAngle = Degrees.of(50);
+        public static final Angle kMaxAngle = Degrees.of(58);
 
         // Angles
         public static final Angle kHighAngle = Degrees.of(45);
@@ -289,14 +294,15 @@ public class Constants {
         // * AUTONOMOUS
         public static final class AutonomousConstants {
             public static final PIDConstants kTranslatePIDConstants = new PIDConstants(4.0, 0.0, 0.0);
-            public static final PIDConstants kRotatePIDConstants = new PIDConstants(4.0, 0.0, 0.0);
+            public static final PIDConstants kRotatePIDConstants = new PIDConstants(3.5, 0.0, 0.0);
             // public static final Measure<LinearVelocityUnit> kMaxSpeedMetersPerSecond = MetersPerSecond.of(3);
         }
     }
 
     public static enum RobotState {
         HOME(ElevatorPosition.HOME, ArmPosition.HIGH, WristPosition.PARALLEL),
-        SOURCE(ElevatorPosition.SOURCE, ArmPosition.INTAKE, WristPosition.PARALLEL),
+        SOURCE(ElevatorPosition.SOURCE, ArmPosition.SOURCE, WristPosition.PARALLEL),
+        SOURCE_STOW(ElevatorPosition.HOME, ArmPosition.SOURCE, WristPosition.PARALLEL),
         L1(ElevatorPosition.L1, ArmPosition.L1, WristPosition.PARALLEL),
         L2(ElevatorPosition.L2, ArmPosition.HIGH, WristPosition.PERPENDICULAR),
         L3(ElevatorPosition.L3, ArmPosition.HIGH, WristPosition.PERPENDICULAR),
@@ -350,16 +356,26 @@ public class Constants {
         // Piece detection
         public static final int kPieceSensorId = 42;
         public static final double kPieceDetectionDebounceTime = 0.25;
-        public static final double kProximityThreshold = 0.05; // VALUE DECREASES AS OBJECT GETS CLOSER
+        public static final double kProximityThreshold = 0.03; // VALUE DECREASES AS OBJECT GETS CLOSER
 
         // Parameters
-        public static final double kRollersInVoltage = 6;
+        public static final double kRollersInVoltage = 8.5;
         public static final double kRollersOutVoltage = -3.5;
+        public static final double kRollersOutVoltageFASTER = -5;
     }
 
     public static final class ClimberConstants {
-        public static final int kUpperMotorId = 58;
-        public static final int kLowerMotorId = 57;
+        public static final int kClimberMotorId = 57;
+        public static final int kClimberMotorCurrentLimit = 40;
+        public static final double kClimberRampRate = 0.2;
+
+        public static final double kUpVoltage = -8;
+        public static final double kDownVoltage = -kUpVoltage;
+
         public static final int kServoPort = 9;
+
+        public static final int kEncoderId = 56;
+
+        public static final PIDController kPID = new PIDController(0, 0, 0);
     }
 }

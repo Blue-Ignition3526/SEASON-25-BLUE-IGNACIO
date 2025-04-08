@@ -30,24 +30,26 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 // TODO: Check unused stuff
 public class Elevator extends SubsystemBase {
+	private static double ALGAE_LOW_OFFSET = 1.0;
+	private static double ALGAE_HIGH_OFFSET = 2.0;
+
 	// * Setpoints
 	public static enum  ElevatorPosition {
-		L1(1), // ! Tuned
+		L1(1.6), // ! Tuned
 
-		L2(2.18), // ! Tuned
-		L2_ALGAE_HIGH(5.36), // TODO
-		L2_ALGAE_LOW(3.0), // TODO
+		L2(1.86), // ! Tuned -- ADDED .2
+		L2_ALGAE_HIGH(L2.getPosition() + ALGAE_HIGH_OFFSET),
+		L2_ALGAE_LOW(L2.getPosition() + ALGAE_LOW_OFFSET),
 
-		L3(4.80), // ! Tuned
-		L3_ALGAE_HIGH(9.5), // TODO
-		L3_ALGAE_LOW(8.2), // TODO
+		L3(4.90), // ! Tuned
+		L3_ALGAE_HIGH(L3.getPosition() + ALGAE_HIGH_OFFSET),
+		L3_ALGAE_LOW(L3.getPosition() + ALGAE_LOW_OFFSET),
 
-		L4(9.05), // ! Tuned 
+		L4(9.37), // ! Tuned 
 
-		SOURCE(1.47), // ! Tuned
+		SOURCE(1.84), // TODO
 
 		HOME(0.5); // ! ALWAYS KEEP THIS
-		
 
 		private double position;
 

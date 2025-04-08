@@ -33,8 +33,8 @@ public class CoralIntakeArm extends SubsystemBase {
     // 90 corelates to vertical
     // ! BE MINDFUL OF MECHANICAL LIMITS
     HORIZONTAL(Degrees.of(8)),
-    INTAKE(Degrees.of(68)),
-    L1(Degrees.of(12)),
+    SOURCE(Degrees.of(55.5)),
+    L1(Degrees.of(8)),
     HIGH(Degrees.of(45));
 
     private Angle angle;

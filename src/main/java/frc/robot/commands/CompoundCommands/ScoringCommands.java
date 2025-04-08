@@ -48,7 +48,7 @@ public class ScoringCommands {
 
     public static Command scorePositionAutoCommand(RobotState level, Elevator elevator, CoralIntakeArm arm, CoralIntakeWrist wrist) {
         return new ParallelCommandGroup(
-            //new InstantCommand(() -> StateMachine.getInstance().setState(level)),
+            new InstantCommand(() -> StateMachine.getInstance().setState(level)),
             new InstantCommand(() -> wrist.setSetpoint(level.getWristPosition())),
             new InstantCommand(() -> arm.setSetpoint(level.getArmPosition())),
             new InstantCommand(() -> elevator.setSetpoint(level.getElevatorPosition()))
@@ -67,8 +67,8 @@ public class ScoringCommands {
     public static final Command scoreCommand(RobotState level, Elevator elevator, CoralIntakeArm arm, CoralIntakeWrist wrist, CoralIntakeRollers coralRollers) {
         if (level == RobotState.L1) {
             return new SequentialCommandGroup(
-                new InstantCommand(coralRollers::setOut),
-                new WaitCommand(0.25),
+                new InstantCommand(coralRollers::setOutFASTER),
+                new WaitCommand(0.5),
                 new InstantCommand(coralRollers::stop)
             );
         } else {

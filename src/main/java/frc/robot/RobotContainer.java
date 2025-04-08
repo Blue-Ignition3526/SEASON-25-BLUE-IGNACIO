@@ -1,6 +1,5 @@
 package frc.robot;
 
-import java.util.HashMap;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.config.RobotConfig;
@@ -46,9 +45,8 @@ import lib.BlueShift.control.CustomController.CustomControllerType;
 import lib.BlueShift.odometry.swerve.BlueShiftOdometry;
 import lib.BlueShift.odometry.vision.camera.LimelightOdometryCamera;
 import lib.BlueShift.odometry.vision.camera.VisionOdometryFilters;
-import lib.BlueShift.control.SpeedAlterator;
-import frc.robot.speedAlterators.*;
 
+// ! ll3 is shit
 // TODO: que cuando el pigeon sienta tilt, que se retaiga en elevador
 // TODO: QUE NO BAJE EL ELEVADOR DEL 0
 public class RobotContainer {
@@ -60,10 +58,6 @@ public class RobotContainer {
   private final SwerveDrive m_swerveDrive;
 
   // Speed alterators
-  private final SpeedAlterator m_speedAlterator_turn180;
-  private final SpeedAlterator m_speedAlterator_lookAt;
-  private final SpeedAlterator m_speedAlterator_LookAtNearestStation;
-  private final SpeedAlterator m_speedAlterator_AlignToNearestBranch;
 
   // * Elevator
   private final Elevator m_elevator;
@@ -74,7 +68,8 @@ public class RobotContainer {
   private final CoralIntakeRollers m_coralIntakeRollers;
   
   // * Odometry and Vision
-  private final LimelightOdometryCamera m_limelight3G;
+  private final LimelightOdometryCamera m_limelight3G_Back;
+  private final LimelightOdometryCamera m_limelight3G_Front;
   private final BlueShiftOdometry m_odometry;
   private final double m_visionPeriod = 0.02;
 
@@ -110,23 +105,26 @@ public class RobotContainer {
     m_climber = new Climber();
 
     // * Odometry and Vision
-    this.m_limelight3G = new LimelightOdometryCamera(Constants.Vision.Limelight3G.kName, false, VisionOdometryFilters::visionFilter);
+    this.m_limelight3G_Back = new LimelightOdometryCamera(Constants.Vision.Limelight3G_Back.kName, true, true, VisionOdometryFilters::visionFilter);
+    this.m_limelight3G_Front = new LimelightOdometryCamera(Constants.Vision.Limelight3G_Front.kName, true, true, VisionOdometryFilters::visionFilter);
     this.m_odometry = new BlueShiftOdometry(
       Constants.SwerveDriveConstants.PhysicalModel.kDriveKinematics, 
       m_swerveDrive::getHeading,
       m_swerveDrive::getModulePositions,
       new Pose2d(),
       m_visionPeriod,
-      m_limelight3G
+      m_limelight3G_Back,
+      m_limelight3G_Front
     );
-    this.m_limelight3G.enable();
+    this.m_limelight3G_Back.enable();
+    this.m_limelight3G_Front.enable();
     this.m_odometry.startVision();
 
     // * Speed alterators
-    this.m_speedAlterator_turn180 = new Turn180(m_odometry::getEstimatedPosition);
-    this.m_speedAlterator_lookAt = new LookController(this.m_swerveDrive::getHeading, this.DRIVER::getRightX, this.DRIVER::getRightY, Constants.SwerveDriveConstants.kJoystickDeadband);
-    this.m_speedAlterator_LookAtNearestStation = new LookAtNearestStation(m_odometry::getEstimatedPosition);
-    this.m_speedAlterator_AlignToNearestBranch = new AlignToNearestBranch(m_odometry::getEstimatedPosition, this.DRIVER.rightBumper()::getAsBoolean, this.DRIVER::getLeftY, this.DRIVER::getLeftX);
+    // this.m_speedAlterator_turn180 = new Turn180(m_odometry::getEstimatedPosition);
+    // this.m_speedAlterator_lookAt = new LookController(this.m_swerveDrive::getHeading, this.DRIVER::getRightX, this.DRIVER::getRightY, Constants.SwerveDriveConstants.kJoystickDeadband);
+    // this.m_speedAlterator_LookAtNearestStation = new LookAtNearestStation(m_odometry::getEstimatedPosition);
+    // this.m_speedAlterator_AlignToNearestBranch = new AlignToNearestBranch(m_odometry::getEstimatedPosition, this.DRIVER.rightBumper()::getAsBoolean, this.DRIVER::getLeftY, this.DRIVER::getLeftX);
     
     // * Autonomous
     // Register commands
@@ -195,12 +193,6 @@ public class RobotContainer {
     SmartDashboard.putData("Elevator/L3", m_elevator.setSetpointCommand(ElevatorPosition.L3).ignoringDisable(true));
     SmartDashboard.putData("Elevator/L4", m_elevator.setSetpointCommand(ElevatorPosition.L4).ignoringDisable(true));
 
-    // Climbertake pivot
-    // SmartDashboard.putData("Climbertake/Pivot/IntakeAngleCommand", m_algaeClimbertakePivot.setSetpointCommand(Constants.ClimbertakeConstants.Pivot.kIntakeAngle).ignoringDisable(true));
-    // SmartDashboard.putData("Climbertake/Pivot/StoreAngleCommand", m_algaeClimbertakePivot.setSetpointCommand(Constants.ClimbertakeConstants.Pivot.kStoreAngle).ignoringDisable(true));
-    // SmartDashboard.putData("Climbertake/Pivot/ClimbHighAngleCommand", m_algaeClimbertakePivot.setSetpointCommand(Constants.ClimbertakeConstants.Pivot.kClimbHighAngle).ignoringDisable(true));
-    // SmartDashboard.putData("Climbertake/Pivot/ClimbLowAngleCommand", m_algaeClimbertakePivot.setSetpointCommand(Constants.ClimbertakeConstants.Pivot.kClimbLowAngle).ignoringDisable(true));
-
     // Wrist
     SmartDashboard.putData("Wrist/Perpendicular", m_coralIntakeWrist.setSetpointCommand(WristPosition.PERPENDICULAR).ignoringDisable(true));
     SmartDashboard.putData("Wrist/Parallel", m_coralIntakeWrist.setSetpointCommand(WristPosition.PARALLEL).ignoringDisable(true));
@@ -242,22 +234,19 @@ public class RobotContainer {
         () -> !DRIVER.bottomButton().getAsBoolean()
       )
     );
-    
-    // * Align to reef alterator
-    this.DRIVER.rightBumper().whileTrue(m_swerveDrive.enableSpeedAlteratorCommand(m_speedAlterator_AlignToNearestBranch));
-    this.DRIVER.rightBumper().onFalse(m_swerveDrive.disableSpeedAlteratorCommand());
 
-    this.DRIVER.leftBumper().whileTrue(m_swerveDrive.enableSpeedAlteratorCommand(m_speedAlterator_AlignToNearestBranch));
-    this.DRIVER.leftBumper().onFalse(m_swerveDrive.disableSpeedAlteratorCommand());
 
     // * Reset heading with right stick button
     //TODO: think of a better button to bind this to
     this.DRIVER.rightStickButton().onTrue(this.m_swerveDrive.zeroHeadingCommand());
 
-    this.DRIVER.startButton().onTrue(m_climber.setVoltCommand(7));
-    this.DRIVER.startButton().onFalse(m_climber.setVoltCommand(0));
-    this.DRIVER.backButton().onTrue(m_climber.setVoltCommand(-7));
-    this.DRIVER.backButton().onFalse(m_climber.setVoltCommand(0));
+    this.DRIVER.rightBumper()//.and((() -> m_climber.getPosition().in(Degrees) <= Climber.kClimberInMaxAngle))
+      .whileTrue(m_climber.setVoltCommand(-12))
+      .onFalse(m_climber.setVoltCommand(0));
+
+    this.DRIVER.leftBumper()
+      .onTrue(m_climber.setVoltCommand(12))
+      .onFalse(m_climber.setVoltCommand(0));
 
     // * Driver Coral intake
     this.DRIVER.leftButton().onTrue(new ParallelCommandGroup(
@@ -265,7 +254,7 @@ public class RobotContainer {
       m_coralIntakeRollers.intakeUntilPieceDetected()
     ));
     this.DRIVER.leftButton().onFalse(new ParallelCommandGroup(
-      ScoringCommands.scorePositionCommand(RobotState.HOME, m_elevator, m_coralIntakeArm, m_coralIntakeWrist),
+      ScoringCommands.scorePositionCommand(RobotState.SOURCE_STOW, m_elevator, m_coralIntakeArm, m_coralIntakeWrist),
       m_coralIntakeRollers.intakeUntilPieceDetected()
     ));
 
@@ -279,7 +268,7 @@ public class RobotContainer {
     this.OPERATOR.startButton().onFalse(m_elevator.stopCommand());
 
     // Share
-    this.OPERATOR.backButton().whileTrue(m_elevator.setVoltageCommand(-6));
+    this.OPERATOR.backButton().whileTrue(m_elevator.setVoltageCommand(-6)); // Baja
     this.OPERATOR.backButton().onFalse(m_elevator.stopCommand());
 
     // * Coral Intake
@@ -301,8 +290,8 @@ public class RobotContainer {
     this.OPERATOR.rightTrigger().onTrue(this.m_coralIntakeArm.setSetpointCommand(ArmPosition.HIGH));
 
     // * Autoalign
-    this.OPERATOR.rightStickButton().whileTrue(m_swerveDrive.enableSpeedAlteratorCommand(m_speedAlterator_LookAtNearestStation));
-    this.OPERATOR.rightStickButton().onFalse(m_swerveDrive.disableSpeedAlteratorCommand());
+    // this.OPERATOR.rightStickButton().whileTrue(m_swerveDrive.enableSpeedAlteratorCommand(m_speedAlterator_LookAtNearestStation));
+    // this.OPERATOR.rightStickButton().onFalse(m_swerveDrive.disableSpeedAlteratorCommand());
 
     // * Selected level bindings
     //this.OPERATOR.povDown().onTrue(new InstantCommand(() -> m_robotState = RobotState.L1));

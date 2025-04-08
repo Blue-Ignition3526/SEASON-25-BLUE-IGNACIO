@@ -3,32 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.291940789473683,
-        "y": 5.0737664473684205
+        "x": 5.426644736842105,
+        "y": 4.977549342105263
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.149787096194463,
-        "y": 4.868115462719484
+        "x": 4.483717105263158,
+        "y": 5.910855263157895
       },
       "isLocked": false,
-      "linkedName": null
-    },
-    {
-      "anchor": {
-        "x": 3.771710526315789,
-        "y": 5.718421052631579
-      },
-      "prevControl": {
-        "x": 4.747805758738935,
-        "y": 5.774239651147563
-      },
-      "nextControl": {
-        "x": 2.797226519726473,
-        "y": 5.662694593043182
-      },
-      "isLocked": false,
-      "linkedName": null
+      "linkedName": "Reef-I"
     },
     {
       "anchor": {
@@ -36,23 +20,28 @@
         "y": 7.142314496894696
       },
       "prevControl": {
-        "x": 2.24158247193185,
-        "y": 6.07759854888096
+        "x": 1.7415296052631577,
+        "y": 6.603618421052631
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": "Station-L"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.050785973397822315,
+      "rotationDegrees": 59.99999999999999
+    }
+  ],
   "constraintZones": [
     {
       "name": "Constraints Zone",
       "minWaypointRelativePos": 0,
-      "maxWaypointRelativePos": 0.5240641711229947,
+      "maxWaypointRelativePos": 0.07620320855614975,
       "constraints": {
         "maxVelocity": 1.0,
-        "maxAcceleration": 2.0,
+        "maxAcceleration": 1.0,
         "maxAngularVelocity": 360.0,
         "maxAngularAcceleration": 180.0,
         "nominalVoltage": 12.0,
@@ -64,7 +53,7 @@
   "eventMarkers": [
     {
       "name": "Home",
-      "waypointRelativePos": 0.4278074866310159,
+      "waypointRelativePos": 0.30882352941176505,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
@@ -75,7 +64,7 @@
     },
     {
       "name": "Eat",
-      "waypointRelativePos": 1.8663101604278047,
+      "waypointRelativePos": 0.8810160427807485,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
@@ -86,8 +75,8 @@
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 3.25,
-    "maxAcceleration": 2.5,
+    "maxVelocity": 4.0,
+    "maxAcceleration": 3.0,
     "maxAngularVelocity": 360.0,
     "maxAngularAcceleration": 180.0,
     "nominalVoltage": 12.0,
@@ -100,7 +89,7 @@
   "reversed": false,
   "folder": null,
   "idealStartingState": {
-    "velocity": 0,
+    "velocity": 0.7,
     "rotation": 59.99999999999999
   },
   "useDefaultConstraints": false
