@@ -23,6 +23,7 @@ import frc.robot.Constants.RobotState;
 import frc.robot.commands.DriveSwerve;
 import frc.robot.commands.CompoundCommands.ScoringCommands;
 import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.Ranger;
 import frc.robot.subsystems.CoralIntakeRollers;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.CoralIntakeArm;
@@ -76,7 +77,11 @@ public class RobotContainer {
   // * Autonomous
   private final SendableChooser<Command> m_autonomousChooser;
 
+  // * Climber
   private final Climber m_climber;
+
+  // * Ranger
+  private final Ranger m_ranger;
 
   // * Robot state
   public RobotState m_robotState = RobotState.HOME;
@@ -119,6 +124,9 @@ public class RobotContainer {
     this.m_limelight3G_Back.enable();
     this.m_limelight3G_Front.enable();
     this.m_odometry.startVision();
+
+    // * Ranger
+    this.m_ranger = new Ranger();
 
     // * Speed alterators
     // this.m_speedAlterator_turn180 = new Turn180(m_odometry::getEstimatedPosition);
