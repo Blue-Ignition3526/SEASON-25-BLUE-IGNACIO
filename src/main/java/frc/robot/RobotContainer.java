@@ -52,7 +52,7 @@ import lib.BlueShift.odometry.vision.camera.VisionOdometryFilters;
 public class RobotContainer {
   // * Controllers
   private final CustomController DRIVER = new CustomController(0, Robot.isReal() ? CustomControllerType.XBOX : CustomControllerType.PS5);
-  private final CustomController OPERATOR = new CustomController(1, CustomControllerType.PS5);
+  private final CustomController OPERATOR = new CustomController(1, CustomControllerType.XBOX);
 
   // Swerve Drive
   private final SwerveDrive m_swerveDrive;
@@ -108,7 +108,7 @@ public class RobotContainer {
     this.m_limelight3G_Back = new LimelightOdometryCamera(Constants.Vision.Limelight3G_Back.kName, true, true, VisionOdometryFilters::visionFilter);
     this.m_limelight3G_Front = new LimelightOdometryCamera(Constants.Vision.Limelight3G_Front.kName, true, true, VisionOdometryFilters::visionFilter);
     this.m_odometry = new BlueShiftOdometry(
-      Constants.SwerveDriveConstants.PhysicalModel.kDriveKinematics, 
+      Constants.SwerveDriveConstants.PhysicalModel.kDriveKinematics,
       m_swerveDrive::getHeading,
       m_swerveDrive::getModulePositions,
       new Pose2d(),
