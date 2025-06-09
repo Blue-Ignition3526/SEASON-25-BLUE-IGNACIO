@@ -67,8 +67,7 @@ public class PhotonOdometryCamera implements OdometryCamera {
 
     @Override
     public synchronized Optional<VisionOdometryPoseEstimate> getEstimate() {
-        if (!m_camera.isConnected()) return Optional.empty();
-        if (!m_enabled) return Optional.empty();
+        if (!m_camera.isConnected() || !m_enabled) return Optional.empty();
         // m_poseEstimator.setReferencePose(m_last_pose);
         Optional<EstimatedRobotPose> estimatedPose = m_poseEstimator.update(this.m_camera.getAllUnreadResults().get(0));
         if (estimatedPose.isEmpty()) return Optional.empty();
