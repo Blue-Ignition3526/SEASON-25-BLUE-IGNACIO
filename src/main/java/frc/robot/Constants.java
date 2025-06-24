@@ -58,6 +58,24 @@ public class Constants {
         }
     }
 
+    public static final class RangerConstants {
+        public static final PIDController kRangerPID = new PIDController(0.01, 0., 0.);
+
+        public static enum RangerDistances {
+            LEFT_BRANCH(Centimeters.of(0), Centimeters.of(0)),
+            RIGHT_BRANCH(Centimeters.of(0), Centimeters.of(0));
+
+            public final Distance leftDistance;
+            public final Distance rightDistance;
+            private RangerDistances(Distance left, Distance right) {
+                this.leftDistance = left;
+                this.rightDistance = right;
+            }
+            public Distance getLeftDistance() { return leftDistance; }
+            public Distance getRightDistance() { return rightDistance; }
+        }
+    }
+
     public static final double deviceCheckPeriod = 5;
     public static final double startupStatusSignalTimeout = 20;
 
