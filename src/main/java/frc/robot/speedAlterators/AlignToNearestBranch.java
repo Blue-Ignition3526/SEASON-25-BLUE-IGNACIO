@@ -79,9 +79,7 @@ public class AlignToNearestBranch extends SpeedAlterator {
         Logger.recordOutput("Automation/AlignedToBranch", poseAlignedToBranch);
 
         double vX = SwerveDriveConstants.PoseControllers.translationXPID.calculate(pose.getX(), poseAlignedToBranch.getX());
-        SmartDashboard.putNumber("PLSPLS/Vx", vX);
         double vY = SwerveDriveConstants.PoseControllers.translationYPID.calculate(pose.getY(), poseAlignedToBranch.getY());
-        SmartDashboard.putNumber("PLSPLS/Vy", vY);
         double rot = SwerveDriveConstants.PoseControllers.rotationPID.calculate(pose.getRotation().getRotations(), poseAlignedToBranch.getRotation().getRotations());
 
         ChassisSpeeds newSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(vX, vY, rot, pose.getRotation());

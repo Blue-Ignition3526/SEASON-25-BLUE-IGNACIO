@@ -27,7 +27,7 @@ public class Ranger extends SubsystemBase {
 
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("Ranger/Left", getLeft().in(Centimeters));
-    SmartDashboard.putNumber("Ranger/Right", getRight().in(Centimeters));
+    SmartDashboard.putString("Ranger/Left", String.format("%.4f", getLeft().in(Centimeters)));
+    SmartDashboard.putString("Ranger/Right", String.format("%.4f", getRight().in(Centimeters)));
   }
 }

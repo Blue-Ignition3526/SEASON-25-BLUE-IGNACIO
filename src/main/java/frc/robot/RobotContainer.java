@@ -22,6 +22,7 @@ import frc.robot.Constants.SwerveDriveConstants;
 import frc.robot.Constants.RobotState;
 import frc.robot.commands.DriveSwerve;
 import frc.robot.commands.CompoundCommands.ScoringCommands;
+import frc.robot.speedAlterators.LookAtNearestStation;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Ranger;
 import frc.robot.subsystems.CoralIntakeRollers;
@@ -42,6 +43,7 @@ import lib.Elastic.Notification;
 import lib.Elastic.Notification.NotificationLevel;
 import lib.BlueShift.commands.LogCommand;
 import lib.BlueShift.control.CustomController;
+import lib.BlueShift.control.SpeedAlterator;
 import lib.BlueShift.control.CustomController.CustomControllerType;
 import lib.BlueShift.odometry.swerve.BlueShiftOdometry;
 import lib.BlueShift.odometry.vision.camera.LimelightOdometryCamera;
@@ -59,6 +61,7 @@ public class RobotContainer {
   private final SwerveDrive m_swerveDrive;
 
   // Speed alterators
+  private final SpeedAlterator m_speedAlterator_LookAtNearestStation;
 
   // * Elevator
   private final Elevator m_elevator;
@@ -80,13 +83,11 @@ public class RobotContainer {
   // * Climber
   private final Climber m_climber;
 
-  // * Ranger
+  // * Ranger (Distance sensors)
   private final Ranger m_ranger;
 
-  // * Robot state
-  public RobotState m_robotState = RobotState.HOME;
-
   public RobotContainer() {
+    //! Subsystems
     // * Swerve Drive
     if (Robot.isReal()) {
       this.m_swerveDrive = new SwerveDrive(new SwerveDriveIOReal(
@@ -102,14 +103,19 @@ public class RobotContainer {
 
     // * Elevator
     this.m_elevator = new Elevator();
+
+    // * Ranger
+    this.m_ranger = new Ranger();
     
     // * Coral intake
     m_coralIntakeWrist = new CoralIntakeWrist();
     m_coralIntakeArm = new CoralIntakeArm();
     m_coralIntakeRollers = new CoralIntakeRollers();
+
+    // * Climber
     m_climber = new Climber();
 
-    // * Odometry and Vision
+    // ! Odometry and Vision
     this.m_limelight3G_Back = new LimelightOdometryCamera(Constants.Vision.Limelight3G_Back.kName, true, true, VisionOdometryFilters::visionFilter);
     this.m_limelight3G_Front = new LimelightOdometryCamera(Constants.Vision.Limelight3G_Front.kName, true, true, VisionOdometryFilters::visionFilter);
     this.m_odometry = new BlueShiftOdometry(
@@ -125,16 +131,13 @@ public class RobotContainer {
     this.m_limelight3G_Front.enable();
     this.m_odometry.startVision();
 
-    // * Ranger
-    this.m_ranger = new Ranger();
-
-    // * Speed alterators
+    // ! Speed alterators
+    this.m_speedAlterator_LookAtNearestStation = new LookAtNearestStation(m_odometry::getEstimatedPosition);
     // this.m_speedAlterator_turn180 = new Turn180(m_odometry::getEstimatedPosition);
     // this.m_speedAlterator_lookAt = new LookController(this.m_swerveDrive::getHeading, this.DRIVER::getRightX, this.DRIVER::getRightY, Constants.SwerveDriveConstants.kJoystickDeadband);
-    // this.m_speedAlterator_LookAtNearestStation = new LookAtNearestStation(m_odometry::getEstimatedPosition);
     // this.m_speedAlterator_AlignToNearestBranch = new AlignToNearestBranch(m_odometry::getEstimatedPosition, this.DRIVER.rightBumper()::getAsBoolean, this.DRIVER::getLeftY, this.DRIVER::getLeftX);
     
-    // * Autonomous
+    // ! Autonomous
     // Register commands
     NamedCommands.registerCommand("L1", ScoringCommands.scorePositionAutoCommand(RobotState.L1, m_elevator, m_coralIntakeArm, m_coralIntakeWrist));
     NamedCommands.registerCommand("L2", ScoringCommands.scorePositionAutoCommand(RobotState.L2, m_elevator, m_coralIntakeArm, m_coralIntakeWrist));
@@ -190,7 +193,7 @@ public class RobotContainer {
     this.m_autonomousChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("AutoChooser", m_autonomousChooser);
     
-    // * Dashboard testing commands
+    // ! Dashboard testing commands
     // Chassis
     SmartDashboard.putData("SwerveDrive/ResetTurningEncoders", new InstantCommand(m_swerveDrive::resetTurningEncoders).ignoringDisable(true));
 
@@ -227,7 +230,7 @@ public class RobotContainer {
       new LogCommand("Enabled!")
     ));
 
-    // * Add controller bindings
+    // ! Add controller bindings
     configureBindings();
   }
 
@@ -248,7 +251,7 @@ public class RobotContainer {
     //TODO: think of a better button to bind this to
     this.DRIVER.rightStickButton().onTrue(this.m_swerveDrive.zeroHeadingCommand());
 
-    this.DRIVER.rightBumper()//.and((() -> m_climber.getPosition().in(Degrees) <= Climber.kClimberInMaxAngle))
+    this.DRIVER.rightBumper()
       .whileTrue(m_climber.setVoltCommand(-12))
       .onFalse(m_climber.setVoltCommand(0));
 
@@ -302,11 +305,6 @@ public class RobotContainer {
     // this.OPERATOR.rightStickButton().onFalse(m_swerveDrive.disableSpeedAlteratorCommand());
 
     // * Selected level bindings
-    //this.OPERATOR.povDown().onTrue(new InstantCommand(() -> m_robotState = RobotState.L1));
-    //this.OPERATOR.povLeft().onTrue(new InstantCommand(() -> m_robotState = RobotState.L2));
-    //this.OPERATOR.povRight().onTrue(new InstantCommand(() -> m_robotState = RobotState.L3));
-    //this.OPERATOR.povUp().onTrue(new InstantCommand(() -> m_robotState = RobotState.L4));
-
     this.OPERATOR.povDown().onTrue(ScoringCommands.scorePositionCommand(RobotState.L1, m_elevator, m_coralIntakeArm, m_coralIntakeWrist));
     this.OPERATOR.povLeft().onTrue(ScoringCommands.scorePositionCommand(RobotState.L2, m_elevator, m_coralIntakeArm, m_coralIntakeWrist));
     this.OPERATOR.povRight().onTrue(ScoringCommands.scorePositionCommand(RobotState.L3, m_elevator, m_coralIntakeArm, m_coralIntakeWrist));

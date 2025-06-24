@@ -15,10 +15,15 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants;
 import frc.robot.Constants.CoralIntakeRollerConstants;
+import frc.robot.Robot;
+import frc.robot.Constants;
 
 public class CoralIntakeRollers extends SubsystemBase {
   // * Motor
@@ -120,7 +125,9 @@ public class CoralIntakeRollers extends SubsystemBase {
    * @return
    */
   public Command setInCommand() {
-    return runOnce(this::setIn);
+    return 
+      runOnce(this::setIn)
+      .alongWith(new InstantCommand(() -> Robot.leds.animate(Constants.LEDConstants.LEDAnimations.kIntakeStartAnimation)));
   }
 
   /**
@@ -128,7 +135,9 @@ public class CoralIntakeRollers extends SubsystemBase {
    * @return
    */
   public Command setOutCommand() {
-    return runOnce(this::setOut);
+    return
+      runOnce(this::setOut)
+      .alongWith(new InstantCommand(() -> Robot.leds.animate(Constants.LEDConstants.LEDAnimations.kTeleopAnimation)));
   }
 
   /**
@@ -136,11 +145,18 @@ public class CoralIntakeRollers extends SubsystemBase {
    * @return
    */
   public Command stopCommand() {
-    return runOnce(this::stop);
+    return
+      runOnce(this::stop)
+      .alongWith(new SequentialCommandGroup(
+        new InstantCommand(() -> Robot.leds.animate(getHasPiece() ? Constants.LEDConstants.LEDAnimations.kIntakeCompleteAnimation : Constants.LEDConstants.LEDAnimations.kIntakeFailAnimation)),
+        new WaitCommand(0.5),
+        new InstantCommand(() -> Robot.leds.animate(Constants.LEDConstants.LEDAnimations.kTeleopAnimation))
+      ));
   }
 
   public Command intakeUntilPieceDetected() {
-    return new RunCommand(this::setIn, this).until(this::getHasPiece).andThen(stopCommand());
+    return 
+      new RunCommand(this::setIn, this).until(this::getHasPiece).andThen(stopCommand());
   }
   
   @Override

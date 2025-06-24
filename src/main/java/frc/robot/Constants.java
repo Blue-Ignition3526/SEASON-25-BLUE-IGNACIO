@@ -51,9 +51,10 @@ public class Constants {
         public static final class LEDAnimations {
             public static final RainbowAnimation kThinkingAnimation = new RainbowAnimation(LEDConstants.kBrightness, 0.85, kTotalLedNum);
             public static final SingleFadeAnimation kIdleAnimation = new SingleFadeAnimation(0, 0, 255, 0, 0.5, 20);
+            public static final LarsonAnimation kIntakeStartAnimation = new LarsonAnimation(165, 255, 0, 0, 0.75, kTotalLedNum, BounceMode.Front, 1);
+            public static final StrobeAnimation kIntakeCompleteAnimation = new StrobeAnimation(0, 255, 0, 0, 0.5, kTotalLedNum);
+            public static final StrobeAnimation kIntakeFailAnimation = new StrobeAnimation(255, 0, 0, 0, 0.5, kTotalLedNum);
             public static final SingleFadeAnimation kTeleopAnimation = new SingleFadeAnimation(0, 0, 255, 0, 1, 20);
-            public static final LarsonAnimation kIntakeStartAnimation = new LarsonAnimation(0, 0, 255, 0, 0.75, kTotalLedNum, BounceMode.Front, 1);
-            public static final StrobeAnimation kIntakeCompleteAnimation = new StrobeAnimation(0, 0, 255, 0, 0.5, kTotalLedNum);
             public static final LarsonAnimation kAutoAnimation = new LarsonAnimation(0, 0, 255, 0, 0.85, kTotalLedNum, BounceMode.Front, 3);
         }
     }
