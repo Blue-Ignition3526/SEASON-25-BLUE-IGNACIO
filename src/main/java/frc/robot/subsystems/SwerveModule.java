@@ -2,7 +2,14 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.MotorOutputConfigs;
+import com.ctre.phoenix6.configs.OpenLoopRampsConfigs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.configs.VoltageConfigs;
 import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.ControlType;
@@ -11,6 +18,8 @@ import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
+
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -27,16 +36,18 @@ import static edu.wpi.first.units.Units.*;
 import java.util.concurrent.locks.ReentrantLock;
 import org.littletonrobotics.junction.Logger;
 
+// TODO: It's probably better to store the status signals and refresh when needed
+// but for now this will do
 public class SwerveModule extends SubsystemBase {
     // * Options for the module
     public final SwerveModuleOptions options;
 
     // * Motors
-    private final SparkMax driveMotor;
+    private final TalonFX driveMotor;
     private final SparkMax turnMotor;
 
     // * Configs
-    private final SparkMaxConfig driveConfig;
+    private final TalonFXConfiguration driveConfig;
     private final SparkMaxConfig turnConfig;
 
     // * PID Controller for turning
@@ -71,25 +82,34 @@ public class SwerveModule extends SubsystemBase {
         this.options = options;
 
         // * Create Drive motor and configure it
-        this.driveMotor = new SparkMax(options.driveMotorID, MotorType.kBrushless);
-        this.driveConfig = new SparkMaxConfig();
+        this.driveMotor = new TalonFX(options.driveMotorID, "*");
+        this.driveConfig = new TalonFXConfiguration();
         this.driveConfig
-            .idleMode(IdleMode.kBrake)
-            .openLoopRampRate(SwerveModuleConstants.kDriveMotorRampRate)
-            .closedLoopRampRate(SwerveModuleConstants.kDriveMotorRampRate)
-            .smartCurrentLimit(SwerveModuleConstants.kDriveMotorCurrentLimit)
-            .voltageCompensation(12);
+            .withCurrentLimits(
+                new CurrentLimitsConfigs()
+                    .withSupplyCurrentLimit(SwerveModuleConstants.kDriveMotorCurrentLimit)
+                    .withSupplyCurrentLowerLimit(SwerveModuleConstants.kDriveMotorLowerCurrentLimit)
+                    .withSupplyCurrentLimitEnable(true)
+                    .withSupplyCurrentLowerTime(0.2)
+            )
+            .withOpenLoopRamps(
+                new OpenLoopRampsConfigs()
+                    .withVoltageOpenLoopRampPeriod(SwerveModuleConstants.kDriveMotorRampRate)
+            )
+            .withVoltage(
+                new VoltageConfigs()
+                    .withPeakForwardVoltage(12)
+                    .withPeakReverseVoltage(-12)
+            )
+            .withMotorOutput(
+                new MotorOutputConfigs()
+                    .withNeutralMode(NeutralModeValue.Brake)
+            );
 
-        // Configure the drive encoder
-        this.driveConfig.encoder
-            .positionConversionFactor(Constants.SwerveDriveConstants.PhysicalModel.kDriveEncoder_RotationToMeter)
-            .velocityConversionFactor(Constants.SwerveDriveConstants.PhysicalModel.kDriveEncoder_RPMToMeterPerSecond)
-            // TODO: Verify these options
-            .uvwMeasurementPeriod(10)
-            .uvwAverageDepth(2);
+        // * Encoder should not be configured within the TalonFX, instead the value should be calculated afterwards
 
         // Apply config to drive motor
-        this.driveMotor.configure(driveConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+        this.driveMotor.getConfigurator().apply(driveConfig);
 
         // * Create Turn motor and configure it
         this.turnMotor = new SparkMax(options.turningMotorID, MotorType.kBrushless);
@@ -105,10 +125,10 @@ public class SwerveModule extends SubsystemBase {
         // Configure the turning encoder
         this.turnConfig.encoder
             .positionConversionFactor(Constants.SwerveDriveConstants.PhysicalModel.kTurningEncoder_Rotation)
-            .velocityConversionFactor(Constants.SwerveDriveConstants.PhysicalModel.kTurningEncoder_RPS)
+            .velocityConversionFactor(Constants.SwerveDriveConstants.PhysicalModel.kTurningEncoder_RPS);
             // TODO: Verify these options
-            .uvwMeasurementPeriod(10)
-            .uvwAverageDepth(2);
+            //.uvwMeasurementPeriod(10)
+            //.uvwAverageDepth(2);
 
         // Configure closed loop controller
         this.turnConfig.closedLoop
@@ -166,6 +186,7 @@ public class SwerveModule extends SubsystemBase {
         resetDriveEncoder();
 
         // * Start the device check notifier
+        deviceCheckNotifier.setName(getName() + " Device Check");
         deviceCheckNotifier.startPeriodic(Constants.deviceCheckPeriod);
     }
 
@@ -173,10 +194,9 @@ public class SwerveModule extends SubsystemBase {
      * Check if the devices are reachable
      */
     private final void deviceCheck() {
-        try {
-            driveMotor.getFirmwareVersion();
+        if (driveMotor.isConnected()) {
             alert_driveMotorUnreachable.set(false);
-        } catch (Exception e) {
+        } else {
             alert_driveMotorUnreachable.set(true);
             DriverStation.reportError(options.name +  " drive motor is unreachable", false);
         }
@@ -196,10 +216,12 @@ public class SwerveModule extends SubsystemBase {
             DriverStation.reportError(options.name +  " absolute encoder is unreachable", false);
         }
 
-        double turnEncErr = getAngle().minus(getAbsoluteEncoderPosition()).in(Degree);
+        // TODO: Reset turn encoders when out of sync
+        double turnEncErr = MathUtil.inputModulus(getAngle().in(Degrees), 0, 360) - getAbsoluteEncoderPosition().in(Degrees);
         if (Math.abs(turnEncErr) > 5) {
             alert_turnEncodersOutOfSync.set(true);
             DriverStation.reportError(options.name +  " turning encoders are out of sync (" + String.valueOf(turnEncErr) + "°)", false);
+            resetTurningEncoder();
         } else {
             alert_turnEncodersOutOfSync.set(false);
         }
@@ -217,7 +239,7 @@ public class SwerveModule extends SubsystemBase {
      * Reset the drive encoder (set the position to 0)
      */
     public void resetDriveEncoder() {
-        this.driveMotor.getEncoder().setPosition(0);
+        this.driveMotor.setPosition(0);
     }
 
     /**
@@ -244,6 +266,7 @@ public class SwerveModule extends SubsystemBase {
      * @return
      */
     public Angle getAngle() {
+        // TODO: Check if this is where we should wrap it or if it is in the dashboard
         return Rotations.of(this.turnMotor.getEncoder().getPosition());
     }
 
@@ -280,7 +303,7 @@ public class SwerveModule extends SubsystemBase {
         //if (lock.isLocked()) return;
 
         // Set motor speeds
-        driveMotor.set(state.speedMetersPerSecond / Constants.SwerveDriveConstants.PhysicalModel.kMaxSpeed.in(MetersPerSecond));
+        driveMotor.setVoltage(state.speedMetersPerSecond / Constants.SwerveDriveConstants.PhysicalModel.kMaxSpeed.in(MetersPerSecond) * 12);
         turnPID.setReference(state.angle.getRotations(), ControlType.kPosition);
     }
 
@@ -306,7 +329,7 @@ public class SwerveModule extends SubsystemBase {
      */
     public SwerveModuleState getRealState() {
         return new SwerveModuleState(
-            this.driveMotor.getEncoder().getVelocity() * Math.PI,
+            this.driveMotor.getVelocity().getValueAsDouble() * 180 * Constants.SwerveDriveConstants.PhysicalModel.kDriveEncoder_RPMToMeterPerSecond,
             Rotation2d.fromRotations(this.getAngle().in(Rotations))
         );
     }
@@ -317,14 +340,15 @@ public class SwerveModule extends SubsystemBase {
      */
     public SwerveModulePosition getPosition() {
         return new SwerveModulePosition(
-            this.driveMotor.getEncoder().getPosition() * Math.PI,
+            this.driveMotor.getPosition().getValueAsDouble() * 3 * Constants.SwerveDriveConstants.PhysicalModel.kDriveEncoder_RotationToMeter,
             Rotation2d.fromRotations(this.getAngle().in(Rotations))
         );
     }
 
     public void periodic() {
-        Logger.recordOutput("SwerveDrive/" + this.options.name + "/MotEncoderDeg", this.getAngle().in(Radians));
-        Logger.recordOutput("SwerveDrive/" + this.options.name + "/AbsEncoderDeg", this.getAbsoluteEncoderPosition().in(Radians));
+        Logger.recordOutput("SwerveDrive/" + this.options.name + "/MotEncoderDeg", MathUtil.inputModulus(this.getAngle().in(Degrees), 0, 360));
+        Logger.recordOutput("SwerveDrive/" + this.options.name + "/AbsEncoderDeg", this.getAbsoluteEncoderPosition().in(Degrees));
+        Logger.recordOutput("SwerveDrive/" + this.options.name + "/AbsEncoderDegDirect", this.absoluteEncoder.getAbsolutePosition().refresh().getValue().in(Degrees));
         Logger.recordOutput("SwerveDrive/" + this.options.name + "/RealState", this.getRealState());
         Logger.recordOutput("SwerveDrive/" + this.options.name + "/TargetState", this.getTargetState());
     }

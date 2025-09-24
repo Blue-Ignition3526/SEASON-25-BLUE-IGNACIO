@@ -1,48 +1,96 @@
 package frc.robot;
 
-import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ArmFeedforward;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.units.AngularAccelerationUnit;
-import edu.wpi.first.units.AngularVelocityUnit;
-import edu.wpi.first.units.DistanceUnit;
-import edu.wpi.first.units.LinearAccelerationUnit;
 import edu.wpi.first.units.LinearVelocityUnit;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularAcceleration;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.LinearAcceleration;
+import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
-import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Elevator.ElevatorPosition;
 import frc.robot.subsystems.CoralIntakeArm.ArmPosition;
+import frc.robot.subsystems.CoralIntakeWrist.WristPosition;
 import lib.BlueShift.constants.CTRECANDevice;
 import lib.BlueShift.constants.PIDFConstants;
 import lib.BlueShift.constants.SwerveModuleOptions;
 import lib.BlueShift.utils.SwerveChassis;
 import static edu.wpi.first.units.Units.*;
-
+import com.ctre.phoenix.led.LarsonAnimation;
+import com.ctre.phoenix.led.RainbowAnimation;
+import com.ctre.phoenix.led.SingleFadeAnimation;
+import com.ctre.phoenix.led.StrobeAnimation;
+import com.ctre.phoenix.led.CANdle.LEDStripType;
+import com.ctre.phoenix.led.LarsonAnimation.BounceMode;
 import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.path.PathConstraints;
 
 public class Constants {
-    //* Logging options
+    // * Logging options
     public static final class Logging {
         public static final boolean kDebug = true;
         public static final boolean kUseURCL = true;
     }
 
+    // * LEDs
+    public static final class LEDConstants {
+        public static final CTRECANDevice kCandleId = new CTRECANDevice(41, "*");
+        public static final double kBrightness = 0.5;
+        public static final int kSideLedNum = 21;
+        public static final int kTotalLedNum = kSideLedNum;
+        public static final LEDStripType kType = LEDStripType.GRB;
+
+        public static final class LEDAnimations {
+            public static final RainbowAnimation kThinkingAnimation = new RainbowAnimation(LEDConstants.kBrightness, 0.85, kTotalLedNum);
+            public static final SingleFadeAnimation kIdleAnimation = new SingleFadeAnimation(0, 0, 255, 0, 0.5, 20);
+            public static final LarsonAnimation kIntakeStartAnimation = new LarsonAnimation(165, 255, 0, 0, 0.75, kTotalLedNum, BounceMode.Front, 1);
+            public static final StrobeAnimation kIntakeCompleteAnimation = new StrobeAnimation(0, 255, 0, 0, 0.5, kTotalLedNum);
+            public static final StrobeAnimation kIntakeFailAnimation = new StrobeAnimation(255, 0, 0, 0, 0.5, kTotalLedNum);
+            public static final SingleFadeAnimation kTeleopAnimation = new SingleFadeAnimation(0, 0, 255, 0, 1, 20);
+            public static final LarsonAnimation kAutoAnimation = new LarsonAnimation(0, 0, 255, 0, 0.85, kTotalLedNum, BounceMode.Front, 3);
+        }
+    }
+
+    public static final class RangerConstants {
+        public static final PIDController kRangerPID = new PIDController(0.01, 0., 0.);
+
+        public static enum RangerDistances {
+            LEFT_BRANCH(Centimeters.of(0), Centimeters.of(0)),
+            RIGHT_BRANCH(Centimeters.of(0), Centimeters.of(0));
+
+            public final Distance leftDistance;
+            public final Distance rightDistance;
+            private RangerDistances(Distance left, Distance right) {
+                this.leftDistance = left;
+                this.rightDistance = right;
+            }
+            public Distance getLeftDistance() { return leftDistance; }
+            public Distance getRightDistance() { return rightDistance; }
+        }
+    }
+
     public static final double deviceCheckPeriod = 5;
     public static final double startupStatusSignalTimeout = 20;
 
+    // * Vision
     public static final class Vision {
-        public static final class Limelight3G {
+        public static final class Limelight3G_Back {
           public static final String kName = "limelight-threeg";
           public static final int kOdometryPipeline = 0;
           public static final int kSpeakerPipeline = 1;
           public static final int kViewfinderPipeline = 2;
+        }
+
+        public static final class Limelight3G_Front {
+            public static final String kName = "limelight-threegf";
         }
     }
 
@@ -78,7 +126,6 @@ public class Constants {
             public static final Angle kStoreAngle = Degrees.of(-20);
             public static final Angle kClimbHighAngle = Degrees.of(-10);
             public static final Angle kClimbLowAngle = Degrees.of(120);
-
         }
 
         public static final class Rollers {
@@ -110,7 +157,7 @@ public class Constants {
 
         // Encoder
         public static final int kWristEncoderPort = 1;
-        public static final Angle kWristEncoderOffset = Degrees.of(-33);
+        public static final Angle kWristEncoderOffset = Degrees.of(-33 - 30);
 
         // Limits
         public static final Angle kMinAngle = Degrees.of(-90);
@@ -124,8 +171,8 @@ public class Constants {
         // TODO: Tune
         public static final Angle epsilon = Degrees.of(1);
         public static final ProfiledPIDController kWristPIDController = new ProfiledPIDController(
-            1.6, 0, 0.2, 
-            new TrapezoidProfile.Constraints(30, 45)
+            4.0, 0, 0, 
+            new TrapezoidProfile.Constraints(50, 40)
         );
     }
 
@@ -135,13 +182,13 @@ public class Constants {
         public static final int kArmPivotMotorCurrentLimit = 25;
         public static final double kArmPivotMotorRampRate = 0.15;
 
-        // Encoder
+        // Gyro
         public static final int kArmPivotGyroID = 2;
         public static final Angle kArmPivotGyroOffset = Degrees.of(0);
 
         // Angle limits
         public static final Angle kMinAngle = Degrees.of(0);
-        public static final Angle kMaxAngle = Degrees.of(50);
+        public static final Angle kMaxAngle = Degrees.of(58);
 
         // Angles
         public static final Angle kHighAngle = Degrees.of(45);
@@ -155,8 +202,8 @@ public class Constants {
         // TODO: Tune
         public static final Angle epsilon = Degrees.of(1);
         public static final ProfiledPIDController kArmPivotPIDController = new ProfiledPIDController(
-            22.0, 0, 0,
-            new TrapezoidProfile.Constraints(20, 35)
+            34.0, 0, 0,
+            new TrapezoidProfile.Constraints(30, 40)
         );
         public static final ArmFeedforward kArmPivotFeedforward = new ArmFeedforward(0.0, 0.0, 0.0);
     }
@@ -164,29 +211,40 @@ public class Constants {
     //* Swerve Drive
     public static final class SwerveDriveConstants {
         public static final class PoseControllers {
-            public static final ProfiledPIDController rotationPID = new ProfiledPIDController(36, 0, 0, new TrapezoidProfile.Constraints(400, 180));
-            public static final ProfiledPIDController translationPID = new ProfiledPIDController(5, 0, 0, new TrapezoidProfile.Constraints(4.5, 3.3526));
+            public static final ProfiledPIDController rotationPID = new ProfiledPIDController(4, 0, 0, new TrapezoidProfile.Constraints(100, 80));
+            public static final ProfiledPIDController translationXPID = new ProfiledPIDController(0.25, 0, 0, new TrapezoidProfile.Constraints(2.0, 0.25));
+            public static final ProfiledPIDController translationYPID = new ProfiledPIDController(0.25, 0, 0, new TrapezoidProfile.Constraints(2.0, 0.25));
 
-            public static final double epsilon = 0.08;
-            public static final double rotEpsilon = 0.5;
+            public static final Distance kOffsetBoxHeight = Meters.of(0.25);
+            public static final Distance kOffsetBoxWidth = Meters.of(0.25);
+
+            public static final double epsilon = 0.05;
+            public static final double rotEpsilon = 1.;
         }
 
         //* Gyroscope (Pigeon 2.0)
         public static final CTRECANDevice kGyroDevice = new CTRECANDevice(34, "*");
 
-        public static final double kJoystickDeadband = 0.1;
+        public static final double kJoystickDeadband = 0.09;
         //* Physical model of the robot
         public static final class PhysicalModel {
             //* MAX DISPLACEMENT SPEED (and acceleration)
-            public static final Measure<LinearVelocityUnit> kMaxSpeed = MetersPerSecond.of(4.6);
-            public static final Measure<LinearAccelerationUnit> kMaxAcceleration = MetersPerSecond.per(Second).of(20);
+            public static final LinearVelocity kMaxSpeed = MetersPerSecond.of(4.0);
+            public static final LinearAcceleration kMaxAcceleration = MetersPerSecond.per(Second).of(5.0);
+            public static final LinearAcceleration kMaxDeceleration = MetersPerSecond.per(Second).of(-5.0);
 
             //* MAX ROTATIONAL SPEED (and acceleration)
-            public static final Measure<AngularVelocityUnit> kMaxAngularSpeed = DegreesPerSecond.of(360);
-            public static final Measure<AngularAccelerationUnit> kMaxAngularAcceleration = DegreesPerSecond.per(Second).of(Math.pow(360, 2));
+            public static final AngularVelocity kMaxAngularSpeed = DegreesPerSecond.of(270.0);
+            public static final AngularAcceleration kMaxAngularAcceleration = DegreesPerSecond.per(Second).of(360.0);
+            public static final AngularAcceleration kMaxAngularDeceleration = DegreesPerSecond.per(Second).of(-360.0);
+
+            //* Slew rate limiters
+            public static final SlewRateLimiter yLimiter = new SlewRateLimiter(Constants.SwerveDriveConstants.PhysicalModel.kMaxAcceleration.in(MetersPerSecondPerSecond), Constants.SwerveDriveConstants.PhysicalModel.kMaxDeceleration.in(MetersPerSecondPerSecond), 0);
+            public static final SlewRateLimiter xLimiter = new SlewRateLimiter(Constants.SwerveDriveConstants.PhysicalModel.kMaxAcceleration.in(MetersPerSecondPerSecond), Constants.SwerveDriveConstants.PhysicalModel.kMaxDeceleration.in(MetersPerSecondPerSecond), 0);
+            public static final SlewRateLimiter rotLimiter = new SlewRateLimiter(Constants.SwerveDriveConstants.PhysicalModel.kMaxAngularAcceleration.in(RadiansPerSecond.per(Second)), Constants.SwerveDriveConstants.PhysicalModel.kMaxAngularDeceleration.in(RadiansPerSecond.per(Second)), 0);
 
             // Drive wheel diameter
-            public static final Measure<DistanceUnit> kWheelDiameter = Inches.of(4);
+            public static final Distance kWheelDiameter = Inches.of(4);
 
             // Gear ratios
             public static final double kDriveMotorGearRatio = 1.0 / 6.75; // 6.12:1 Drive
@@ -201,11 +259,14 @@ public class Constants {
             public static final double kTurningEncoder_RPS = kTurningEncoder_Rotation / 60.0;
 
             // Robot Without bumpers measures
-            public static final Measure<DistanceUnit> kTrackWidth = Inches.of(26);
-            public static final Measure<DistanceUnit> kWheelBase = Inches.of(26);
+            public static final Distance kTrackWidth = Inches.of(26);
+            public static final Distance kWheelBase = Inches.of(26);
     
             // Create a kinematics instance with the positions of the swerve modules
             public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(SwerveChassis.sizeToModulePositions(kTrackWidth.in(Meters), kWheelBase.in(Meters)));
+
+            // Path constraints
+            public static final PathConstraints kPathConstraints = new PathConstraints(kMaxSpeed, kMaxAcceleration, kMaxAngularSpeed, kMaxAngularAcceleration);
         }
 
         //* Swerve modules configuration
@@ -217,6 +278,7 @@ public class Constants {
 
             // Current limits
             public static final int kDriveMotorCurrentLimit = 40;
+            public static final int kDriveMotorLowerCurrentLimit = 30;
             public static final int kTurningMotorCurrentLimit = 30;
 
             //* PID
@@ -248,56 +310,35 @@ public class Constants {
                 .setName("Back Right");
         }
 
-        /**
-         * Poses for each reef branch
-         */
-        public static enum ReefBranch {
-            A(new Pose2d(0, 0, new Rotation2d())),
-            B(new Pose2d(0, 0, new Rotation2d())),
-            C(new Pose2d(0, 0, new Rotation2d())),
-            D(new Pose2d(0, 0, new Rotation2d())),
-            E(new Pose2d(0, 0, new Rotation2d())),
-            F(new Pose2d(0, 0, new Rotation2d())),
-            G(new Pose2d(0, 0, new Rotation2d())),
-            H(new Pose2d(0, 0, new Rotation2d())),
-            I(new Pose2d(0, 0, new Rotation2d())),
-            J(new Pose2d(0, 0, new Rotation2d())),
-            K(new Pose2d(0, 0, new Rotation2d())),
-            L(new Pose2d(0, 0, new Rotation2d()));
-
-            private final Pose2d pose;
-            private ReefBranch(Pose2d pose) { this.pose = pose; }
-            public Pose2d getPose() { return pose; }
-        }
-
-        //* AUTONOMOUS
+        // * AUTONOMOUS
         public static final class AutonomousConstants {
-            public static final PIDConstants kTranslatePIDConstants = new PIDConstants(5.0, 0.0, 0.0);
-            public static final PIDConstants kRotatePIDConstants = new PIDConstants(5.0, 0.0, 0.0);
-            public static final Measure<LinearVelocityUnit> kMaxSpeedMetersPerSecond = MetersPerSecond.of(1);
+            public static final PIDConstants kTranslatePIDConstants = new PIDConstants(4.0, 0.0, 0.0);
+            public static final PIDConstants kRotatePIDConstants = new PIDConstants(3.5, 0.0, 0.0);
+            // public static final Measure<LinearVelocityUnit> kMaxSpeedMetersPerSecond = MetersPerSecond.of(3);
         }
     }
 
-    public static final class FieldConstants {
-        /**
-         * Levels of the reef
-         */
-        public static enum ReefLevel {
-            L1(ElevatorPosition.L1, ArmPosition.HORIZONTAL),
-            L3(ElevatorPosition.L2, ArmPosition.HIGH),
-            L2(ElevatorPosition.L3, ArmPosition.HIGH),
-            L4(ElevatorPosition.L4, ArmPosition.HIGH);
+    public static enum RobotState {
+        HOME(ElevatorPosition.HOME, ArmPosition.HIGH, WristPosition.PARALLEL),
+        SOURCE(ElevatorPosition.SOURCE, ArmPosition.SOURCE, WristPosition.PARALLEL),
+        SOURCE_STOW(ElevatorPosition.HOME, ArmPosition.SOURCE, WristPosition.PARALLEL),
+        L1(ElevatorPosition.L1, ArmPosition.L1, WristPosition.PARALLEL),
+        L2(ElevatorPosition.L2, ArmPosition.HIGH, WristPosition.PERPENDICULAR),
+        L3(ElevatorPosition.L3, ArmPosition.HIGH, WristPosition.PERPENDICULAR),
+        L4(ElevatorPosition.L4, ArmPosition.HIGH, WristPosition.PERPENDICULAR);
 
-            private final ElevatorPosition elevatorPos;
-            private final ArmPosition armPosition;
-            private ReefLevel(ElevatorPosition elevatorPosition, ArmPosition armPosition) {
-                this.elevatorPos = elevatorPosition;
-                this.armPosition = armPosition;
-            }
-            public ElevatorPosition getElevatorPosition() {return elevatorPos; }
-            public ArmPosition getArmPosition() { return armPosition; }
-        }   
-    }
+        private final ElevatorPosition elevatorPos;
+        private final ArmPosition armPosition;
+        private final WristPosition wristPosition;
+        private RobotState(ElevatorPosition elevatorPosition, ArmPosition armPosition, WristPosition wristPosition) {
+            this.elevatorPos = elevatorPosition;
+            this.armPosition = armPosition;
+            this.wristPosition = wristPosition;
+        }
+        public ElevatorPosition getElevatorPosition() { return elevatorPos; }
+        public ArmPosition getArmPosition() { return armPosition; }
+        public WristPosition getWristPosition() { return wristPosition; }
+    }   
 
     public static final class ElevatorConstants {
         // Motor IDs
@@ -306,43 +347,54 @@ public class Constants {
 
         // Motor configs
         public static final int kElevatorMotorCurrentLimit = 40;
+        public static final int kElevatorMotorLowerCurrentLimit = 30;
         public static final int kElevatorMotorRampRate = 0;
 
         // Limits
-        public static final double kElevatorMaxHeight = 60.0;
-        public static final double kElevatorMinHeight = 0.0;
+        public static final double kElevatorMaxHeight = 16;
+        public static final double kElevatorMinHeight = 0.1;
 
-        // Controller
-        public static final ElevatorFeedforward kElevatorFeedforward = new ElevatorFeedforward(0.0, 0.0, 0.0);
-        public static final ProfiledPIDController kElevatorPIDController = new ProfiledPIDController(
-            0.7, 0, 0,
-            new TrapezoidProfile.Constraints(110, 90)
-        );
-        public static final double kElevatorTolerance = 1.0;
+        // Motion magic
+        public static final double kMotionMagicKP = 35;
+        public static final double kMotionMagicKV = 1.85;
+        public static final double kMotionMagicKG = 0.12;
+        public static final double kMotionMagicVelocity = 35;
+        public static final double kMotionMagicAcceleration = 20;
+        public static final double kSensorToMechanism = 20;
+        public static final double kElevatorTolerance = 0.3;
     }
 
-    public static final class IntakeCoralConstants {
+    public static final class CoralIntakeRollerConstants {
         // Motor IDs
         public static final int kUpperMotorId = 40;
-        public static final int kLowerMotorId = 41;
 
         // Motor limits
-        public static final int kMotorCurrentLimit = 25;
-        public static final double kMotorRampRate = 0.15;
+        public static final int kMotorCurrentLimit = 30;
+        public static final double kMotorRampRate = 0.05;
 
-        // Alternate piece detection
-        public static final double kPieceDetectionDebounceTime = 0.3;
-        public static final int kPieceDetectionCurrent = 20;
-
-        // Sensor
-        public static final int kSensorId = 42;
-        public static final double kPieceSensorLedBrightness = 0.5;
-        public static final Color kCoralColor = new Color(1, 1, 1);
-        public static final double kCoralColorThreshold = 0.15;
-        public static final double kCoralProximityThreshold = 0.75;
+        // Piece detection
+        public static final int kPieceSensorId = 42;
+        public static final double kPieceDetectionDebounceTime = 0.25;
+        public static final double kProximityThreshold = 0.03; // VALUE DECREASES AS OBJECT GETS CLOSER
 
         // Parameters
-        public static final double kRollersInVoltage = 6;
-        public static final double kRollersOutVoltage = -3;
+        public static final double kRollersInVoltage = 8.5;
+        public static final double kRollersOutVoltage = -3.5;
+        public static final double kRollersOutVoltageFASTER = -5;
+    }
+
+    public static final class ClimberConstants {
+        public static final int kClimberMotorId = 57;
+        public static final int kClimberMotorCurrentLimit = 40;
+        public static final double kClimberRampRate = 0.2;
+
+        public static final double kUpVoltage = -8;
+        public static final double kDownVoltage = -kUpVoltage;
+
+        public static final int kServoPort = 9;
+
+        public static final int kEncoderId = 56;
+
+        public static final PIDController kPID = new PIDController(0, 0, 0);
     }
 }

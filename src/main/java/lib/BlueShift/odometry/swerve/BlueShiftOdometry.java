@@ -1,3 +1,4 @@
+
 package lib.BlueShift.odometry.swerve;
 
 import java.util.Optional;
@@ -9,8 +10,11 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.wpilibj.Notifier;
+import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import lib.BlueShift.odometry.vision.OdometryCamera;
 import lib.BlueShift.odometry.vision.VisionOdometryPoseEstimate;
@@ -60,6 +64,9 @@ public class BlueShiftOdometry extends SubsystemBase {
         // Notifiers
         this.m_visionNotifier = new Notifier(this::updateVision);
         this.m_visionPeriod = visionPeriod;
+
+        // Commands
+        SmartDashboard.putData("BlueShiftOdometry/SetVisionPose", new InstantCommand(this::setVisionPose).ignoringDisable(true));
     }
 
     /**
@@ -118,7 +125,8 @@ public class BlueShiftOdometry extends SubsystemBase {
     @Override
     public void periodic() {
         // Update state odometry
-        m_poseEstimator.update(
+        m_poseEstimator.updateWithTime(
+            RobotController.getFPGATime() / 1000000.0,
             m_gyroAngleSupplier.get(),
             m_modulePositionsSupplier.get()
         );

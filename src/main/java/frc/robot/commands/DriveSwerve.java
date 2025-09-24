@@ -1,37 +1,53 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.commands;
 
 import java.util.function.Supplier;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.Second;
-
 import frc.robot.Constants;
+import frc.robot.Constants.SwerveDriveConstants;
+import frc.robot.subsystems.SwerveDrive.SwerveDrive;
 import edu.wpi.first.math.filter.SlewRateLimiter;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.SwerveDrive;
 
 public class DriveSwerve extends Command {
-
   //* The swerve drive subsystem
   private final SwerveDrive swerveDrive;
-
-  //* Slew rate limiters
-  SlewRateLimiter xLimiter = new SlewRateLimiter(Constants.SwerveDriveConstants.PhysicalModel.kMaxAcceleration.in(MetersPerSecondPerSecond));
-  SlewRateLimiter yLimiter = new SlewRateLimiter(Constants.SwerveDriveConstants.PhysicalModel.kMaxAcceleration.in(MetersPerSecondPerSecond));
-  SlewRateLimiter rotLimiter = new SlewRateLimiter(Constants.SwerveDriveConstants.PhysicalModel.kMaxAngularAcceleration.in(RadiansPerSecond.per(Second)));
 
   //* The suppliers for the joystick values
   private final Supplier<Double> xSpeed;
   private final Supplier<Double> ySpeed;
   private final Supplier<Double> rotSpeed;
   private final Supplier<Boolean> fieldRelative;
+  
+  public double modifyAxis(double input, double scaleFactor, SlewRateLimiter slew) {
+    // Get sign
+    double sign = Math.signum(input);
+
+    // Use absolute value for calculations (needed so slew rate limiter acts correctly against negative acceleration)
+    input = Math.abs(input);
+    
+    // Apply deadband
+    // ! Deadband applied to joystick directly
+    // input = input > Constants.SwerveDriveConstants.kJoystickDeadband ? input : 0;
+
+    // Scale input
+    input *= scaleFactor;
+
+    // Square input
+    //! CHECK THIS
+    //input *= input;
+
+    // Apply rate limit
+    slew.reset(input); // TODO: Check this
+    input = slew.calculate(input);
+
+    // Reapply the sign
+    input *= sign;
+
+    // Return the result
+    return input;
+  }
 
   public DriveSwerve(SwerveDrive swerveDrive, Supplier<Double> x, Supplier<Double> y, Supplier<Double> rot, Supplier<Boolean> fieldRelative) {
     this.swerveDrive = swerveDrive;
@@ -56,26 +72,26 @@ public class DriveSwerve extends Command {
     double rot = rotSpeed.get();
 
     // Apply deadzone to the joystick values
-    x = Math.abs(x) < Constants.SwerveDriveConstants.kJoystickDeadband ? 0 : x;
-    y = Math.abs(y) < Constants.SwerveDriveConstants.kJoystickDeadband ? 0 : y;
-    rot = Math.abs(rot) < Constants.SwerveDriveConstants.kJoystickDeadband ? 0 : rot;
+    if(Math.hypot(x, y) > Constants.SwerveDriveConstants.kJoystickDeadband) {
+      //x = (x + ((x > 0 ? -1 : 1) * Constants.SwerveDriveConstants.kJoystickDeadband)) * 1 / ( 1 - Constants.SwerveDriveConstants.kJoystickDeadband);
+      //y = (y + ((y > 0 ? -1 : 1) * Constants.SwerveDriveConstants.kJoystickDeadband)) * 1 / ( 1 - Constants.SwerveDriveConstants.kJoystickDeadband);
+    } else {
+      x = 0;
+      y = 0;
+    }
     
-    // Scale the joystick values to the max speed
-    x *= Constants.SwerveDriveConstants.PhysicalModel.kMaxSpeed.in(MetersPerSecond);
-    y *= Constants.SwerveDriveConstants.PhysicalModel.kMaxSpeed.in(MetersPerSecond);
-    rot *= Constants.SwerveDriveConstants.PhysicalModel.kMaxAngularSpeed.in(RadiansPerSecond);
+    rot = Math.abs(rot) < Constants.SwerveDriveConstants.kJoystickDeadband ? 0 : rot;
 
-    //! Rate limiters use real units, they need to be applied after scaling
-    // Apply the slew rate limiters
-    x = xLimiter.calculate(x);
-    y = yLimiter.calculate(y);
-    rot = rotLimiter.calculate(rot);
+    // Modify the axis
+    x = modifyAxis(x, Constants.SwerveDriveConstants.PhysicalModel.kMaxSpeed.in(MetersPerSecond), SwerveDriveConstants.PhysicalModel.xLimiter);
+    y = modifyAxis(y, Constants.SwerveDriveConstants.PhysicalModel.kMaxSpeed.in(MetersPerSecond), SwerveDriveConstants.PhysicalModel.yLimiter);
+    rot = modifyAxis(rot, Constants.SwerveDriveConstants.PhysicalModel.kMaxAngularSpeed.in(RadiansPerSecond), SwerveDriveConstants.PhysicalModel.rotLimiter);
     
     // Drive the swerve drive
     if (this.fieldRelative.get()) {
       swerveDrive.driveFieldRelative(x, y, rot);
     } else {
-      //swerveDrive.driveRobotRelative(x, y, rot);
+      swerveDrive.driveRobotRelative(x, y, rot);
     }
   }
 

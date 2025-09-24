@@ -7,55 +7,67 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Inner-ReefHG"
+            "pathName": "Start-Inner-I-L4"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.5
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "LeaveCoral-L2"
+            "name": "Score-L2"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "ReefHG-Source"
+            "pathName": "I-Station-L"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Eat"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "L-Station-A-L1"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "L3"
           }
         },
         {
           "type": "wait",
           "data": {
-            "waitTime": 2.0
+            "waitTime": 0.75
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Score-L3"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Source-ReefCD"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "ReefCD-Source"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 2.0
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Source-ReefCD"
+            "pathName": "A-L-Station"
           }
         }
       ]
     }
   },
-  "resetOdom": true,
+  "resetOdom": false,
   "folder": null,
   "choreoAuto": false
 }

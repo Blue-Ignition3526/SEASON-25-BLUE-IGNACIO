@@ -32,7 +32,9 @@ public class CoralIntakeArm extends SubsystemBase {
     // 0 corelates to horizontal
     // 90 corelates to vertical
     // ! BE MINDFUL OF MECHANICAL LIMITS
-    HORIZONTAL(Degrees.of(0)),
+    HORIZONTAL(Degrees.of(8)),
+    SOURCE(Degrees.of(55.5)),
+    L1(Degrees.of(8)),
     HIGH(Degrees.of(45));
 
     private Angle angle;
@@ -40,7 +42,7 @@ public class CoralIntakeArm extends SubsystemBase {
       this.angle = angle;
     }
 
-    public Angle getAngle() {
+    public Angle getPosition() {
       return angle;
     }
   }
@@ -61,8 +63,7 @@ public class CoralIntakeArm extends SubsystemBase {
   private final StatusSignal<Double> gVecZ;
 
   // State
-  private Angle setpoint;
-  private ArmPosition setpointEnum;
+  private Angle setpoint = ArmPosition.HIGH.getPosition();
   private boolean pidEnabled = false;
 
   // Alerts
@@ -121,12 +122,14 @@ public class CoralIntakeArm extends SubsystemBase {
     }
 
     // * Setpoint
-    this.setpoint = getAngle();
+    //! SETPOINT SET ABOVE
+    // this.setpoint = getAngle();
 
     // * Log PID
     SmartDashboard.putData("ArmPivot/PID", ArmPivotConstants.kArmPivotPIDController);
 
     //* Device check
+    deviceCheckNotifier.setName(getName() + " Device Check");
     deviceCheckNotifier.startPeriodic(Constants.deviceCheckPeriod);
   }
 
@@ -209,17 +212,15 @@ public class CoralIntakeArm extends SubsystemBase {
       ArmPivotConstants.kMinAngle.in(Radians),
       ArmPivotConstants.kMaxAngle.in(Radians)
     ));
-    setpointEnum = null;
   }
 
   public void setSetpoint(ArmPosition setpoint) {
     pidEnabled = true;
     this.setpoint = Radians.of(MathUtil.clamp(
-      setpoint.getAngle().in(Radians),
+      setpoint.getPosition().in(Radians),
       ArmPivotConstants.kMinAngle.in(Radians),
       ArmPivotConstants.kMaxAngle.in(Radians)
     ));
-    setpointEnum = setpoint;
   }
 
   /**
@@ -237,7 +238,7 @@ public class CoralIntakeArm extends SubsystemBase {
    * @return
    */
   public Command setSetpointCommand(ArmPosition setpoint) {
-    return runOnce(() -> setSetpoint(setpoint));
+    return runOnce(() -> setSetpoint(setpoint)).until(this::atSetpoint);
   }
 
   /**
